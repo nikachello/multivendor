@@ -134,6 +134,7 @@ model Product {
   categoryId  String?
   name        String
   description String?
+  priceFrom     Decimal @db.Decimal(10, 2)
   images      String[]
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
