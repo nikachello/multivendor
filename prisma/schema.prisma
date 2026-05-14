@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ============================================
+// USER
+// ============================================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+  role      Role     @default(customer)
+
+  shop      Shop?
+  orders    Order[]
+
+  // BetterAuth required fields
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+}
+
+// ============================================
+// BETTERAUTH REQUIRED MODELS
+// ============================================
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  accountId         String
+  providerId        String
+  accessToken       String?
+  refreshToken      String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope             String?
+  idToken           String?
+  password          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ============================================
+// SHOP
+// ============================================
+model Shop {
+  id             String   @id @default(cuid())
+  ownerId        String   @unique
+  name           String
+  slug           String   @unique
+  description    String?
+  logo           String?
+  banner         String?
+  customDomain   String?  @unique
+  domainVerified Boolean  @default(false)
+  currency       String   @default("USD")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  owner      User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  products   Product[]
+  categories Category[]
+  orders     Order[]
+}
+
+// ============================================
+// CATEGORY
+// ============================================
+model Category {
+  id          String   @id @default(cuid())
+  shopId      String
+  name        String
+  slug        String
+  description String?
+  image       String?
+  parentId    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shop     Shop       @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+  products Product[]
+
+  @@unique([shopId, slug])
+}
+
+// ============================================
+// PRODUCT
+// ============================================
+model Product {
+  id          String   @id @default(cuid())
+  shopId      String
+  categoryId  String?
+  name        String
+  description String?
+  images      String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shop     Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants Variant[]
+}
+
+// ============================================
+// VARIANT
+// ============================================
+model Variant {
+  id        String  @id @default(cuid())
+  productId String
+  sku       String  @unique
+  price     Decimal @db.Decimal(10, 2)
+  stock     Int     @default(0)
+  image     String?
+  options   Json    // { "color": "Black", "size": "42" }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+}
+
+// ============================================
+// ORDER
+// ============================================
+model Order {
+  id              String      @id @default(cuid())
+  shopId          String
+  customerId      String
+  status          OrderStatus @default(pending)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  shippingAddress Json
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  shop     Shop        @relation(fields: [shopId], references: [id])
+  customer User        @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+}
+
+// ============================================
+// ORDER ITEM
+// ============================================
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  variantId      String
+  productName    String
+  variantOptions Json
+  price          Decimal @db.Decimal(10, 2)
+  quantity       Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant Variant @relation(fields: [variantId], references: [id])
+}
+
+// ============================================
+// ENUMS
+// ============================================
+enum Role {
+  seller
+  customer
+  admin
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  refunded
+}
