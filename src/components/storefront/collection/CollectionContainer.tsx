@@ -4,9 +4,10 @@ import { Category, Product } from "@/lib/types";
 type Props = {
   category: Category;
   products: Product[];
+  currency: string;
 };
 
-const CollectionContainer = ({ category, products }: Props) => {
+const CollectionContainer = ({ category, products, currency }: Props) => {
   return (
     <div className="px-5 md:px-10 py-10">
       {/* Title */}
@@ -23,7 +24,11 @@ const CollectionContainer = ({ category, products }: Props) => {
       {/* GRID */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {products.map((product) => (
-          <CollectionItem key={product.id} product={product} />
+          <CollectionItem
+            key={product.id}
+            product={product}
+            currency={currency}
+          />
         ))}
       </div>
     </div>

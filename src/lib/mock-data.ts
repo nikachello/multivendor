@@ -1,4 +1,4 @@
-import { Shop, Product, Category, Variant } from "@/lib/types";
+import { Shop, Product, Category, Variant, Pro } from "@/lib/types";
 
 export const shops: Shop[] = [
   {
@@ -109,5 +109,26 @@ export const products: Product[] = [
     priceFrom: 99,
     createdAt: new Date(),
     variants: variants2,
+  },
+];
+
+export const pros: Pro[] = [
+  {
+    type: "pro",
+    title: "1. ხარისხი",
+    description:
+      "ჩვენთან არის უმაღლესი ხარისხი, რომლის შეძენისას გარანტიები გექნებათ",
+  },
+  {
+    type: "image",
+    imageUrl: "/banner.jpg",
+  },
+  {
+    type: "pro",
+    title: "1. ხარისხი",
+    description:
+      "ჩვენთან არის უმაღლესი ხარისხი, რომლის შეძენისას გარანტიები გექნებათ",
+    buttonText: "ნახეთ ყველაფერი",
+    buttonUrl: "/all",
   },
 ];

@@ -1,6 +1,7 @@
+import Banner from "@/components/storefront/Banner";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
-import ShopInitializer from "@/components/storefront/ShopInitializer";
-import { shops, categories, products } from "@/lib/mock-data";
+import ProsContainer from "@/components/storefront/widgets/pros-container/ProsContainer";
+import { shops, categories, products, pros } from "@/lib/mock-data";
 
 export default async function ShopPage({
   params,
@@ -16,6 +17,8 @@ export default async function ShopPage({
 
   if (!shop) return <div>Shop not found</div>;
 
+  const currency = shop.currency;
+
   // 2. shop data
   const shopCategories = categories.filter((c) => c.shopId === shop.id);
 
@@ -30,8 +33,22 @@ export default async function ShopPage({
 
   return (
     <div>
-      <ShopInitializer shop={shop} />
-      <CollectionContainer category={category} products={collectionProducts} />
+      <div className="max-w-7xl mx-auto px-5 md:px-10 py-10">
+        {/* <ShopInitializer shop={shop} /> */}
+        <CollectionContainer
+          category={category}
+          products={collectionProducts}
+          currency={currency}
+        />
+      </div>
+      <Banner
+        title="asdasd"
+        image="/banner.jpg"
+        subtitle="Discover curated products made for you"
+      />
+      <div className="max-w-7xl mx-auto px-5 md:px-10 py-10">
+        <ProsContainer pros={pros} />
+      </div>
     </div>
   );
 }

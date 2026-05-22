@@ -5,7 +5,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="absolute top-0 left-0 w-full z-20 text-white py-4">
+    <header className="absolute top-10 left-0 w-full z-20 text-white py-4">
       <div className="flex items-center justify-between px-5 md:px-10 py-5">
         {/* LEFT (mobile) */}
         <div className="md:hidden">

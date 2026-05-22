@@ -140,3 +140,14 @@ export type Address = {
   country: string;
   phone?: string;
 };
+
+// Widgets types
+
+export type Pro = {
+  type: "image" | "pro";
+  title?: string;
+  description?: string;
+  imageUrl?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+};
