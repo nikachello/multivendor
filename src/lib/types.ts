@@ -151,3 +151,9 @@ export type Pro = {
   buttonText?: string;
   buttonUrl?: string;
 };
+
+export type ShopTestimonial = {
+  name: string;
+  testimony: string;
+  position?: string;
+};

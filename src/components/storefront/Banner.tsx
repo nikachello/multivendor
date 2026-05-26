@@ -40,7 +40,7 @@ const Banner = ({
         {buttonText && (
           <button
             onClick={() => router.push(href)}
-            className="mt-6 px-6 py-2 bg-white text-black text-sm rounded-full hover:bg-gray-200 transition"
+            className="mt-6 px-8 py-4 bg-[#C25447] text-white text-sm transition"
           >
             {buttonText}
           </button>

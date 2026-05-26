@@ -9,7 +9,7 @@ type Props = {
 const ProItem = ({ pro }: Props) => {
   if (pro.type === "image") {
     return (
-      <div className="relative w-full xl:w-[340px] h-[340px] overflow-hidden rounded-2xl">
+      <div className="relative w-full xl:w-[340px] h-[340px] overflow-hidden">
         <Image
           src={pro.imageUrl || ""}
           alt="Banner"
@@ -22,19 +22,21 @@ const ProItem = ({ pro }: Props) => {
   }
 
   return (
-    <div className="w-full xl:w-[340px] h-[340px] rounded-2xl border p-6 shadow-sm bg-white flex flex-col">
-      <h3 className="text-2xl font-semibold mb-4">{pro.title}</h3>
+    <div className="w-full xl:w-[340px] h-[340px]  bg-[#F5D7C7] flex flex-col text-center items-center justify-around leading-relaxed p-5">
+      <div className="space-y-8">
+        <h3 className="text-2xl font-semibold mb-4">{pro.title}</h3>
 
-      <p className="text-gray-600 leading-7">{pro.description}</p>
+        <p className="text-gray-600 leading-7">{pro.description}</p>
 
-      {pro.buttonText && pro.buttonUrl && (
-        <Link
-          href={pro.buttonUrl}
-          className="mt-auto inline-flex items-center rounded-lg bg-black text-white px-5 py-3 w-fit"
-        >
-          {pro.buttonText}
-        </Link>
-      )}
+        {pro.buttonText && pro.buttonUrl && (
+          <Link
+            href={pro.buttonUrl}
+            className="mt-auto inline-flex items-center bg-[#C25447] text-white px-5 py-3 w-fit"
+          >
+            {pro.buttonText}
+          </Link>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,14 @@
 import Banner from "@/components/storefront/Banner";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
 import ProsContainer from "@/components/storefront/widgets/pros-container/ProsContainer";
-import { shops, categories, products, pros } from "@/lib/mock-data";
+import Testimonials from "@/components/storefront/widgets/testimonials/Testimonials";
+import {
+  shops,
+  categories,
+  products,
+  pros,
+  shopTestimonials,
+} from "@/lib/mock-data";
 
 export default async function ShopPage({
   params,
@@ -48,6 +55,15 @@ export default async function ShopPage({
       />
       <div className="max-w-7xl mx-auto px-5 md:px-10 py-10">
         <ProsContainer pros={pros} />
+      </div>
+      <Banner
+        title="აწიე შოპინგის ხარისხი"
+        image="/banner.jpg"
+        buttonText="იშოპინგე"
+        href="#"
+      />
+      <div>
+        <Testimonials testimonials={shopTestimonials} />
       </div>
     </div>
   );
