@@ -16,11 +16,21 @@ export const shopSections: Record<string, ShopSection[]> = {
       id: "navbar_1",
       type: "navbar",
       props: {
-        links: [
-          { label: "Home", href: "/" },
-          { label: "Shop", href: "/shop" },
-          { label: "Journal", href: "/journal" },
-          { label: "About us", href: "/about" },
+        items: [
+          { type: "link", label: "Home", href: "/" },
+
+          {
+            type: "group",
+            label: "Shop",
+            children: [
+              { type: "link", label: "Watches", href: "/shop/watches" },
+              { type: "link", label: "Accessories", href: "/shop/accessories" },
+              { type: "link", label: "Jewelry", href: "/shop/jewelry" },
+            ],
+          },
+
+          { type: "link", label: "Journal", href: "/journal" },
+          { type: "link", label: "About us", href: "/about" },
         ],
       },
     },

@@ -14,9 +14,21 @@ export type AnnouncementSectionProps = SectionContext & {
 };
 
 export type NavbarSectionProps = SectionContext & {
-  links?: { label: string; href: string }[];
+  items?: NavItem[];
   transparent?: boolean;
 };
+
+export type NavItem =
+  | {
+      type: "link";
+      label: string;
+      href: string;
+    }
+  | {
+      type: "group";
+      label: string;
+      children: NavItem[];
+    };
 
 export type CollectionSectionProps = {
   categoryId: string;
