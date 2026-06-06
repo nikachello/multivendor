@@ -1,8 +1,6 @@
 import { Marquee } from "@/components/ui/marquee";
-import { ShopTestimonial } from "@/lib/types";
-import React from "react";
-import Testimony from "./Testimony";
 import TestimonialCard from "./Testimony";
+import { ShopTestimonial } from "@/lib/types/data-types";
 
 type Props = {
   testimonials: ShopTestimonial[];

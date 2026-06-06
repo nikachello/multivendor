@@ -1,6 +1,6 @@
 "use client";
-import { Product } from "@/lib/types";
-import { useShopStore } from "@/lib/store/useShopStore";
+
+import { Product } from "@/lib/types/data-types";
 
 type Props = {
   product: Product;

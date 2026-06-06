@@ -1,5 +1,5 @@
 import CollectionItem from "./CollectionItem";
-import { Category, Product } from "@/lib/types";
+import { Category, Product } from "@/lib/types/data-types";
 
 type Props = {
   category: Category;

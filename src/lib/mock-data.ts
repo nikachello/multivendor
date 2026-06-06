@@ -5,7 +5,7 @@ import {
   Variant,
   Pro,
   ShopTestimonial,
-} from "@/lib/types";
+} from "@/lib/types/data-types";
 
 export const shops: Shop[] = [
   {

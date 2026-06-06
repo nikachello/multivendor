@@ -1,6 +1,6 @@
 // ProsContainer.tsx
 
-import { Pro } from "@/lib/types";
+import { Pro } from "@/lib/types/data-types";
 import ProItem from "./ProItem";
 
 type Props = {

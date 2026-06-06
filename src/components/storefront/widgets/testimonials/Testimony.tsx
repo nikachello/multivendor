@@ -1,4 +1,4 @@
-import { ShopTestimonial } from "@/lib/types";
+import { ShopTestimonial } from "@/lib/types/data-types";
 
 type Props = {
   testimonial: ShopTestimonial;

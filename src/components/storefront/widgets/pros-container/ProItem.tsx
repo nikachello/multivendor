@@ -1,4 +1,4 @@
-import { Pro } from "@/lib/types";
+import { Pro } from "@/lib/types/data-types";
 import Image from "next/image";
 import Link from "next/link";
 

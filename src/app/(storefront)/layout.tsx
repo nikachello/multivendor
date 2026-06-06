@@ -1,5 +1,3 @@
-import Navbar from "@/components/storefront/Navbar";
-
 export default function StorefrontLayout({
   children,
 }: {

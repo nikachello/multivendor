@@ -1,4 +1,4 @@
-import { Pro, ShopTestimonial } from "@/lib/types";
+import { Pro, ShopTestimonial } from "./data-types";
 
 export type SectionContext = {
   shopId?: string;
