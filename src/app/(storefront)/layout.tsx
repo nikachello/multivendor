@@ -1,6 +1,7 @@
 import Announcement from "@/components/storefront/Announcement";
 import Navbar from "@/components/storefront/Navbar";
-import Banner from "@/components/storefront/Banner";
+import BannerSection from "@/components/storefront/sections/banner/BannerSection";
+// import Banner from "@/components/storefront/Banner";
 
 export default function StorefrontLayout({
   children,
@@ -13,7 +14,7 @@ export default function StorefrontLayout({
 
       <Navbar />
 
-      <Banner
+      <BannerSection
         title="Welcome to the Store"
         subtitle="Discover curated products made for you"
         image="/banner.jpg"
