@@ -94,7 +94,7 @@ export const products: Product[] = [
     variants: variants1,
   },
   {
-    id: "p1",
+    id: "p2",
     shopId: "shop_1",
     categoryId: "cat_1",
     name: "Royal Classic Watch",
@@ -106,7 +106,7 @@ export const products: Product[] = [
     variants: variants1,
   },
   {
-    id: "p2",
+    id: "p3",
     shopId: "shop_1",
     categoryId: "cat_2",
     name: "Sport Pro Watch",

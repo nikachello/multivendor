@@ -36,6 +36,15 @@ export const shopSections: Record<string, ShopSection[]> = {
       },
     },
     {
+      id: "categories_1",
+      type: "categories",
+      props: {
+        title: "კატეგორიები",
+        categoryIds: [],
+        columns: 4,
+      },
+    },
+    {
       id: "collection_1",
       type: "collection",
       props: { categoryId: "cat_1" },
@@ -49,6 +58,11 @@ export const shopSections: Record<string, ShopSection[]> = {
       id: "testimonials_1",
       type: "testimonials",
       props: { testimonials: shopTestimonials },
+    },
+    {
+      id: "collection_2",
+      type: "collection",
+      props: { categoryId: "cat_2" },
     },
   ],
 };

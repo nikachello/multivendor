@@ -6,6 +6,7 @@ import ProsSection from "@/components/storefront/sections/pros/ProsSection";
 import TestimonialsSection from "@/components/storefront/sections/testimonials/TestimonialsSection";
 import { ShopSection, SectionProps } from "@/lib/types/store-section";
 import { ComponentType } from "react";
+import CategoriesSection from "@/components/storefront/sections/categories/CategoriesSection";
 
 type SectionRegistry = {
   [T in ShopSection["type"]]: ComponentType<SectionProps<T>>;
@@ -16,6 +17,7 @@ export const sectionRegistry: SectionRegistry = {
   navbar: NavbarSection,
   banner: BannerSection,
   collection: CollectionSection,
+  categories: CategoriesSection,
   pros: ProsSection,
   testimonials: TestimonialsSection,
 };

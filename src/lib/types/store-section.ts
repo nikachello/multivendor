@@ -1,6 +1,7 @@
 import {
   AnnouncementSectionProps,
   BannerSectionProps,
+  CategoriesSectionProps,
   CollectionSectionProps,
   NavbarSectionProps,
   ProsSectionProps,
@@ -21,6 +22,11 @@ export type ShopSection =
       id: string;
       type: "testimonials";
       props: TestimonialsSectionProps;
+    }
+  | {
+      id: string;
+      type: "categories";
+      props: CategoriesSectionProps;
     };
 
 export type SectionProps<T extends ShopSection["type"]> = Extract<
