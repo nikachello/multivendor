@@ -1,10 +1,8 @@
-import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
+import { notFound } from "next/navigation";
 import Section from "@/components/storefront/layout/Section";
-
-import { shops, categories, products } from "@/lib/mock-data";
-
-import { homepageSections } from "@/lib/mock-homepage";
 import { sectionRegistry } from "@/lib/section-registry";
+import { getShopBySlug, getShopSections } from "@/lib/data/queries";
+import { ShopSection } from "@/lib/types/store-section";
 
 export default async function ShopPage({
   params,
@@ -13,43 +11,41 @@ export default async function ShopPage({
 }) {
   const { slug } = await params;
 
-  const shop = shops.find((s) => s.slug === slug);
+  const shop = getShopBySlug(slug);
+  if (!shop) notFound();
 
-  if (!shop) return <div>Shop not found</div>;
+  const sections = getShopSections(shop.id);
 
-  const currency = shop.currency;
-
-  const shopCategories = categories.filter((c) => c.shopId === shop.id);
-
-  const shopProducts = products.filter((p) => p.shopId === shop.id);
-
-  const category = shopCategories[0];
-
-  const collectionProducts = shopProducts.filter(
-    (p) => p.categoryId === category.id
-  );
+  const navbarIndex = sections.findIndex((s) => s.type === "navbar");
+  const sectionAfterNavbar =
+    navbarIndex !== -1 ? sections[navbarIndex + 1] : null;
+  const hasLeadingBanner = sectionAfterNavbar?.type === "banner";
 
   return (
-    <div className="flex flex-col gap-20 pb-20">
-      {/* static section for now */}
-      <Section className="pt-10">
-        <CollectionContainer
-          category={category}
-          products={collectionProducts}
-          currency={currency}
-        />
-      </Section>
+    <div className="flex flex-col pb-20">
+      {sections.map((section) => {
+        const Component = sectionRegistry[section.type] as React.ComponentType<
+          ShopSection["props"]
+        >;
 
-      {/* dynamic sections */}
-      {homepageSections.map((section) => {
-        const Component =
-          sectionRegistry[section.type as keyof typeof sectionRegistry];
-
-        if (!Component) return null;
+        const extraProps = {
+          shopId: shop.id,
+          currency: shop.currency,
+          // only NavbarSection uses this, others ignore it
+          transparent: hasLeadingBanner,
+        };
 
         return (
-          <Section key={section.id} container={section.type !== "banner"}>
-            <Component {...section.props} />
+          <Section
+            key={section.id}
+            container={
+              section.type !== "banner" &&
+              section.type !== "announcement" &&
+              section.type !== "navbar" &&
+              section.type !== "testimonials"
+            }
+          >
+            <Component {...section.props} {...extraProps} />
           </Section>
         );
       })}
