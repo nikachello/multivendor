@@ -20,11 +20,13 @@ export type NavbarSectionProps = SectionContext & {
 
 export type NavItem =
   | {
+      id: string;
       type: "link";
       label: string;
       href: string;
     }
   | {
+      id: string;
       type: "group";
       label: string;
       children: NavItem[];

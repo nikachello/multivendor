@@ -6,6 +6,7 @@ import {
   Pro,
   ShopTestimonial,
 } from "@/lib/types/data-types";
+import { NavItem } from "./types/sections";
 
 export const shops: Shop[] = [
   {
@@ -176,5 +177,39 @@ export const shopTestimonials: ShopTestimonial[] = [
     position: "ქუთაისი",
     testimony:
       "ერთ-ერთი საუკეთესო ონლაინ შოპინგ გამოცდილება რაც მქონია. ყველაფერი ძალიან პროფესიონალურად იყო გაკეთებული.",
+  },
+];
+
+export const mainMenu: NavItem[] = [
+  {
+    id: "1",
+    type: "link",
+    label: "Home",
+    href: "/",
+  },
+  {
+    id: "2",
+    type: "group",
+    label: "Shop",
+    children: [
+      {
+        id: "3",
+        type: "link",
+        label: "Watches",
+        href: "/watches",
+      },
+      {
+        id: "4",
+        type: "link",
+        label: "Accessories",
+        href: "/accessories",
+      },
+    ],
+  },
+  {
+    id: "5",
+    type: "link",
+    label: "About",
+    href: "/about",
   },
 ];

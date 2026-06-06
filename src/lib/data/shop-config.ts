@@ -1,5 +1,5 @@
 import { ShopSection } from "@/lib/types/store-section";
-import { pros, shopTestimonials } from "@/lib/mock-data";
+import { mainMenu, pros, shopTestimonials } from "@/lib/mock-data";
 
 export const shopSections: Record<string, ShopSection[]> = {
   shop_1: [
@@ -16,22 +16,7 @@ export const shopSections: Record<string, ShopSection[]> = {
       id: "navbar_1",
       type: "navbar",
       props: {
-        items: [
-          { type: "link", label: "Home", href: "/" },
-
-          {
-            type: "group",
-            label: "Shop",
-            children: [
-              { type: "link", label: "Watches", href: "/shop/watches" },
-              { type: "link", label: "Accessories", href: "/shop/accessories" },
-              { type: "link", label: "Jewelry", href: "/shop/jewelry" },
-            ],
-          },
-
-          { type: "link", label: "Journal", href: "/journal" },
-          { type: "link", label: "About us", href: "/about" },
-        ],
+        items: mainMenu,
       },
     },
     {
