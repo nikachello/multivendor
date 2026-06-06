@@ -15,7 +15,17 @@ export default function CategoriesSection({
 }: CategoriesSectionProps & { shopId?: string }) {
   if (!shopId) return null;
 
-  const allCategories = getCategoriesByShop(shopId);
+  const result = getCategoriesByShop(shopId);
+
+  if (!result.ok) {
+    return (
+      <div className="px-5 md:px-10 py-10 text-center text-neutral-500">
+        {result.error.message}
+      </div>
+    );
+  }
+
+  const allCategories = result.data;
 
   const categories = categoryIds?.length
     ? allCategories.filter((c) => categoryIds.includes(c.id))

@@ -11,14 +11,36 @@ export default async function ShopPage({
 }) {
   const { slug } = await params;
 
-  const shop = getShopBySlug(slug);
-  if (!shop) notFound();
+  // -------------------------
+  // SHOP (FIXED)
+  // -------------------------
+  const shopResult = getShopBySlug(slug);
 
-  const sections = getShopSections(shop.id);
+  if (!shopResult.ok) {
+    notFound();
+  }
 
+  const shop = shopResult.data;
+
+  // -------------------------
+  // SECTIONS (FIXED)
+  // -------------------------
+  const sectionsResult = getShopSections(shop.id);
+
+  if (!sectionsResult.ok) {
+    return null; // or fallback UI
+  }
+
+  const sections = sectionsResult.data;
+
+  // -------------------------
+  // NAVBAR LOGIC
+  // -------------------------
   const navbarIndex = sections.findIndex((s) => s.type === "navbar");
+
   const sectionAfterNavbar =
     navbarIndex !== -1 ? sections[navbarIndex + 1] : null;
+
   const hasLeadingBanner = sectionAfterNavbar?.type === "banner";
 
   return (
@@ -31,7 +53,6 @@ export default async function ShopPage({
         const extraProps = {
           shopId: shop.id,
           currency: shop.currency,
-          // only NavbarSection uses this, others ignore it
           transparent: hasLeadingBanner,
         };
 
