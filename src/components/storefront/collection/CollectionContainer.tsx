@@ -5,9 +5,15 @@ type Props = {
   category: Category;
   products: Product[];
   currency: string;
+  shopSlug: string;
 };
 
-const CollectionContainer = ({ category, products, currency }: Props) => {
+const CollectionContainer = ({
+  category,
+  products,
+  currency,
+  shopSlug,
+}: Props) => {
   return (
     <div className="px-5 md:px-10 py-10">
       {/* Title */}
@@ -28,6 +34,7 @@ const CollectionContainer = ({ category, products, currency }: Props) => {
             key={product.id}
             product={product}
             currency={currency}
+            shopSlug={shopSlug}
           />
         ))}
       </div>

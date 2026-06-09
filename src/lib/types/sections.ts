@@ -2,6 +2,8 @@ import { Category, Pro, ShopTestimonial } from "./data-types";
 
 export type SectionContext = {
   shopId?: string;
+  shopSlug?: string;
+  shopName?: string;
   currency?: string;
 };
 

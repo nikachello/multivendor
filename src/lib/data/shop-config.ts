@@ -27,7 +27,7 @@ export const shopSections: Record<string, ShopSection[]> = {
         subtitle: "Discover curated products",
         image: "/banner.jpg",
         buttonText: "იშოპინგე",
-        href: "/shop",
+        href: "/",
       },
     },
     {

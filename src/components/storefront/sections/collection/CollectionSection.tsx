@@ -5,11 +5,17 @@ import { CollectionSectionProps } from "@/lib/types/sections";
 
 type Props = CollectionSectionProps & {
   shopId?: string;
+  shopSlug?: string;
   currency?: string;
 };
 
-const CollectionSection = async ({ categoryId, shopId, currency }: Props) => {
-  if (!shopId || !currency) return null;
+const CollectionSection = async ({
+  categoryId,
+  shopId,
+  shopSlug,
+  currency,
+}: Props) => {
+  if (!shopId || !shopSlug || !currency) return null;
 
   const categoriesResult = getCategoriesByShop(shopId);
 
@@ -37,6 +43,7 @@ const CollectionSection = async ({ categoryId, shopId, currency }: Props) => {
         category={category}
         products={products}
         currency={currency}
+        shopSlug={shopSlug}
       />
     </div>
   );

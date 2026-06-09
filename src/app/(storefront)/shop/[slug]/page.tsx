@@ -3,6 +3,7 @@ import Section from "@/components/storefront/layout/Section";
 import { sectionRegistry } from "@/lib/section-registry";
 import { getShopBySlug, getShopSections } from "@/lib/data/queries";
 import { ShopSection } from "@/lib/types/store-section";
+import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 
 export default async function ShopPage({
   params,
@@ -52,9 +53,22 @@ export default async function ShopPage({
 
         const extraProps = {
           shopId: shop.id,
+          shopSlug: shop.slug,
+          shopName: shop.name,
           currency: shop.currency,
           transparent: hasLeadingBanner,
         };
+
+        const sectionProps =
+          section.type === "navbar"
+            ? {
+                ...section.props,
+                items: resolveNavItems(
+                  section.props.items ?? [],
+                  shop.slug
+                ),
+              }
+            : section.props;
 
         return (
           <Section
@@ -66,7 +80,7 @@ export default async function ShopPage({
               section.type !== "testimonials"
             }
           >
-            <Component {...section.props} {...extraProps} />
+            <Component {...sectionProps} {...extraProps} />
           </Section>
         );
       })}

@@ -1,16 +1,21 @@
 "use client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
+
+function resolveHref(href: string, shopSlug: string): string {
+  if (href.startsWith("http://") || href.startsWith("https://")) return href;
+  if (href === "/") return `/shop/${shopSlug}`;
+  return `/shop/${shopSlug}${href}`;
+}
 
 const BannerSection = ({
   title,
   subtitle,
   image,
   buttonText,
-  href = "/shop",
-}: BannerSectionProps) => {
-  const router = useRouter();
-
+  href = "/",
+  shopSlug = "",
+}: BannerSectionProps & { shopSlug?: string }) => {
   return (
     <section
       className="relative h-[600px] overflow-hidden -mt-[92px]"
@@ -32,12 +37,12 @@ const BannerSection = ({
           </p>
         )}
         {buttonText && (
-          <button
-            onClick={() => router.push(href ?? "/shop")}
-            className="mt-8 bg-[#C25447] px-8 py-4 text-sm text-white transition hover:opacity-90"
+          <Link
+            href={resolveHref(href, shopSlug)}
+            className="mt-8 inline-block bg-[#C25447] px-8 py-4 text-sm text-white transition hover:opacity-90"
           >
             {buttonText}
-          </button>
+          </Link>
         )}
       </div>
     </section>

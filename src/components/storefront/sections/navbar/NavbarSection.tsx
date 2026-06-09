@@ -7,9 +7,13 @@ import { NavbarSectionProps } from "@/lib/types/sections";
 const NavbarSection = ({
   items = [],
   transparent = false,
+  shopName,
+  shopSlug = "",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<number | null>(null);
+
+  const logoHref = shopSlug ? `/shop/${shopSlug}` : "/";
 
   const textColor = transparent ? "text-white" : "text-black";
   const mutedColor = transparent ? "text-white/80" : "text-gray-500";
@@ -86,10 +90,10 @@ const NavbarSection = ({
 
         <div className="absolute left-1/2 -translate-x-1/2">
           <Link
-            href="/"
+            href={logoHref}
             className={`text-xl font-semibold tracking-tight ${textColor}`}
           >
-            Logo
+            {shopName ?? "Logo"}
           </Link>
         </div>
 
@@ -133,10 +137,10 @@ const NavbarSection = ({
 
         <div className="absolute left-1/2 -translate-x-1/2">
           <Link
-            href="/"
+            href={logoHref}
             className={`text-xl font-semibold tracking-tight ${textColor}`}
           >
-            Logo
+            {shopName ?? "Logo"}
           </Link>
         </div>
 
@@ -155,7 +159,7 @@ const NavbarSection = ({
         </svg>
       </div>
 
-      {/* BACKDROP — covers entire screen including navbar, closes menu on click */}
+      {/* BACKDROP */}
       {open && (
         <div
           className="fixed inset-0 z-40 md:hidden"

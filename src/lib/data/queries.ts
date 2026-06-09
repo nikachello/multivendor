@@ -63,15 +63,53 @@ export function getCategoriesByShop(shopId: string): Result<Category[]> {
 
   const data = categories.filter((c) => c.shopId === shopId && c.isActive);
 
-  if (data.length === 0) {
+  return ok(data);
+}
+
+// ============================================
+// CATEGORY BY SLUG
+// ============================================
+
+export function getCategoryBySlug(
+  shopId: string,
+  slug: string
+): Result<Category> {
+  const category = categories.find(
+    (c) => c.shopId === shopId && c.slug === slug && c.isActive
+  );
+
+  if (!category) {
     return err({
-      code: "CATEGORIES_EMPTY",
-      message: "კატეგორიები არ მოიძებნა",
+      code: "CATEGORY_NOT_FOUND",
+      message: "Category not found",
       status: 404,
     });
   }
 
-  return ok(data);
+  return ok(category);
+}
+
+// ============================================
+// PRODUCT BY ID
+// ============================================
+
+export function getProductById(
+  shopId: string,
+  productId: string
+): Result<Product> {
+  const product = products.find(
+    (p) => p.shopId === shopId && p.id === productId && p.isActive
+  );
+
+  if (!product) {
+    return err({
+      code: "PRODUCT_NOT_FOUND",
+      message: "Product not found",
+      status: 404,
+    });
+  }
+
+  return ok(product);
 }
 
 // ============================================
@@ -101,14 +139,6 @@ export function getProductsByCategory(
   const data = products.filter(
     (p) => p.shopId === shopId && p.categoryId === categoryId && p.isActive
   );
-
-  if (data.length === 0) {
-    return err({
-      code: "PRODUCTS_EMPTY",
-      message: "No products found for this category",
-      status: 404,
-    });
-  }
 
   return ok(data);
 }

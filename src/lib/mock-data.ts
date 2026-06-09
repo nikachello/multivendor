@@ -48,7 +48,7 @@ export const categories: Category[] = [
   },
 ];
 
-const variants1: Variant[] = [
+const variants_p1: Variant[] = [
   {
     id: "v1",
     productId: "p1",
@@ -56,7 +56,7 @@ const variants1: Variant[] = [
     price: 199,
     stock: 5,
     image: "/watch-black.jpg",
-    options: { color: "Black", size: "42mm" },
+    options: { Color: "Black", Size: "42mm" },
   },
   {
     id: "v2",
@@ -65,19 +65,79 @@ const variants1: Variant[] = [
     price: 209,
     stock: 3,
     image: "/watch-silver.jpg",
-    options: { color: "Silver", size: "42mm" },
+    options: { Color: "Silver", Size: "42mm" },
+  },
+  {
+    id: "v3",
+    productId: "p1",
+    sku: "NW-GLD-44",
+    price: 249,
+    stock: 2,
+    image: "/watch-gold.jpg",
+    options: { Color: "Gold", Size: "44mm" },
   },
 ];
 
-const variants2: Variant[] = [
+const variants_p2: Variant[] = [
   {
-    id: "v3",
+    id: "v4",
     productId: "p2",
-    sku: "SW-BLK",
+    sku: "CP-WHT-38",
+    price: 289,
+    stock: 4,
+    image: "/watch-white.jpg",
+    options: { Color: "White", Size: "38mm" },
+  },
+  {
+    id: "v5",
+    productId: "p2",
+    sku: "CP-ROS-38",
+    price: 319,
+    stock: 2,
+    image: "/watch-rose.jpg",
+    options: { Color: "Rose Gold", Size: "38mm" },
+  },
+];
+
+const variants_p3: Variant[] = [
+  {
+    id: "v6",
+    productId: "p3",
+    sku: "SP-BLK-42",
     price: 99,
     stock: 10,
     image: "/sport-black.jpg",
-    options: { color: "Black" },
+    options: { Color: "Black" },
+  },
+  {
+    id: "v7",
+    productId: "p3",
+    sku: "SP-RED-42",
+    price: 99,
+    stock: 7,
+    image: "/sport-red.jpg",
+    options: { Color: "Red" },
+  },
+];
+
+const variants_p4: Variant[] = [
+  {
+    id: "v8",
+    productId: "p4",
+    sku: "TR-GRN-45",
+    price: 129,
+    stock: 8,
+    image: "/trail-green.jpg",
+    options: { Color: "Forest Green" },
+  },
+  {
+    id: "v9",
+    productId: "p4",
+    sku: "TR-GRY-45",
+    price: 129,
+    stock: 5,
+    image: "/trail-grey.jpg",
+    options: { Color: "Slate Grey" },
   },
 ];
 
@@ -87,36 +147,52 @@ export const products: Product[] = [
     shopId: "shop_1",
     categoryId: "cat_1",
     name: "Royal Classic Watch",
-    description: "Elegant luxury watch with steel body",
+    description:
+      "An elegantly crafted timepiece with a steel case and sapphire crystal glass. Built to last, designed to impress.",
     images: ["/watch1.jpg", "/watch2.jpg"],
     isActive: true,
     priceFrom: 199,
     createdAt: new Date(),
-    variants: variants1,
+    variants: variants_p1,
   },
   {
     id: "p2",
     shopId: "shop_1",
     categoryId: "cat_1",
-    name: "Royal Classic Watch",
-    description: "Elegant luxury watch with steel body",
-    images: ["/watch1.jpg", "/watch2.jpg"],
+    name: "Crystal Pearl Watch",
+    description:
+      "A refined luxury watch featuring a mother-of-pearl dial and premium leather strap. Timeless femininity meets precision engineering.",
+    images: ["/watch3.jpg", "/watch4.jpg"],
     isActive: true,
-    priceFrom: 199,
+    priceFrom: 289,
     createdAt: new Date(),
-    variants: variants1,
+    variants: variants_p2,
   },
   {
     id: "p3",
     shopId: "shop_1",
     categoryId: "cat_2",
     name: "Sport Pro Watch",
-    description: "Durable and lightweight sports watch",
-    images: ["/sport1.jpg"],
+    description:
+      "Lightweight and durable, built for high-performance athletes. Water-resistant up to 100m with a built-in stopwatch.",
+    images: ["/sport1.jpg", "/sport2.jpg"],
     isActive: true,
     priceFrom: 99,
     createdAt: new Date(),
-    variants: variants2,
+    variants: variants_p3,
+  },
+  {
+    id: "p4",
+    shopId: "shop_1",
+    categoryId: "cat_2",
+    name: "Trail Runner Watch",
+    description:
+      "Designed for the outdoors. GPS-ready casing, scratch-resistant glass, and an adjustable silicone strap for any terrain.",
+    images: ["/trail1.jpg", "/trail2.jpg"],
+    isActive: true,
+    priceFrom: 129,
+    createdAt: new Date(),
+    variants: variants_p4,
   },
 ];
 
@@ -195,14 +271,14 @@ export const mainMenu: NavItem[] = [
       {
         id: "3",
         type: "link",
-        label: "Watches",
-        href: "/watches",
+        label: "Luxury Watches",
+        href: "/collections/luxury-watches",
       },
       {
         id: "4",
         type: "link",
-        label: "Accessories",
-        href: "/accessories",
+        label: "Sport Watches",
+        href: "/collections/sport-watches",
       },
     ],
   },

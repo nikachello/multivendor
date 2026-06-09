@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { NavItem } from "@/lib/types/sections";
-import { findItem } from "@/lib/navigation/find-item";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Props = {
   item: NavItem | null;
@@ -12,26 +15,42 @@ type Props = {
   onAddChild: () => void;
 };
 
+// ─── Debounce hook ────────────────────────────────────────────────────────────
+
 function useDebounced(
-  value: string,
+  externalValue: string,
   onChange: (v: string) => void,
   delay = 300
 ) {
-  const [local, setLocal] = useState(value);
+  const [local, setLocal] = useState(externalValue);
 
-  // Sync local when external item changes (different item selected)
+  // Sync when selected item changes
   useEffect(() => {
-    setLocal(value);
-  }, [value]);
+    setLocal(externalValue);
+  }, [externalValue]);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      if (local !== value) onChange(local);
-    }, delay);
+    if (local === externalValue) return;
+    const t = setTimeout(() => onChange(local), delay);
     return () => clearTimeout(t);
   }, [local]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return [local, setLocal] as const;
+}
+
+// ─── Href validation ──────────────────────────────────────────────────────────
+
+function collectHrefs(items: NavItem[], excludeId: string): string[] {
+  const hrefs: string[] = [];
+  for (const item of items) {
+    if (item.type === "link" && item.id !== excludeId) {
+      hrefs.push(item.href);
+    }
+    if (item.type === "group") {
+      hrefs.push(...collectHrefs(item.children, excludeId));
+    }
+  }
+  return hrefs;
 }
 
 function validateHref(
@@ -39,32 +58,17 @@ function validateHref(
   allItems: NavItem[],
   currentId: string
 ): string | null {
-  if (!href.trim()) return "მისამართი არ უნდა იყოს ცარიელი.";
+  if (!href.trim()) return "URL cannot be empty.";
   if (!href.startsWith("/") && !href.startsWith("http")) {
-    return 'მისამართი უნდა იწყებოდეს ან "/" ან "https://".';
+    return 'Must start with "/" or "http".';
   }
-
-  // Check for duplicates
-  const dupes = collectHrefs(allItems, currentId);
-  if (dupes.includes(href.trim())) {
-    return "ეს მისამართი გამოყენებულია სხვა მენიუში";
+  if (collectHrefs(allItems, currentId).includes(href.trim())) {
+    return "This URL is already used by another link.";
   }
-
   return null;
 }
 
-function collectHrefs(items: NavItem[], excludeId: string): string[] {
-  const hrefs: string[] = [];
-  for (const item of items) {
-    if (item.type === "link" && item.id !== excludeId && item.href) {
-      hrefs.push(item.href);
-    }
-    if (item.type === "group" && item.children) {
-      hrefs.push(...collectHrefs(item.children, excludeId));
-    }
-  }
-  return hrefs;
-}
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ItemEditor({
   item,
@@ -83,11 +87,11 @@ export default function ItemEditor({
   );
 
   const [localHref, setLocalHref] = useDebounced(
-    item?.type === "link" ? item.href ?? "" : "",
+    item?.type === "link" ? item.href : "",
     onHrefChange
   );
 
-  // Reset confirm delete when selection changes
+  // Reset confirm when selection changes
   useEffect(() => {
     setConfirmDelete(false);
   }, [item?.id]);
@@ -95,38 +99,42 @@ export default function ItemEditor({
   const hrefError =
     item?.type === "link" ? validateHref(localHref, allItems, item.id) : null;
 
+  // ── Empty state ──
+
   if (!item) {
     return (
-      <div className="h-full flex flex-col items-start justify-start pt-2">
+      <div className="pt-2">
         <p className="text-[11px] tracking-widest uppercase text-zinc-300">
-          არ არის არჩეული
+          No item selected
         </p>
         <p className="text-[11px] text-zinc-400 mt-2">
-          აირჩიეთ რომელიმე ელემენტი მარცხენა მენიუდან
+          Select an item from the tree, or create one using the buttons on the
+          left.
         </p>
       </div>
     );
   }
 
   const isGroup = item.type === "group";
-  const childCount = isGroup ? item.children?.length ?? 0 : 0;
+  const childCount = isGroup ? item.children.length : 0;
+
+  // ── Editing state ──
 
   return (
     <div className="max-w-md space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-        <div>
+      <div className="flex items-start justify-between border-b border-zinc-200 pb-4">
+        <div className="min-w-0">
           <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-1">
-            ცვლილებები
+            Editing
           </p>
-          <p className="text-sm font-semibold text-zinc-900 truncate max-w-[200px]">
+          <p className="text-sm font-semibold text-zinc-900 truncate">
             {item.label}
           </p>
         </div>
-
-        <div className="text-[10px] tracking-widest uppercase text-zinc-400 text-right">
-          <span>{item.id.slice(0, 8)}</span>
-        </div>
+        <span className="text-[10px] text-zinc-300 font-mono shrink-0 ml-4 mt-1">
+          {item.id.slice(0, 8)}
+        </span>
       </div>
 
       {/* Label */}
@@ -135,7 +143,7 @@ export default function ItemEditor({
           value={localLabel}
           onChange={(e) => setLocalLabel(e.target.value)}
           className="w-full border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 transition-colors font-mono"
-          placeholder="სახელი"
+          placeholder="Label"
         />
       </Field>
 
@@ -144,7 +152,9 @@ export default function ItemEditor({
         label="Type"
         hint={
           isGroup && childCount > 0
-            ? `ლინკად გადაკეთებისას წაიშლება ${childCount} შვილობილი ლინკი(ები).`
+            ? `Converting to link will remove ${childCount} child${
+                childCount !== 1 ? "ren" : ""
+              }.`
             : undefined
         }
         hintWarning={isGroup && childCount > 0}
@@ -152,22 +162,20 @@ export default function ItemEditor({
         <div className="flex border border-zinc-200">
           <TypeButton
             active={!isGroup}
-            onClick={() => (!isGroup ? undefined : onTypeChange("link"))}
-            disabled={!isGroup}
+            onClick={() => isGroup && onTypeChange("link")}
           >
-            ლინკი
+            Link
           </TypeButton>
           <TypeButton
             active={isGroup}
-            onClick={() => (isGroup ? undefined : onTypeChange("group"))}
-            disabled={isGroup}
+            onClick={() => !isGroup && onTypeChange("group")}
           >
-            კატეგორია
+            Group
           </TypeButton>
         </div>
       </Field>
 
-      {/* Href (links only) */}
+      {/* URL (links only) */}
       {!isGroup && (
         <Field
           label="URL"
@@ -182,7 +190,7 @@ export default function ItemEditor({
                 ? "border-red-300 focus:border-red-500"
                 : "border-zinc-200 focus:border-zinc-900"
             }`}
-            placeholder="/path ან https://..."
+            placeholder="/path or https://..."
           />
         </Field>
       )}
@@ -195,10 +203,10 @@ export default function ItemEditor({
               onClick={onAddChild}
               className="text-[11px] tracking-widest uppercase px-4 py-2 border border-zinc-300 text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
             >
-              + შვილობილი ლინკის დამატება
+              + Add child link
             </button>
             <span className="text-[11px] text-zinc-400">
-              {childCount} ლინკი(ები)
+              {childCount} {childCount === 1 ? "child" : "children"}
             </span>
           </div>
         </Field>
@@ -211,25 +219,25 @@ export default function ItemEditor({
             onClick={() => setConfirmDelete(true)}
             className="text-[11px] tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors"
           >
-            წაშლა
+            Delete item
           </button>
         ) : (
           <div className="flex items-center gap-4">
-            <span className="text-[11px] text-zinc-500">ნამდვილად?</span>
+            <span className="text-[11px] text-zinc-500">Are you sure?</span>
             <button
               onClick={() => {
                 setConfirmDelete(false);
                 onDelete();
               }}
-              className="text-[11px] tracking-widest uppercase text-red-500 hover:text-red-700 transition-colors font-semibold"
+              className="text-[11px] tracking-widest uppercase text-red-500 hover:text-red-700 font-semibold transition-colors"
             >
-              დიახ წაშლა
+              Yes, delete
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
               className="text-[11px] tracking-widest uppercase text-zinc-400 hover:text-zinc-700 transition-colors"
             >
-              გაუქმება
+              Cancel
             </button>
           </div>
         )}
@@ -273,21 +281,18 @@ function Field({
 function TypeButton({
   active,
   onClick,
-  disabled,
   children,
 }: {
   active: boolean;
   onClick: () => void;
-  disabled: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
       className={`flex-1 py-2 text-[11px] tracking-widest uppercase transition-colors ${
         active
-          ? "bg-zinc-900 text-white"
+          ? "bg-zinc-900 text-white cursor-default"
           : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
       }`}
     >
