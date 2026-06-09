@@ -156,4 +156,5 @@ export type ShopTestimonial = {
   name: string;
   testimony: string;
   position?: string;
+  rating?: number;
 };

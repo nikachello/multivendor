@@ -1,48 +1,33 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import {
-  getShopBySlug,
-  getProductById,
-  getShopSections,
-} from "@/lib/data/queries";
+import { getShopBySlug, getShopSections } from "@/lib/data/queries";
 import { sectionRegistry } from "@/lib/section-registry";
-import ProductDetail from "@/components/storefront/product/ProductDetail";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string; productId: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug, productId } = await params;
-  const shopResult = getShopBySlug(slug);
-  if (!shopResult.ok) return { title: "Not Found" };
-  const productResult = getProductById(shopResult.data.id, productId);
-  if (!productResult.ok) return { title: "Not Found" };
-  const { name, description } = productResult.data;
-  return {
-    title: `${name} — ${shopResult.data.name}`,
-    description,
-  };
+  const { slug } = await params;
+  const result = getShopBySlug(slug);
+  if (!result.ok) return { title: "Not Found" };
+  return { title: `Checkout — ${result.data.name}` };
 }
 
-export default async function ProductPage({
+export default async function CheckoutPage({
   params,
 }: {
-  params: Promise<{ slug: string; productId: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug, productId } = await params;
+  const { slug } = await params;
 
   const shopResult = getShopBySlug(slug);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const productResult = getProductById(shop.id, productId);
-  if (!productResult.ok) notFound();
-  const product = productResult.data;
-
-  // Reuse the shop's navbar section so it stays consistent
   const sectionsResult = getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
@@ -67,12 +52,11 @@ export default async function ProductPage({
       )}
 
       <div className="px-5 md:px-10 py-12 max-w-6xl mx-auto">
-        <ProductDetail
-          product={product}
-          currency={shop.currency}
+        <CheckoutForm
+          shopId={shop.id}
           shopSlug={shop.slug}
           shopName={shop.name}
-          shopId={shop.id}
+          currency={shop.currency}
         />
       </div>
     </>

@@ -34,12 +34,15 @@ const TestimonialCard = ({ testimonial }: Props) => {
         </div>
 
         {/* stars */}
-        <div className="mt-5 flex gap-1 text-yellow-500">
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
+        <div className="mt-5 flex gap-1">
+          {Array.from({ length: 5 }, (_, i) => (
+            <span
+              key={i}
+              className={i < (testimonial.rating ?? 5) ? "text-yellow-500" : "text-neutral-200"}
+            >
+              ★
+            </span>
+          ))}
         </div>
 
         {/* text */}

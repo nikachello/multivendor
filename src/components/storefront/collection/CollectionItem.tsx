@@ -22,6 +22,9 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
   const hasMultipleVariantPrices = product.variants.some(
     (v) => v.price !== lowestPrice
   );
+  const isSoldOut =
+    product.variants.length > 0 &&
+    product.variants.every((v) => v.stock === 0);
 
   return (
     <Link
@@ -57,12 +60,23 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
           </div>
         )}
 
+        {/* Sold out pill */}
+        {isSoldOut && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="text-[10px] tracking-widest uppercase bg-neutral-800 text-white px-2 py-1">
+              Sold Out
+            </span>
+          </div>
+        )}
+
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-          <span className="text-white text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 px-4 py-2">
-            View
-          </span>
-        </div>
+        {!isSoldOut && (
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+            <span className="text-white text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 px-4 py-2">
+              View
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info */}
@@ -70,7 +84,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
         <p className="text-sm font-medium text-neutral-900 truncate">
           {product.name}
         </p>
-        <p className="text-sm text-neutral-500">
+        <p className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : "text-neutral-500"}`}>
           {hasMultipleVariantPrices ? "From " : ""}
           {currency} {lowestPrice}
         </p>

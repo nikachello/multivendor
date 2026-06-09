@@ -4,12 +4,14 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/lib/types/data-types";
+import { useCart } from "@/hooks/useCart";
 
 type Props = {
   product: Product;
   currency: string;
   shopSlug: string;
   shopName: string;
+  shopId: string;
 };
 
 export default function ProductDetail({
@@ -17,6 +19,7 @@ export default function ProductDetail({
   currency,
   shopSlug,
   shopName,
+  shopId,
 }: Props) {
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
@@ -24,6 +27,9 @@ export default function ProductDetail({
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  const [added, setAdded] = useState(false);
+
+  const { add } = useCart(shopId);
 
   // Collect unique values per option key across all variants
   const optionGroups = useMemo(() => {
@@ -57,6 +63,21 @@ export default function ProductDetail({
   }
 
   const inStock = (selectedVariant?.stock ?? 0) > 0;
+
+  function handleAddToCart() {
+    if (!selectedVariant || !inStock) return;
+    add({
+      variantId: selectedVariant.id,
+      productId: product.id,
+      productName: product.name,
+      variantOptions: selectedVariant.options,
+      price: selectedVariant.price,
+      quantity,
+      image: selectedVariant.image ?? product.images[0],
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
 
   return (
     <div>
@@ -194,9 +215,10 @@ export default function ProductDetail({
           {/* Add to cart */}
           <button
             disabled={!inStock}
+            onClick={handleAddToCart}
             className="mt-6 w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {inStock ? "Add to Cart" : "Out of Stock"}
+            {!inStock ? "Out of Stock" : added ? "Added ✓" : "Add to Cart"}
           </button>
 
           {/* Description */}

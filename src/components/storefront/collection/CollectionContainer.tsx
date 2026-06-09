@@ -28,16 +28,22 @@ const CollectionContainer = ({
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {products.map((product) => (
-          <CollectionItem
-            key={product.id}
-            product={product}
-            currency={currency}
-            shopSlug={shopSlug}
-          />
-        ))}
-      </div>
+      {products.length === 0 ? (
+        <div className="py-20 text-center text-neutral-400 text-sm">
+          No products here yet.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {products.map((product) => (
+            <CollectionItem
+              key={product.id}
+              product={product}
+              currency={currency}
+              shopSlug={shopSlug}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

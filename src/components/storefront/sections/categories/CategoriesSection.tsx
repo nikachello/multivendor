@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -14,6 +15,8 @@ export default function CategoriesSection({
   shopId,
   shopSlug,
 }: CategoriesSectionProps & { shopId?: string; shopSlug?: string }) {
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
   if (!shopId || !shopSlug) return null;
 
   const result = getCategoriesByShop(shopId);
@@ -77,12 +80,15 @@ export default function CategoriesSection({
             className="block"
           >
             <div className="relative aspect-square overflow-hidden bg-neutral-100">
-              {category.image ? (
+              {category.image && !imgErrors[category.id] ? (
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
                   className="object-cover"
+                  onError={() =>
+                    setImgErrors((prev) => ({ ...prev, [category.id]: true }))
+                  }
                   unoptimized
                 />
               ) : (
