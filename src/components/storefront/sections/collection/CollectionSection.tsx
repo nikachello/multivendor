@@ -9,7 +9,7 @@ type Props = CollectionSectionProps & {
   currency?: string;
 };
 
-const CollectionSection = async ({
+const CollectionSection = ({
   categoryId,
   shopId,
   shopSlug,
