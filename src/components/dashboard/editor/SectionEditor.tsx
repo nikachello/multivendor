@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -40,15 +40,30 @@ export default function SectionEditor({
   initialSections,
   shopId,
   shopSlug,
-  shopName,
-  currency,
 }: Props) {
   const [sections, setSections] = useState<ShopSection[]>(initialSections);
   const [selectedId, setSelectedId] = useState<string | null>(
-    initialSections[0]?.id ?? null
+    initialSections[0]?.id ?? null,
   );
   const [saved, setSaved] = useState(false);
   const [showAddPanel, setShowAddPanel] = useState(false);
+
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "SECTION_CLICK") setSelectedId(e.data.id);
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  useEffect(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: "SELECT_SECTION", id: selectedId },
+      "*",
+    );
+  }, [selectedId]);
 
   const selectedSection = sections.find((s) => s.id === selectedId) ?? null;
 
@@ -56,7 +71,7 @@ export default function SectionEditor({
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -96,8 +111,8 @@ export default function SectionEditor({
       prev.map((s) =>
         s.id === selectedId
           ? ({ ...s, props: { ...s.props, [key]: value } } as ShopSection)
-          : s
-      )
+          : s,
+      ),
     );
   }
 
@@ -177,8 +192,18 @@ export default function SectionEditor({
             onClick={() => setShowAddPanel((v) => !v)}
             className="w-full py-2 text-sm font-medium border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center gap-1.5"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
             </svg>
             Add section
           </button>
@@ -192,15 +217,7 @@ export default function SectionEditor({
       </div>
 
       {/* ── MIDDLE: Live preview ── */}
-      <StorefrontPreview
-        sections={sections}
-        shopId={shopId}
-        shopSlug={shopSlug}
-        shopName={shopName}
-        currency={currency}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-      />
+      <StorefrontPreview shopSlug={shopSlug} iframeRef={iframeRef} />
 
       {/* ── RIGHT: Settings panel ── */}
       <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">
