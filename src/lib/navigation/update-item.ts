@@ -31,7 +31,7 @@ export function updateItem(
           id: item.id,
           type: "link",
           label: patch.label ?? item.label,
-          href: "href" in patch && patch.href ? patch.href : "/",
+          href: "href" in patch ? patch.href ?? "/" : "/",
         } satisfies NavItem;
       }
 

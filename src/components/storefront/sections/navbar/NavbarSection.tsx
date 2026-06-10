@@ -5,7 +5,6 @@ import Link from "next/link";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useCart } from "@/hooks/useCart";
-import CartDrawer from "@/components/storefront/cart/CartDrawer";
 
 const NavbarSection = ({
   items = [],
@@ -13,7 +12,6 @@ const NavbarSection = ({
   shopName,
   shopSlug = "",
   shopId = "",
-  currency = "USD",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<number | null>(null);
@@ -105,30 +103,20 @@ const NavbarSection = ({
         </div>
 
         <div className="flex-1 flex justify-end">
-          <ul className={`flex items-center gap-6 text-sm ${mutedColor}`}>
-            <li className={`${hoverColor} cursor-pointer transition-colors duration-200`}>
-              Search
-            </li>
-            <li>
-              <button
-                onClick={() => setCartOpen(true)}
-                className={`relative ${hoverColor} cursor-pointer transition-colors duration-200`}
-                aria-label="Open cart"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                </svg>
-                {itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#C25447] text-white text-[10px] flex items-center justify-center font-medium">
-                    {itemCount > 9 ? "9+" : itemCount}
-                  </span>
-                )}
-              </button>
-            </li>
-            <li className={`${hoverColor} cursor-pointer transition-colors duration-200`}>
-              Account
-            </li>
-          </ul>
+          <button
+            onClick={() => setCartOpen(true)}
+            className={`relative ${mutedColor} ${hoverColor} cursor-pointer transition-colors duration-200`}
+            aria-label="Open cart"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#C25447] text-white text-[10px] flex items-center justify-center font-medium">
+                {itemCount > 9 ? "9+" : itemCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -181,15 +169,15 @@ const NavbarSection = ({
         </button>
       </div>
 
-      {/* BACKDROP */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40 md:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      {/* Mobile backdrop — always in DOM so opacity can transition with the menu */}
+      <div
+        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setOpen(false)}
+      />
 
-      {/* MOBILE DRAWER */}
+      {/* MOBILE MENU */}
       <div
         className={`absolute top-full left-0 w-full z-50 md:hidden bg-white shadow-xl overflow-hidden transition-all duration-300 ease-in-out ${
           open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
@@ -262,20 +250,8 @@ const NavbarSection = ({
 
             return null;
           })}
-
-          <li className="pt-4 flex gap-6 text-gray-500">
-            {["Search", "Cart", "Account"].map((label) => (
-              <span
-                key={label}
-                className="hover:text-black cursor-pointer transition-colors"
-              >
-                {label}
-              </span>
-            ))}
-          </li>
         </ul>
       </div>
-      <CartDrawer shopId={shopId} shopSlug={shopSlug} currency={currency} />
     </header>
   );
 };

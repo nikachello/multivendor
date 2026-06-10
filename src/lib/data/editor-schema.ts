@@ -5,16 +5,26 @@ import { ShopSection, SectionType } from "@/lib/types/store-section";
 // we describe what fields each section has and render them generically.
 // Adding a new section type = adding one entry here, no new UI code.
 
-export type FieldDef =
+// FlatFieldDef: safe to use inside list items (no nesting)
+export type FlatFieldDef =
   | { type: "text"; key: string; label: string; placeholder?: string }
   | { type: "textarea"; key: string; label: string; placeholder?: string }
   | { type: "color"; key: string; label: string }
+  | { type: "select"; key: string; label: string; options: { value: string | number; label: string }[] };
+
+// FieldDef extends FlatFieldDef with two composite types:
+// - "list": an array of items, each with its own set of FlatFieldDef fields
+// - "select-shop-categories": a select whose options come from the shop's categories at runtime
+export type FieldDef =
+  | FlatFieldDef
   | {
-      type: "select";
+      type: "list";
       key: string;
       label: string;
-      options: { value: string | number; label: string }[];
-    };
+      itemFields: FlatFieldDef[];
+      itemDefault: Record<string, unknown>;
+    }
+  | { type: "select-shop-categories"; key: string; label: string };
 
 export const sectionLabels: Record<SectionType, string> = {
   announcement: "Announcement Bar",
@@ -52,7 +62,6 @@ export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]
   testimonials: { testimonials: [] },
 };
 
-// Sections with no schema entry show a "not editable here" message
 export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
   announcement: [
     { type: "text", key: "text", label: "Text", placeholder: "Free shipping on orders over $50" },
@@ -75,6 +84,52 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
       key: "columns",
       label: "Columns",
       options: [2, 3, 4, 5, 6].map((n) => ({ value: n, label: String(n) })),
+    },
+  ],
+  collection: [
+    { type: "select-shop-categories", key: "categoryId", label: "Category" },
+  ],
+  testimonials: [
+    {
+      type: "list",
+      key: "testimonials",
+      label: "Testimonial",
+      itemDefault: { name: "", testimony: "", position: "", rating: 5 },
+      itemFields: [
+        { type: "text", key: "name", label: "Name", placeholder: "Jane Doe" },
+        { type: "text", key: "position", label: "Position", placeholder: "CEO at Acme" },
+        { type: "textarea", key: "testimony", label: "Testimonial", placeholder: "Amazing product!" },
+        {
+          type: "select",
+          key: "rating",
+          label: "Rating",
+          options: [1, 2, 3, 4, 5].map((n) => ({ value: n, label: `${n} ★` })),
+        },
+      ],
+    },
+  ],
+  pros: [
+    {
+      type: "list",
+      key: "pros",
+      label: "Feature",
+      itemDefault: { type: "pro", title: "", description: "", imageUrl: "", buttonText: "", buttonUrl: "" },
+      itemFields: [
+        {
+          type: "select",
+          key: "type",
+          label: "Style",
+          options: [
+            { value: "pro", label: "Text card" },
+            { value: "image", label: "Image card" },
+          ],
+        },
+        { type: "text", key: "title", label: "Title", placeholder: "Free shipping" },
+        { type: "textarea", key: "description", label: "Description", placeholder: "On all orders over $50" },
+        { type: "text", key: "imageUrl", label: "Image URL", placeholder: "/feature.jpg" },
+        { type: "text", key: "buttonText", label: "Button text", placeholder: "Learn more" },
+        { type: "text", key: "buttonUrl", label: "Button URL", placeholder: "/policies/shipping" },
+      ],
     },
   ],
 };

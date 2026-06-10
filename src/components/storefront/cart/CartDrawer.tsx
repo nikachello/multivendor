@@ -20,13 +20,13 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
 
   return (
     <>
-      {/* Backdrop — dims the page behind the drawer */}
-      {cartOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-40"
-          onClick={() => setCartOpen(false)}
-        />
-      )}
+      {/* Backdrop — always in DOM so opacity can transition with the drawer */}
+      <div
+        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ${
+          cartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setCartOpen(false)}
+      />
 
       {/* Drawer panel */}
       <div
@@ -87,9 +87,11 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
                     <p className="text-sm font-medium text-neutral-900 truncate">
                       {item.productName}
                     </p>
-                    <p className="text-xs text-neutral-400 mt-0.5">
-                      {Object.values(item.variantOptions).join(" · ")}
-                    </p>
+                    {Object.values(item.variantOptions).length > 0 && (
+                      <p className="text-xs text-neutral-400 mt-0.5">
+                        {Object.values(item.variantOptions).join(" · ")}
+                      </p>
+                    )}
                     <p className="text-sm text-neutral-700 mt-1">
                       {currency} {item.price}
                     </p>
@@ -99,13 +101,16 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
                       <div className="inline-flex items-center border border-neutral-200">
                         <button
                           onClick={() => setQuantity(item.variantId, item.quantity - 1)}
-                          className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors"
+                          disabled={item.quantity === 1}
+                          aria-label="Decrease quantity"
+                          className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           −
                         </button>
-                        <span className="w-7 text-center text-xs">{item.quantity}</span>
+                        <span className="w-7 text-center text-xs" aria-live="polite">{item.quantity}</span>
                         <button
                           onClick={() => setQuantity(item.variantId, item.quantity + 1)}
+                          aria-label="Increase quantity"
                           className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors"
                         >
                           +

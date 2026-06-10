@@ -10,7 +10,7 @@ const AnnouncementSection = ({
 }: AnnouncementSectionProps) => {
   return (
     <div
-      className="w-full py-2 px-4 text-center text-sm z-[15000]"
+      className="w-full py-2 px-4 text-center text-sm"
       style={{ backgroundColor: bgColor, color: textColor }}
     >
       {text}

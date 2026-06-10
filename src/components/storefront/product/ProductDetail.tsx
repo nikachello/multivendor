@@ -194,17 +194,19 @@ export default function ProductDetail({
             <div className="inline-flex items-center border border-neutral-200">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                aria-label="Decrease quantity"
                 className="w-10 h-10 flex items-center justify-center text-lg text-neutral-500 hover:text-black transition-colors"
               >
                 −
               </button>
-              <span className="w-10 text-center text-sm">{quantity}</span>
+              <span className="w-10 text-center text-sm" aria-live="polite">{quantity}</span>
               <button
                 onClick={() =>
                   setQuantity((q) =>
                     Math.min(selectedVariant?.stock ?? 99, q + 1)
                   )
                 }
+                aria-label="Increase quantity"
                 className="w-10 h-10 flex items-center justify-center text-lg text-neutral-500 hover:text-black transition-colors"
               >
                 +
@@ -214,7 +216,7 @@ export default function ProductDetail({
 
           {/* Add to cart */}
           <button
-            disabled={!inStock}
+            disabled={!inStock || added}
             onClick={handleAddToCart}
             className="mt-6 w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >

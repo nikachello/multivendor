@@ -1,23 +1,228 @@
 "use client";
 
 import { ShopSection } from "@/lib/types/store-section";
-import { sectionFieldSchema, sectionLabels } from "@/lib/data/editor-schema";
+import { FieldDef, FlatFieldDef, sectionFieldSchema, sectionLabels } from "@/lib/data/editor-schema";
+import { getCategoriesByShop } from "@/lib/data/queries";
 
 type Props = {
   section: ShopSection;
+  shopId: string;
   onChange: (key: string, value: unknown) => void;
 };
 
-export default function SectionSettingsPanel({ section, onChange }: Props) {
+// Renders a single flat (non-list) field and calls onChange with the new value.
+// Extracted so it can be reused both at the top level and inside list items.
+function FlatField({
+  field,
+  value,
+  onChange,
+}: {
+  field: FlatFieldDef;
+  value: unknown;
+  onChange: (val: unknown) => void;
+}) {
+  const labelCls = "block text-xs font-medium text-neutral-600 mb-1.5";
+  const inputCls = "w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors";
+
+  if (field.type === "text") {
+    return (
+      <div>
+        <label className={labelCls}>{field.label}</label>
+        <input
+          type="text"
+          value={typeof value === "string" ? value : ""}
+          placeholder={field.placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputCls}
+        />
+      </div>
+    );
+  }
+
+  if (field.type === "textarea") {
+    return (
+      <div>
+        <label className={labelCls}>{field.label}</label>
+        <textarea
+          value={typeof value === "string" ? value : ""}
+          placeholder={field.placeholder}
+          rows={3}
+          onChange={(e) => onChange(e.target.value)}
+          className={`${inputCls} resize-none`}
+        />
+      </div>
+    );
+  }
+
+  if (field.type === "color") {
+    const str = typeof value === "string" ? value : "#000000";
+    return (
+      <div>
+        <label className={labelCls}>{field.label}</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={str}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-8 h-8 border border-neutral-200 cursor-pointer rounded-sm p-0.5 bg-white"
+          />
+          <span className="text-xs font-mono text-neutral-500">{str}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (field.type === "select") {
+    return (
+      <div>
+        <label className={labelCls}>{field.label}</label>
+        <select
+          value={typeof value === "string" || typeof value === "number" ? value : ""}
+          onChange={(e) => {
+            const raw = e.target.value;
+            const parsed = Number(raw);
+            onChange(isNaN(parsed) ? raw : parsed);
+          }}
+          className={`${inputCls} bg-white`}
+        >
+          {field.options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// Renders a single FieldDef — delegates flat types to FlatField,
+// handles list and select-shop-categories here.
+function Field({
+  field,
+  value,
+  shopId,
+  onChange,
+}: {
+  field: FieldDef;
+  value: unknown;
+  shopId: string;
+  onChange: (val: unknown) => void;
+}) {
+  // Flat types
+  if (
+    field.type === "text" ||
+    field.type === "textarea" ||
+    field.type === "color" ||
+    field.type === "select"
+  ) {
+    return <FlatField field={field} value={value} onChange={onChange} />;
+  }
+
+  // Dynamic select whose options come from the shop's category list
+  if (field.type === "select-shop-categories") {
+    const result = getCategoriesByShop(shopId);
+    const categories = result.ok ? result.data : [];
+    return (
+      <div>
+        <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+          {field.label}
+        </label>
+        <select
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors bg-white"
+        >
+          <option value="">— Select a category —</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  // List of items, each editable via their own FlatField set
+  if (field.type === "list") {
+    const items = (value as Record<string, unknown>[]) ?? [];
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-medium text-neutral-600">{field.label}s</label>
+          <button
+            onClick={() => onChange([...items, { ...field.itemDefault, _id: crypto.randomUUID() }])}
+            className="text-xs border border-neutral-200 hover:border-neutral-400 px-2 py-0.5 text-neutral-500 hover:text-neutral-900 transition-colors"
+          >
+            + Add
+          </button>
+        </div>
+
+        {items.length === 0 && (
+          <p className="text-xs text-neutral-400 text-center py-3 border border-dashed border-neutral-200">
+            No items yet
+          </p>
+        )}
+
+        <div className="space-y-2">
+          {items.map((item, idx) => (
+            <details key={(item._id as string) ?? idx} className="border border-neutral-200 group">
+              <summary className="flex items-center justify-between px-3 py-2 cursor-pointer select-none list-none hover:bg-neutral-50">
+                <span className="text-xs font-medium text-neutral-600">
+                  {field.label} {idx + 1}
+                </span>
+                <svg
+                  className="w-3 h-3 text-neutral-400 transition-transform group-open:rotate-90"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </summary>
+
+              <div className="px-3 pb-3 pt-2 space-y-3 border-t border-neutral-100">
+                {field.itemFields.map((f) => (
+                  <FlatField
+                    key={f.key}
+                    field={f}
+                    value={item[f.key]}
+                    onChange={(val) =>
+                      onChange(
+                        items.map((it, i) => (i === idx ? { ...it, [f.key]: val } : it))
+                      )
+                    }
+                  />
+                ))}
+                <button
+                  onClick={() => onChange(items.filter((_, i) => i !== idx))}
+                  className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+export default function SectionSettingsPanel({ section, shopId, onChange }: Props) {
   const fields = sectionFieldSchema[section.type];
   const props = section.props as Record<string, unknown>;
 
   if (!fields) {
     return (
       <div className="p-5 text-sm text-neutral-400">
-        <p className="font-medium text-neutral-600 mb-1">
-          {sectionLabels[section.type]}
-        </p>
+        <p className="font-medium text-neutral-600 mb-1">{sectionLabels[section.type]}</p>
         <p>
           {section.type === "navbar"
             ? "Edit navigation links in the Navigation editor."
@@ -33,91 +238,15 @@ export default function SectionSettingsPanel({ section, onChange }: Props) {
         {sectionLabels[section.type]}
       </p>
 
-      {fields.map((field) => {
-        const value = props[field.key];
-
-        if (field.type === "text") {
-          return (
-            <div key={field.key}>
-              <label className="block text-xs font-medium text-neutral-600 mb-1.5">
-                {field.label}
-              </label>
-              <input
-                type="text"
-                value={typeof value === "string" ? value : ""}
-                placeholder={field.placeholder}
-                onChange={(e) => onChange(field.key, e.target.value)}
-                className="w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors"
-              />
-            </div>
-          );
-        }
-
-        if (field.type === "textarea") {
-          return (
-            <div key={field.key}>
-              <label className="block text-xs font-medium text-neutral-600 mb-1.5">
-                {field.label}
-              </label>
-              <textarea
-                value={typeof value === "string" ? value : ""}
-                placeholder={field.placeholder}
-                rows={3}
-                onChange={(e) => onChange(field.key, e.target.value)}
-                className="w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors resize-none"
-              />
-            </div>
-          );
-        }
-
-        if (field.type === "color") {
-          return (
-            <div key={field.key}>
-              <label className="block text-xs font-medium text-neutral-600 mb-1.5">
-                {field.label}
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={typeof value === "string" ? value : "#000000"}
-                  onChange={(e) => onChange(field.key, e.target.value)}
-                  className="w-8 h-8 border border-neutral-200 cursor-pointer rounded-sm p-0.5 bg-white"
-                />
-                <span className="text-xs font-mono text-neutral-500">
-                  {typeof value === "string" ? value : "#000000"}
-                </span>
-              </div>
-            </div>
-          );
-        }
-
-        if (field.type === "select") {
-          return (
-            <div key={field.key}>
-              <label className="block text-xs font-medium text-neutral-600 mb-1.5">
-                {field.label}
-              </label>
-              <select
-                value={typeof value === "string" || typeof value === "number" ? value : ""}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  const parsed = Number(raw);
-                  onChange(field.key, isNaN(parsed) ? raw : parsed);
-                }}
-                className="w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors bg-white"
-              >
-                {field.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          );
-        }
-
-        return null;
-      })}
+      {fields.map((field) => (
+        <Field
+          key={field.key}
+          field={field}
+          value={props[field.key]}
+          shopId={shopId}
+          onChange={(val) => onChange(field.key, val)}
+        />
+      ))}
     </div>
   );
 }

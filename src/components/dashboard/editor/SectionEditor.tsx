@@ -84,9 +84,10 @@ export default function SectionEditor({
   }
 
   function handleRemove(id: string) {
-    setSections((prev) => prev.filter((s) => s.id !== id));
+    const remaining = sections.filter((s) => s.id !== id);
+    setSections(remaining);
     if (selectedId === id) {
-      setSelectedId(sections.find((s) => s.id !== id)?.id ?? null);
+      setSelectedId(remaining[0]?.id ?? null);
     }
   }
 
@@ -211,6 +212,7 @@ export default function SectionEditor({
         {selectedSection ? (
           <SectionSettingsPanel
             section={selectedSection}
+            shopId={shopId}
             onChange={handlePropChange}
           />
         ) : (

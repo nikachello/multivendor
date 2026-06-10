@@ -218,9 +218,11 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-neutral-900 truncate">{item.productName}</p>
-                  <p className="text-xs text-neutral-400 mt-0.5">
-                    {Object.values(item.variantOptions).join(" · ")}
-                  </p>
+                  {Object.values(item.variantOptions).length > 0 && (
+                    <p className="text-xs text-neutral-400 mt-0.5">
+                      {Object.values(item.variantOptions).join(" · ")}
+                    </p>
+                  )}
                 </div>
                 <p className="text-sm text-neutral-900 whitespace-nowrap">
                   {currency} {(item.price * item.quantity).toFixed(2)}

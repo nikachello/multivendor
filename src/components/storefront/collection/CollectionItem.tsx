@@ -23,7 +23,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
     (v) => v.price !== lowestPrice
   );
   const isSoldOut =
-    product.variants.length > 0 &&
+    product.variants.length === 0 ||
     product.variants.every((v) => v.stock === 0);
 
   return (
@@ -86,7 +86,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
         </p>
         <p className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : "text-neutral-500"}`}>
           {hasMultipleVariantPrices ? "From " : ""}
-          {currency} {lowestPrice}
+          {currency} {lowestPrice.toFixed(2)}
         </p>
       </div>
     </Link>
