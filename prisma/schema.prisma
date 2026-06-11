@@ -89,13 +89,14 @@ model Shop {
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 
-  owner       User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  products    Product[]
-  categories  Category[]
-  orders      Order[]
-  sections    ShopSection[]
-  optionTypes OptionType[]
-  subscribers Subscriber[]
+  owner        User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  products     Product[]
+  categories   Category[]
+  orders       Order[]
+  sections     ShopSection[]
+  optionTypes  OptionType[]
+  subscribers  Subscriber[]
+  testimonials Testimonial[]
 }
 
 // ============================================
@@ -129,6 +130,7 @@ model Product {
   shopId      String
   categoryId  String?
   name        String
+  slug        String
   description String?
   priceFrom   Decimal  @db.Decimal(10, 2)
   isActive    Boolean  @default(true)
@@ -141,6 +143,8 @@ model Product {
   variants    Variant[]
   optionTypes ProductOptionType[]
   orderItems  OrderItem[]
+
+  @@unique([shopId, slug])
 }
 
 // ============================================
@@ -304,6 +308,22 @@ model Subscriber {
   shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@unique([shopId, email])
+}
+
+// ============================================
+// TESTIMONIAL
+// ============================================
+model Testimonial {
+  id        String   @id @default(cuid())
+  shopId    String
+  name      String
+  position  String?
+  testimony String
+  rating    Int?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
 }
 
 // ============================================

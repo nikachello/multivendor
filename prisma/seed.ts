@@ -13,6 +13,7 @@ async function main() {
   await prisma.variantOptionValue.deleteMany();
   await prisma.productOptionType.deleteMany();
   await prisma.shopSection.deleteMany();
+  await prisma.testimonial.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.subscriber.deleteMany();
@@ -110,6 +111,7 @@ async function main() {
       shopId: shop.id,
       categoryId: luxuryCat.id,
       name: "Royal Classic Watch",
+      slug: "royal-classic-watch",
       description:
         "An elegantly crafted timepiece with a steel case and sapphire crystal glass. Built to last, designed to impress.",
       priceFrom: 199,
@@ -153,6 +155,7 @@ async function main() {
       shopId: shop.id,
       categoryId: luxuryCat.id,
       name: "Crystal Pearl Watch",
+      slug: "crystal-pearl-watch",
       description:
         "A refined luxury watch featuring a mother-of-pearl dial and premium leather strap. Timeless femininity meets precision engineering.",
       priceFrom: 289,
@@ -193,6 +196,7 @@ async function main() {
       shopId: shop.id,
       categoryId: sportCat.id,
       name: "Sport Pro Watch",
+      slug: "sport-pro-watch",
       description:
         "Lightweight and durable, built for high-performance athletes. Water-resistant up to 100m with a built-in stopwatch.",
       priceFrom: 99,
@@ -228,6 +232,7 @@ async function main() {
       shopId: shop.id,
       categoryId: sportCat.id,
       name: "Trail Runner Watch",
+      slug: "trail-runner-watch",
       description:
         "Designed for the outdoors. GPS-ready casing, scratch-resistant glass, and an adjustable silicone strap for any terrain.",
       priceFrom: 129,
@@ -358,11 +363,23 @@ async function main() {
     ],
   });
 
+  // ── TESTIMONIALS ──────────────────────────────────────────────────────────
+  await prisma.testimonial.createMany({
+    data: [
+      { shopId: shop.id, name: "გიორგი მელაძე", position: "თბილისი", rating: 5, testimony: "ძალიან კმაყოფილი დავრჩი ხარისხით და მიწოდების სისწრაფით. პროდუქტიც ზუსტად ისეთი იყო, როგორიც ფოტოებში ჩანდა." },
+      { shopId: shop.id, name: "ნინო კაპანაძე", position: "ონლაინ მყიდველი", rating: 4, testimony: "შეფუთვა პრემიუმ ხარისხის იყო და მომსახურებაც ძალიან ყურადღებიანი. აუცილებლად ისევ შევიძენ." },
+      { shopId: shop.id, name: "ლუკა ჯაფარიძე", position: "ბათუმი", rating: 5, testimony: "საიტი ძალიან მოსახერხებელია, შეკვეთაც მარტივად გავაკეთე და პროდუქტი დროულად მივიღე." },
+      { shopId: shop.id, name: "თამარ აბაშიძე", position: "კოსმეტოლოგი", rating: 5, testimony: "პროდუქტის ხარისხმა მოლოდინს გადააჭარბა. ნამდვილად იგრძნობა ყურადღება დეტალების მიმართ." },
+      { shopId: shop.id, name: "სანდრო ბერიძე", position: "მომხმარებელი", rating: 4, testimony: "ფასი და ხარისხი იდეალურად არის დაბალანსებული. მხარდაჭერის გუნდმაც ძალიან სწრაფად მიპასუხა." },
+    ],
+  });
+
   console.log(`✓ Shop: ${shop.name} (${shop.slug})`);
   console.log(`✓ Categories: Luxury Watches, Sport Watches`);
   console.log(`✓ Products: 4 (Royal Classic, Crystal Pearl, Sport Pro, Trail Runner)`);
   console.log(`✓ Variants: 9 total`);
   console.log(`✓ Sections: 8`);
+  console.log(`✓ Testimonials: 5`);
   console.log("Seed complete!");
 }
 

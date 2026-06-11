@@ -1,9 +1,9 @@
 import { Marquee } from "@/components/ui/marquee";
 import TestimonialCard from "./Testimony";
-import { ShopTestimonial } from "@/lib/types/data-types";
+import { Testimonial } from "@/generated/prisma/client";
 
 type Props = {
-  testimonials: ShopTestimonial[];
+  testimonials: Testimonial[];
 };
 
 const Testimonials = ({ testimonials }: Props) => {

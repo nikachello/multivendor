@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import {
   getShopBySlug,
-  getProductById,
+  getProductBySlug,
   getShopSections,
 } from "@/lib/db/queries";
 import { sectionRegistry } from "@/lib/section-registry";
@@ -13,13 +13,16 @@ import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string; productId: string }>;
+  params: Promise<{ slug: string; productSlug: string }>;
 }): Promise<Metadata> {
-  const { slug, productId } = await params;
+  const { slug, productSlug } = await params;
+
   const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) return { title: "Not Found" };
-  const productResult = getProductById(shopResult.data.id, productId);
+
+  const productResult = await getProductBySlug(shopResult.data.id, productSlug);
   if (!productResult.ok) return { title: "Not Found" };
+
   const { name, description } = productResult.data;
   return {
     title: `${name} — ${shopResult.data.name}`,
@@ -30,15 +33,15 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string; productId: string }>;
+  params: Promise<{ slug: string; productSlug: string }>;
 }) {
-  const { slug, productId } = await params;
+  const { slug, productSlug } = await params;
 
   const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const productResult = getProductById(shop.id, productId);
+  const productResult = await getProductBySlug(shop.id, productSlug);
   if (!productResult.ok) notFound();
   const product = productResult.data;
 
@@ -56,7 +59,7 @@ export default async function ProductPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug
+            shop.slug,
           )}
           shopId={shop.id}
           shopSlug={shop.slug}

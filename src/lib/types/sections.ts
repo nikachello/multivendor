@@ -1,4 +1,4 @@
-import { Category, Pro, ShopTestimonial } from "./data-types";
+import { Pro } from "./data-types";
 
 export type SectionContext = {
   shopId?: string;
@@ -50,9 +50,7 @@ export type ProsSectionProps = {
   pros: Pro[];
 };
 
-export type TestimonialsSectionProps = {
-  testimonials: ShopTestimonial[];
-};
+export type TestimonialsSectionProps = SectionContext;
 
 export type CategoriesSectionProps = {
   title?: string;

@@ -29,7 +29,7 @@ const CollectionSection = async ({
 
   if (!category) return null;
 
-  const productsResult = getProductsByCategory(shopId, categoryId);
+  const productsResult = await getProductsByCategory(shopId, categoryId);
 
   if (!productsResult.ok) {
     return null;

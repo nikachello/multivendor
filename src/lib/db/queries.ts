@@ -1,7 +1,26 @@
 import { err, ok, Result } from "@/lib/result";
 import { ShopSection } from "@/lib/types/store-section";
 import prisma from "./prisma";
-import { Category, Product, Shop } from "@/generated/prisma/client";
+import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
+
+const productInclude = {
+  images: { orderBy: { sortOrder: "asc" } },
+  variants: {
+    include: {
+      optionValues: {
+        include: {
+          optionValue: {
+            include: { optionType: true },
+          },
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductInclude;
+
+export type ProductWithRelations = Prisma.ProductGetPayload<{
+  include: typeof productInclude;
+}>;
 
 // ============================================
 // SHOP
@@ -119,10 +138,10 @@ export async function getCategoryBySlug(
 // PRODUCT BY ID
 // ============================================
 
-export async function getProductById(
+export async function getProductBySlug(
   shopId: string,
-  productId: string,
-): Promise<Result<Product>> {
+  productSlug: string,
+): Promise<Result<ProductWithRelations>> {
   if (!shopId) {
     return err({
       code: "SHOP_ID_MISSING",
@@ -131,26 +150,23 @@ export async function getProductById(
     });
   }
 
-  if (!productId) {
+  if (!productSlug) {
     return err({
-      code: "PRODUCT_ID_MISSING",
+      code: "PRODUCT_SLUG_MISSING",
       message: "საჭიროა პროდუქტის იდენტიფიკატორი",
       status: 400,
     });
   }
 
   const product = await prisma.product.findFirst({
-    where: {
-      id: productId,
-      shopId: shopId,
-      isActive: true,
-    },
+    where: { slug: productSlug, shopId, isActive: true },
+    include: productInclude,
   });
 
   if (!product) {
     return err({
       code: "PRODUCT_NOT_FOUND",
-      message: "Product not found",
+      message: "პროდუქტი არ მოიძებნა",
       status: 404,
     });
   }
@@ -165,7 +181,7 @@ export async function getProductById(
 export async function getProductsByCategory(
   shopId: string,
   categoryId: string,
-): Promise<Result<Product[]>> {
+): Promise<Result<ProductWithRelations[]>> {
   if (!shopId) {
     return err({
       code: "SHOP_ID_MISSING",
@@ -183,12 +199,49 @@ export async function getProductsByCategory(
   }
 
   const products = await prisma.product.findMany({
+    where: { shopId, categoryId, isActive: true },
+    include: productInclude,
+  });
+
+  if (!products) {
+    return err({
+      code: "PRODUCTS_NOT_FOUND",
+      message: "პროდუქტები არ მოიძებნა",
+      status: 404,
+    });
+  }
+
+  return ok(products);
+}
+
+// ============================================
+// TESTIMONIAL
+// ============================================
+
+export async function getTestimonialsByShop(
+  shopId: string,
+): Promise<Result<Testimonial[]>> {
+  if (!shopId) {
+    return err({
+      code: "SHOP_ID_MISSING",
+      message: "Shop id is required",
+      status: 400,
+    });
+  }
+
+  const testimonials = await prisma.testimonial.findMany({
     where: {
-      shopId: shopId,
-      categoryId: categoryId,
-      isActive: true,
+      shopId,
     },
   });
 
-  return ok(products);
+  if (!testimonials) {
+    return err({
+      code: "TESTIMONIALS_NOT_FOUND",
+      message: "შეფასება არ მოიძებნა",
+      status: 404,
+    });
+  }
+
+  return ok(testimonials);
 }

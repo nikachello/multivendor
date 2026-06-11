@@ -3,11 +3,11 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Product } from "@/lib/types/data-types";
 import { useCart } from "@/hooks/useCart";
+import { ProductWithRelations } from "@/lib/db/queries";
 
 type Props = {
-  product: Product;
+  product: ProductWithRelations;
   currency: string;
   shopSlug: string;
   shopName: string;
@@ -23,7 +23,7 @@ export default function ProductDetail({
 }: Props) {
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
-  >(() => product.variants[0]?.options ?? {});
+  >(() => getVariantOptions(product.variants[0]) ?? {});
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
@@ -31,11 +31,22 @@ export default function ProductDetail({
 
   const { add } = useCart(shopId);
 
+  function getVariantOptions(
+    variants: ProductWithRelations["variants"][number],
+  ): Record<string, string> {
+    return Object.fromEntries(
+      variants.optionValues.map((ov) => [
+        ov.optionValue.optionType.name,
+        ov.optionValue.value,
+      ]),
+    );
+  }
+
   // Collect unique values per option key across all variants
   const optionGroups = useMemo(() => {
     const groups: Record<string, string[]> = {};
     for (const variant of product.variants) {
-      for (const [key, value] of Object.entries(variant.options)) {
+      for (const [key, value] of Object.entries(getVariantOptions(variant))) {
         if (!groups[key]) groups[key] = [];
         if (!groups[key].includes(value)) groups[key].push(value);
       }
@@ -45,14 +56,18 @@ export default function ProductDetail({
 
   const selectedVariant = useMemo(
     () =>
-      product.variants.find((v) =>
-        Object.entries(selectedOptions).every(([k, val]) => v.options[k] === val)
-      ) ?? product.variants[0],
-    [product.variants, selectedOptions]
+      product.variants.find((v) => {
+        const opts = getVariantOptions(v);
+        return Object.entries(selectedOptions).every(
+          ([k, val]) => opts[k] === val,
+        );
+      }) ?? product.variants[0],
+    [product.variants, selectedOptions],
   );
 
   const images = product.images.length > 0 ? product.images : [];
-  const mainImageSrc = selectedVariant?.image ?? images[activeImage] ?? null;
+  const mainImageSrc =
+    selectedVariant?.image ?? images[activeImage].url ?? null;
 
   function selectOption(key: string, value: string) {
     setSelectedOptions((prev) => ({ ...prev, [key]: value }));
@@ -70,10 +85,10 @@ export default function ProductDetail({
       variantId: selectedVariant.id,
       productId: product.id,
       productName: product.name,
-      variantOptions: selectedVariant.options,
-      price: selectedVariant.price,
+      variantOptions: getVariantOptions(selectedVariant),
+      price: Number(selectedVariant.price),
       quantity,
-      image: selectedVariant.image ?? product.images[0],
+      image: selectedVariant.image ?? product.images[0].url,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -83,7 +98,10 @@ export default function ProductDetail({
     <div>
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-neutral-400 mb-8">
-        <Link href={`/shop/${shopSlug}`} className="hover:text-neutral-600 transition-colors">
+        <Link
+          href={`/shop/${shopSlug}`}
+          className="hover:text-neutral-600 transition-colors"
+        >
           {shopName}
         </Link>
         <span>/</span>
@@ -125,7 +143,7 @@ export default function ProductDetail({
                 >
                   {!imgErrors[i] ? (
                     <Image
-                      src={src}
+                      src={src.url}
                       alt=""
                       fill
                       className="object-cover"
@@ -148,7 +166,7 @@ export default function ProductDetail({
           </h1>
 
           <p className="mt-3 text-xl font-medium text-neutral-900">
-            {currency} {selectedVariant?.price ?? product.priceFrom}
+            {currency} {Number(selectedVariant?.price ?? product.priceFrom)}
           </p>
 
           {selectedVariant && (
@@ -199,11 +217,13 @@ export default function ProductDetail({
               >
                 −
               </button>
-              <span className="w-10 text-center text-sm" aria-live="polite">{quantity}</span>
+              <span className="w-10 text-center text-sm" aria-live="polite">
+                {quantity}
+              </span>
               <button
                 onClick={() =>
                   setQuantity((q) =>
-                    Math.min(selectedVariant?.stock ?? 99, q + 1)
+                    Math.min(selectedVariant?.stock ?? 99, q + 1),
                   )
                 }
                 aria-label="Increase quantity"

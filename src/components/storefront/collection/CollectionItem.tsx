@@ -3,24 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Product } from "@/lib/types/data-types";
+import { ProductWithRelations } from "@/lib/db/queries";
 
 type Props = {
-  product: Product;
+  product: ProductWithRelations;
   currency: string;
   shopSlug: string;
 };
 
 const CollectionItem = ({ product, currency, shopSlug }: Props) => {
   const [imgError, setImgError] = useState(false);
-  const mainImage = product.images[0];
+  const mainImage = product.images[0].url;
   const hasImage = !!mainImage && !imgError;
 
   const lowestPrice = product.variants.length
-    ? Math.min(...product.variants.map((v) => v.price))
+    ? Math.min(...product.variants.map((v) => Number(v.price)))
     : 0;
   const hasMultipleVariantPrices = product.variants.some(
-    (v) => v.price !== lowestPrice
+    (v) => Number(v.price) !== lowestPrice,
   );
   const isSoldOut =
     product.variants.length === 0 ||
@@ -28,7 +28,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
 
   return (
     <Link
-      href={`/shop/${shopSlug}/product/${product.id}`}
+      href={`/shop/${shopSlug}/product/${product.slug}`}
       className="group block"
     >
       {/* Image */}
@@ -84,7 +84,9 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
         <p className="text-sm font-medium text-neutral-900 truncate">
           {product.name}
         </p>
-        <p className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : "text-neutral-500"}`}>
+        <p
+          className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : "text-neutral-500"}`}
+        >
           {hasMultipleVariantPrices ? "From " : ""}
           {currency} {lowestPrice.toFixed(2)}
         </p>

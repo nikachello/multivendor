@@ -19,7 +19,10 @@ export async function generateMetadata({
   const { slug, categorySlug } = await params;
   const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) return { title: "Not Found" };
-  const categoryResult = await getCategoryBySlug(shopResult.data.id, categorySlug);
+  const categoryResult = await getCategoryBySlug(
+    shopResult.data.id,
+    categorySlug,
+  );
   if (!categoryResult.ok) return { title: "Not Found" };
   return {
     title: `${categoryResult.data.name} — ${shopResult.data.name}`,
@@ -41,7 +44,7 @@ export default async function CollectionPage({
   if (!categoryResult.ok) notFound();
   const category = categoryResult.data;
 
-  const productsResult = getProductsByCategory(shop.id, category.id);
+  const productsResult = await getProductsByCategory(shop.id, category.id);
   const products = productsResult.ok ? productsResult.data : [];
 
   const sectionsResult = await getShopSections(shop.id);
@@ -58,7 +61,7 @@ export default async function CollectionPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug
+            shop.slug,
           )}
           shopId={shop.id}
           shopSlug={shop.slug}

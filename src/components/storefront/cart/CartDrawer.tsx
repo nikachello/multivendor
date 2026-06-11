@@ -23,7 +23,9 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
       {/* Backdrop — always in DOM so opacity can transition with the drawer */}
       <div
         className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-300 ${
-          cartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          cartOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setCartOpen(false)}
       />
@@ -44,8 +46,18 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
             className="text-neutral-400 hover:text-black transition-colors"
             aria-label="Close cart"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -54,8 +66,18 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-neutral-400">
-              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+              <svg
+                className="w-10 h-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                />
               </svg>
               <p className="text-sm">Your cart is empty</p>
             </div>
@@ -75,8 +97,18 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-300">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                       </div>
                     )}
@@ -100,16 +132,25 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
                     <div className="flex items-center gap-3 mt-2">
                       <div className="inline-flex items-center border border-neutral-200">
                         <button
-                          onClick={() => setQuantity(item.variantId, item.quantity - 1)}
+                          onClick={() =>
+                            setQuantity(item.variantId, item.quantity - 1)
+                          }
                           disabled={item.quantity === 1}
                           aria-label="Decrease quantity"
                           className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           −
                         </button>
-                        <span className="w-7 text-center text-xs" aria-live="polite">{item.quantity}</span>
+                        <span
+                          className="w-7 text-center text-xs"
+                          aria-live="polite"
+                        >
+                          {item.quantity}
+                        </span>
                         <button
-                          onClick={() => setQuantity(item.variantId, item.quantity + 1)}
+                          onClick={() =>
+                            setQuantity(item.variantId, item.quantity + 1)
+                          }
                           aria-label="Increase quantity"
                           className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors"
                         >
