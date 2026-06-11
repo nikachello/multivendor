@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,25 +7,21 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // ============================================
 // USER
 // ============================================
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  avatar    String?
-  role      Role     @default(customer)
-
-  shop      Shop?
-  orders    Order[]
-
-  // BetterAuth required fields
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  avatar        String?
+  role          Role     @default(customer)
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  shops    Shop[]
+  orders   Order[]
   sessions Session[]
   accounts Account[]
 }
@@ -52,19 +43,19 @@ model Session {
 }
 
 model Account {
-  id                String   @id @default(cuid())
-  userId            String
-  accountId         String
-  providerId        String
-  accessToken       String?
-  refreshToken      String?
-  accessTokenExpiresAt DateTime?
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope             String?
-  idToken           String?
-  password          String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -82,24 +73,29 @@ model Verification {
 // SHOP
 // ============================================
 model Shop {
-  id             String   @id @default(cuid())
-  ownerId        String   @unique
-  name           String
-  slug           String   @unique
-  description    String?
-  logo           String?
-  banner         String?
-  customDomain   String?  @unique
-  domainVerified Boolean  @default(false)
-  currency       String   @default("USD")
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                       String   @id @default(cuid())
+  ownerId                  String
+  name                     String
+  slug                     String   @unique
+  description              String?
+  logo                     String?
+  banner                   String?
+  customDomain             String?  @unique
+  domainVerified           Boolean  @default(false)
+  currency                 String   @default("USD")
+  isActive                 Boolean  @default(true)
+  requireAccountToCheckout Boolean  @default(false)
+  checkoutFields           Json     @default("{}")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
-  owner      User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  products   Product[]
-  categories Category[]
-  orders     Order[]
+  owner       User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  products    Product[]
+  categories  Category[]
+  orders      Order[]
+  sections    ShopSection[]
+  optionTypes OptionType[]
+  subscribers Subscriber[]
 }
 
 // ============================================
@@ -134,33 +130,125 @@ model Product {
   categoryId  String?
   name        String
   description String?
-  priceFrom     Decimal @db.Decimal(10, 2)
-  images      String[]
+  priceFrom   Decimal  @db.Decimal(10, 2)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  shop     Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  variants Variant[]
+  shop        Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category    Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images      ProductImage[]
+  variants    Variant[]
+  optionTypes ProductOptionType[]
+  orderItems  OrderItem[]
+}
+
+// ============================================
+// PRODUCT IMAGE
+// ============================================
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  altText   String?
+  sortOrder Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// OPTION TYPE  (shop-level, reusable across products)
+// e.g. "Color", "Size", "Reflection Rate"
+// ============================================
+model OptionType {
+  id     String @id @default(cuid())
+  shopId String
+  name   String
+
+  shop     Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  values   OptionValue[]
+  products ProductOptionType[]
+
+  @@unique([shopId, name])
+}
+
+// ============================================
+// OPTION VALUE
+// e.g. "Black", "XL", "98%"
+// ============================================
+model OptionValue {
+  id           String @id @default(cuid())
+  optionTypeId String
+  value        String
+
+  optionType    OptionType          @relation(fields: [optionTypeId], references: [id], onDelete: Cascade)
+  variantValues VariantOptionValue[]
+
+  @@unique([optionTypeId, value])
+}
+
+// ============================================
+// PRODUCT OPTION TYPE  (join: Product ↔ OptionType)
+// position controls display order in the UI
+// ============================================
+model ProductOptionType {
+  productId    String
+  optionTypeId String
+  position     Int    @default(0)
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionType OptionType @relation(fields: [optionTypeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, optionTypeId])
 }
 
 // ============================================
 // VARIANT
 // ============================================
 model Variant {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   productId String
-  sku       String  @unique
-  price     Decimal @db.Decimal(10, 2)
-  stock     Int     @default(0)
+  sku       String
+  price     Decimal  @db.Decimal(10, 2)
+  stock     Int      @default(0)
   image     String?
-  options   Json    // { "color": "Black", "size": "42" }
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  product      Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionValues VariantOptionValue[]
+  orderItems   OrderItem[]
+
+  @@unique([productId, sku])
+}
+
+// ============================================
+// VARIANT OPTION VALUE  (join: Variant ↔ OptionValue)
+// ============================================
+model VariantOptionValue {
+  variantId     String
+  optionValueId String
+
+  variant     Variant     @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  optionValue OptionValue @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, optionValueId])
+  @@index([optionValueId])
+}
+
+// ============================================
+// SHOP SECTION
+// ============================================
+model ShopSection {
+  id     String @id @default(cuid())
+  shopId String
+  type   String
+  props  Json
+  order  Int
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, order])
 }
 
 // ============================================
@@ -169,7 +257,9 @@ model Variant {
 model Order {
   id              String      @id @default(cuid())
   shopId          String
-  customerId      String
+  customerId      String?
+  customerEmail   String?
+  customerPhone   String?
   status          OrderStatus @default(pending)
   subtotal        Decimal     @db.Decimal(10, 2)
   total           Decimal     @db.Decimal(10, 2)
@@ -178,24 +268,42 @@ model Order {
   updatedAt       DateTime    @updatedAt
 
   shop     Shop        @relation(fields: [shopId], references: [id])
-  customer User        @relation(fields: [customerId], references: [id])
+  customer User?       @relation(fields: [customerId], references: [id])
   items    OrderItem[]
 }
 
 // ============================================
-// ORDER ITEM
+// ORDER ITEM  (everything snapshotted — never mutated)
 // ============================================
 model OrderItem {
   id             String  @id @default(cuid())
   orderId        String
   variantId      String
+  productId      String
   productName    String
   variantOptions Json
   price          Decimal @db.Decimal(10, 2)
   quantity       Int
+  image          String?
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   variant Variant @relation(fields: [variantId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// ============================================
+// SUBSCRIBER  (email/phone collected at checkout or via opt-in)
+// ============================================
+model Subscriber {
+  id           String   @id @default(cuid())
+  shopId       String
+  email        String?
+  phone        String?
+  subscribedAt DateTime @default(now())
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, email])
 }
 
 // ============================================
