@@ -4,7 +4,7 @@ import {
   getShopBySlug,
   getProductById,
   getShopSections,
-} from "@/lib/data/queries";
+} from "@/lib/db/queries";
 import { sectionRegistry } from "@/lib/section-registry";
 import ProductDetail from "@/components/storefront/product/ProductDetail";
 import { NavbarSectionProps } from "@/lib/types/sections";
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; productId: string }>;
 }): Promise<Metadata> {
   const { slug, productId } = await params;
-  const shopResult = getShopBySlug(slug);
+  const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) return { title: "Not Found" };
   const productResult = getProductById(shopResult.data.id, productId);
   if (!productResult.ok) return { title: "Not Found" };
@@ -34,7 +34,7 @@ export default async function ProductPage({
 }) {
   const { slug, productId } = await params;
 
-  const shopResult = getShopBySlug(slug);
+  const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
@@ -42,8 +42,7 @@ export default async function ProductPage({
   if (!productResult.ok) notFound();
   const product = productResult.data;
 
-  // Reuse the shop's navbar section so it stays consistent
-  const sectionsResult = getShopSections(shop.id);
+  const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
   const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<

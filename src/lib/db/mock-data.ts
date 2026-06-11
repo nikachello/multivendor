@@ -6,7 +6,7 @@ import {
   Pro,
   ShopTestimonial,
 } from "@/lib/types/data-types";
-import { NavItem } from "./types/sections";
+import { NavItem } from "@/lib/types/sections";
 
 export const shops: Shop[] = [
   {

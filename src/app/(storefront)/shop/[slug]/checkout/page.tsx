@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getShopBySlug, getShopSections } from "@/lib/data/queries";
+import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { sectionRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = getShopBySlug(slug);
+  const result = await getShopBySlug(slug);
   if (!result.ok) return { title: "Not Found" };
   return { title: `Checkout — ${result.data.name}` };
 }
@@ -24,11 +24,11 @@ export default async function CheckoutPage({
 }) {
   const { slug } = await params;
 
-  const shopResult = getShopBySlug(slug);
+  const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const sectionsResult = getShopSections(shop.id);
+  const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
   const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<

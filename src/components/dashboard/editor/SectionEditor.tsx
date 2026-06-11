@@ -22,7 +22,7 @@ import {
 } from "@dnd-kit/modifiers";
 
 import { ShopSection } from "@/lib/types/store-section";
-import { AddableSectionType, sectionDefaults } from "@/lib/data/editor-schema";
+import { AddableSectionType, sectionDefaults } from "@/lib/editor-schema";
 import SortableSectionRow from "./SortableSectionRow";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import StorefrontPreview from "./StorefrontPreview";
@@ -34,12 +34,14 @@ type Props = {
   shopSlug: string;
   shopName: string;
   currency: string;
+  categories: { id: string; name: string }[];
 };
 
 export default function SectionEditor({
   initialSections,
   shopId,
   shopSlug,
+  categories,
 }: Props) {
   const [sections, setSections] = useState<ShopSection[]>(initialSections);
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -230,6 +232,7 @@ export default function SectionEditor({
           <SectionSettingsPanel
             section={selectedSection}
             shopId={shopId}
+            categories={categories}
             onChange={handlePropChange}
           />
         ) : (

@@ -1,5 +1,5 @@
 import { ShopSection } from "@/lib/types/store-section";
-import { mainMenu, pros, shopTestimonials } from "@/lib/mock-data";
+import { mainMenu, pros, shopTestimonials } from "./mock-data";
 
 export const shopSections: Record<string, ShopSection[]> = {
   shop_1: [

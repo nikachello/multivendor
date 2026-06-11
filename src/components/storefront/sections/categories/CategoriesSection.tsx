@@ -1,13 +1,12 @@
-"use client";
+"use server";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 import { CategoriesSectionProps } from "@/lib/types/sections";
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/data/queries";
+import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
+import CategoryImage from "./CategoryImage";
 
-export default function CategoriesSection({
+export default async function CategoriesSection({
   title = "Shop by Category",
   categoryIds,
   columns = 4,
@@ -15,11 +14,11 @@ export default function CategoriesSection({
   shopId,
   shopSlug,
 }: CategoriesSectionProps & { shopId?: string; shopSlug?: string }) {
-  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  // const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   if (!shopId || !shopSlug) return null;
 
-  const result = getCategoriesByShop(shopId);
+  const result = await getCategoriesByShop(shopId);
 
   if (!result.ok) {
     return (
@@ -51,7 +50,7 @@ export default function CategoriesSection({
   const productCounts: Record<string, number> = {};
   if (showProductCount) {
     for (const cat of displayCategories) {
-      const r = getProductsByCategory(shopId, cat.id);
+      const r = await getProductsByCategory(shopId, cat.id);
       productCounts[cat.id] = r.ok ? r.data.length : 0;
     }
   }
@@ -80,22 +79,7 @@ export default function CategoriesSection({
             className="block"
           >
             <div className="relative aspect-square overflow-hidden bg-neutral-100">
-              {category.image && !imgErrors[category.id] ? (
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover"
-                  onError={() =>
-                    setImgErrors((prev) => ({ ...prev, [category.id]: true }))
-                  }
-                  unoptimized
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-sm text-neutral-500">
-                  No image
-                </div>
-              )}
+              <CategoryImage category={category} />
             </div>
 
             <div className="mt-3 text-center">

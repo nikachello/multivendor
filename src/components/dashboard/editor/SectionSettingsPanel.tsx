@@ -1,12 +1,14 @@
 "use client";
 
 import { ShopSection } from "@/lib/types/store-section";
-import { FieldDef, FlatFieldDef, sectionFieldSchema, sectionLabels } from "@/lib/data/editor-schema";
-import { getCategoriesByShop } from "@/lib/data/queries";
+import { FieldDef, FlatFieldDef, sectionFieldSchema, sectionLabels } from "@/lib/editor-schema";
+
+type ShopCategory = { id: string; name: string };
 
 type Props = {
   section: ShopSection;
   shopId: string;
+  categories: ShopCategory[];
   onChange: (key: string, value: unknown) => void;
 };
 
@@ -103,12 +105,12 @@ function FlatField({
 function Field({
   field,
   value,
-  shopId,
+  categories,
   onChange,
 }: {
   field: FieldDef;
   value: unknown;
-  shopId: string;
+  categories: ShopCategory[];
   onChange: (val: unknown) => void;
 }) {
   // Flat types
@@ -123,8 +125,6 @@ function Field({
 
   // Dynamic select whose options come from the shop's category list
   if (field.type === "select-shop-categories") {
-    const result = getCategoriesByShop(shopId);
-    const categories = result.ok ? result.data : [];
     return (
       <div>
         <label className="block text-xs font-medium text-neutral-600 mb-1.5">
@@ -215,7 +215,7 @@ function Field({
   return null;
 }
 
-export default function SectionSettingsPanel({ section, shopId, onChange }: Props) {
+export default function SectionSettingsPanel({ section, shopId, categories, onChange }: Props) {
   const fields = sectionFieldSchema[section.type];
   const props = section.props as Record<string, unknown>;
 
@@ -243,7 +243,7 @@ export default function SectionSettingsPanel({ section, shopId, onChange }: Prop
           key={field.key}
           field={field}
           value={props[field.key]}
-          shopId={shopId}
+          categories={categories}
           onChange={(val) => onChange(field.key, val)}
         />
       ))}

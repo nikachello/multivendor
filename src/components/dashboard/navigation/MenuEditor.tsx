@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 import MenuTree from "./MenuTree";
 import ItemEditor from "./ItemEditor";
 
-import { mainMenu } from "@/lib/mock-data";
+import { mainMenu } from "@/lib/db/mock-data";
 
 import { findItem } from "@/lib/navigation/find-item";
 import { createItem } from "@/lib/navigation/create-item";

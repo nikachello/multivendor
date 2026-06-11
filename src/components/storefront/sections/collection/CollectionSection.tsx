@@ -1,4 +1,4 @@
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/data/queries";
+import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
 
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
 import { CollectionSectionProps } from "@/lib/types/sections";
@@ -9,7 +9,7 @@ type Props = CollectionSectionProps & {
   currency?: string;
 };
 
-const CollectionSection = ({
+const CollectionSection = async ({
   categoryId,
   shopId,
   shopSlug,
@@ -17,7 +17,7 @@ const CollectionSection = ({
 }: Props) => {
   if (!shopId || !shopSlug || !currency) return null;
 
-  const categoriesResult = getCategoriesByShop(shopId);
+  const categoriesResult = await getCategoriesByShop(shopId);
 
   if (!categoriesResult.ok) {
     return null;
