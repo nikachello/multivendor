@@ -5,7 +5,7 @@ import {
   getCategoryBySlug,
   getProductsByCategory,
   getShopSections,
-} from "@/lib/data/queries";
+} from "@/lib/db/queries";
 import { sectionRegistry } from "@/lib/section-registry";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
 import { NavbarSectionProps } from "@/lib/types/sections";
@@ -17,9 +17,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string; categorySlug: string }>;
 }): Promise<Metadata> {
   const { slug, categorySlug } = await params;
-  const shopResult = getShopBySlug(slug);
+  const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) return { title: "Not Found" };
-  const categoryResult = getCategoryBySlug(shopResult.data.id, categorySlug);
+  const categoryResult = await getCategoryBySlug(
+    shopResult.data.id,
+    categorySlug,
+  );
   if (!categoryResult.ok) return { title: "Not Found" };
   return {
     title: `${categoryResult.data.name} — ${shopResult.data.name}`,
@@ -33,18 +36,18 @@ export default async function CollectionPage({
 }) {
   const { slug, categorySlug } = await params;
 
-  const shopResult = getShopBySlug(slug);
+  const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const categoryResult = getCategoryBySlug(shop.id, categorySlug);
+  const categoryResult = await getCategoryBySlug(shop.id, categorySlug);
   if (!categoryResult.ok) notFound();
   const category = categoryResult.data;
 
-  const productsResult = getProductsByCategory(shop.id, category.id);
+  const productsResult = await getProductsByCategory(shop.id, category.id);
   const products = productsResult.ok ? productsResult.data : [];
 
-  const sectionsResult = getShopSections(shop.id);
+  const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
   const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
@@ -58,7 +61,7 @@ export default async function CollectionPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug
+            shop.slug,
           )}
           shopId={shop.id}
           shopSlug={shop.slug}

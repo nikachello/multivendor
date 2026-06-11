@@ -1,7 +1,7 @@
-import { ShopTestimonial } from "@/lib/types/data-types";
+import { Testimonial } from "@/generated/prisma/client";
 
 type Props = {
-  testimonial: ShopTestimonial;
+  testimonial: Testimonial;
 };
 
 const TestimonialCard = ({ testimonial }: Props) => {

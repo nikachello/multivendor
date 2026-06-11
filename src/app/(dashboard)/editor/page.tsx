@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getShopBySlug, getShopSections } from "@/lib/data/queries";
+import { getShopBySlug, getShopSections, getCategoriesByShop } from "@/lib/db/queries";
 import SectionEditor from "@/components/dashboard/editor/SectionEditor";
 
 // Hardcoded to niko-watches until auth + shop-picker is built.
@@ -7,11 +7,14 @@ import SectionEditor from "@/components/dashboard/editor/SectionEditor";
 const EDITOR_SHOP_SLUG = "niko-watches";
 
 export default async function EditorPage() {
-  const shopResult = getShopBySlug(EDITOR_SHOP_SLUG);
+  const shopResult = await getShopBySlug(EDITOR_SHOP_SLUG);
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const sectionsResult = getShopSections(shop.id);
+  const [sectionsResult, categoriesResult] = await Promise.all([
+    getShopSections(shop.id),
+    getCategoriesByShop(shop.id),
+  ]);
   if (!sectionsResult.ok) notFound();
 
   return (
@@ -21,6 +24,7 @@ export default async function EditorPage() {
       shopSlug={shop.slug}
       shopName={shop.name}
       currency={shop.currency}
+      categories={categoriesResult.ok ? categoriesResult.data : []}
     />
   );
 }

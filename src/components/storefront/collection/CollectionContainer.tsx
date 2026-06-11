@@ -1,9 +1,10 @@
+import { Category, Product } from "@/generated/prisma/client";
 import CollectionItem from "./CollectionItem";
-import { Category, Product } from "@/lib/types/data-types";
+import { ProductWithRelations } from "@/lib/db/queries";
 
 type Props = {
   category: Category;
-  products: Product[];
+  products: ProductWithRelations[];
   currency: string;
   shopSlug: string;
 };

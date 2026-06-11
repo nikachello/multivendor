@@ -1,7 +1,7 @@
 "use client";
 
-import { addableSections, sectionLabels } from "@/lib/data/editor-schema";
-import { AddableSectionType } from "@/lib/data/editor-schema";
+import { addableSections, sectionLabels } from "@/lib/editor-schema";
+import { AddableSectionType } from "@/lib/editor-schema";
 
 type Props = {
   onAdd: (type: AddableSectionType) => void;

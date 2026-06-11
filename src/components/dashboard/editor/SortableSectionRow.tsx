@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ShopSection } from "@/lib/types/store-section";
-import { sectionLabels } from "@/lib/data/editor-schema";
+import { sectionLabels } from "@/lib/editor-schema";
 
 type Props = {
   section: ShopSection;

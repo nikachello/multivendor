@@ -1,7 +1,7 @@
-import { ShopTestimonial } from "@/lib/types/data-types";
+import { Testimonial } from "@/generated/prisma/client";
 
 type Props = {
-  testimonial: ShopTestimonial;
+  testimonial: Testimonial;
 };
 
 const TestimonialCard = ({ testimonial }: Props) => {
@@ -38,7 +38,11 @@ const TestimonialCard = ({ testimonial }: Props) => {
           {Array.from({ length: 5 }, (_, i) => (
             <span
               key={i}
-              className={i < (testimonial.rating ?? 5) ? "text-yellow-500" : "text-neutral-200"}
+              className={
+                i < (testimonial.rating ?? 5)
+                  ? "text-yellow-500"
+                  : "text-neutral-200"
+              }
             >
               ★
             </span>

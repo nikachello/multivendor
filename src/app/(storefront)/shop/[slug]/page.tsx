@@ -1,8 +1,9 @@
+"use server";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Section from "@/components/storefront/layout/Section";
 import { sectionRegistry } from "@/lib/section-registry";
-import { getShopBySlug, getShopSections } from "@/lib/data/queries";
+import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { ShopSection } from "@/lib/types/store-section";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import EditorBridge from "@/components/storefront/EditorBridge";
@@ -13,7 +14,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = getShopBySlug(slug);
+  const result = await getShopBySlug(slug);
   if (!result.ok) return { title: "Not Found" };
   const shop = result.data;
   return {
@@ -29,21 +30,11 @@ export default async function ShopPage({
 }) {
   const { slug } = await params;
 
-  // -------------------------
-  // SHOP (FIXED)
-  // -------------------------
-  const shopResult = getShopBySlug(slug);
-
-  if (!shopResult.ok) {
-    notFound();
-  }
-
+  const shopResult = await getShopBySlug(slug);
+  if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  // -------------------------
-  // SECTIONS (FIXED)
-  // -------------------------
-  const sectionsResult = getShopSections(shop.id);
+  const sectionsResult = await getShopSections(shop.id);
 
   if (!sectionsResult.ok) {
     return null; // or fallback UI TODO
