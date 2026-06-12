@@ -15,10 +15,11 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
-}: BannerSectionProps & { shopSlug?: string }) => {
+  transparent = false,
+}: BannerSectionProps & { shopSlug?: string; transparent?: boolean }) => {
   return (
     <section
-      className="relative h-[600px] overflow-hidden -mt-[92px]"
+      className={`relative h-[600px] overflow-hidden ${transparent ? "-mt-[92px]" : ""}`}
       style={{
         backgroundImage: `url(${image})`,
         backgroundSize: "cover",

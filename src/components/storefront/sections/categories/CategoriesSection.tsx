@@ -22,7 +22,7 @@ export default async function CategoriesSection({
 
   if (!result.ok) {
     return (
-      <div className="px-5 md:px-10 py-10 text-center text-neutral-500">
+      <div className="py-10 text-center text-neutral-500">
         {result.error.message}
       </div>
     );
@@ -36,7 +36,7 @@ export default async function CategoriesSection({
 
   if (displayCategories.length === 0) {
     return (
-      <div className="px-5 md:px-10 py-10">
+      <div className="py-10">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
             {title}
@@ -64,7 +64,7 @@ export default async function CategoriesSection({
   };
 
   return (
-    <div className="px-5 md:px-10 py-10">
+    <div className="py-10">
       <div className="text-center max-w-2xl mx-auto mb-8">
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
           {title}

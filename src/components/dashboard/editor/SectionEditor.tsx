@@ -52,6 +52,7 @@ export default function SectionEditor({
   const [saved, setSaved] = useState(false);
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -160,114 +161,131 @@ export default function SectionEditor({
 
   return (
     <div className="flex h-screen bg-neutral-50 overflow-hidden">
-      {/* ── LEFT: Section list ── */}
-      <div className="w-64 flex-shrink-0 bg-white border-r border-neutral-200 flex flex-col">
-        <div className="px-4 py-4 border-b border-neutral-100 flex items-center justify-between">
-          <div>
-            <h1 className="text-sm font-semibold text-neutral-800">Editor</h1>
-            <p className="text-xs text-neutral-400 mt-0.5">{shopSlug}</p>
-          </div>
-          <a
-            href={`/shop/${shopSlug}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-2"
-          >
-            Live ↗
-          </a>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-3">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-          >
-            <SortableContext
-              items={sections.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
+        {/* ── LEFT: Section list ── */}
+        <div className="w-64 flex-shrink-0 bg-white border-r border-neutral-200 flex flex-col">
+          <div className="px-4 py-4 border-b border-neutral-100 flex items-center justify-between">
+            <div>
+              <h1 className="text-sm font-semibold text-neutral-800">Editor</h1>
+              <p className="text-xs text-neutral-400 mt-0.5">{shopSlug}</p>
+            </div>
+            <a
+              href={`/shop/${shopSlug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-2"
             >
-              <div className="flex flex-col gap-1">
-                {sections.map((section) => (
-                  <SortableSectionRow
-                    key={section.id}
-                    section={section}
-                    isSelected={selectedId === section.id}
-                    onSelect={() => setSelectedId(section.id)}
-                    onRemove={() => handleRemove(section.id)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-
-        {/* Add section picker */}
-        {showAddPanel && (
-          <AddSectionPanel
-            onAdd={handleAddSection}
-            onClose={() => setShowAddPanel(false)}
-          />
-        )}
-
-        <div className="px-4 py-3 border-t border-neutral-100 flex flex-col gap-2">
-          <button
-            onClick={() => setShowAddPanel((v) => !v)}
-            className="w-full py-2 text-sm font-medium border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center gap-1.5"
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-            Add section
-          </button>
-          <button
-            onClick={handleSave}
-            className="w-full py-2.5 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-700 transition-colors"
-          >
-            {saved ? "Saved ✓" : "Save changes"}
-          </button>
-        </div>
-      </div>
-
-      {/* ── MIDDLE: Live preview ── */}
-      <StorefrontPreview
-        shopSlug={shopSlug}
-        iframeRef={iframeRef}
-        isLoading={iframeLoading}
-        onLoad={() => setIframeLoading(false)}
-      />
-
-      {/* ── RIGHT: Settings panel ── */}
-      <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">
-        <div className="px-5 py-4 border-b border-neutral-100">
-          <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
-            Settings
-          </p>
-        </div>
-        {selectedSection ? (
-          <SectionSettingsPanel
-            section={selectedSection}
-            shopId={shopId}
-            categories={categories}
-            onChange={handlePropChange}
-          />
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-neutral-400 text-sm p-8 text-center">
-            Click a section in the preview or sidebar to edit it
+              Live ↗
+            </a>
           </div>
-        )}
-      </div>
+
+          <div className="flex-1 overflow-y-auto p-3">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+            >
+              <SortableContext
+                items={sections.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-1">
+                  {sections.map((section) => (
+                    <SortableSectionRow
+                      key={section.id}
+                      section={section}
+                      isSelected={selectedId === section.id}
+                      onSelect={() => setSelectedId(section.id)}
+                      onRemove={() => handleRemove(section.id)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
+
+          {/* Add section picker */}
+          {showAddPanel && (
+            <AddSectionPanel
+              onAdd={handleAddSection}
+              onClose={() => setShowAddPanel(false)}
+            />
+          )}
+
+          <div className="px-4 py-3 border-t border-neutral-100 flex flex-col gap-2">
+            <button
+              onClick={() => setShowAddPanel((v) => !v)}
+              className="w-full py-2 text-sm font-medium border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              Add section
+            </button>
+            <button
+              onClick={handleSave}
+              className="w-full py-2.5 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-700 transition-colors"
+            >
+              {saved ? "Saved ✓" : "Save changes"}
+            </button>
+          </div>
+        </div>
+        {/* ── MIDDLE: Live preview ── */}
+        <div className="flex-1 flex flex-col min-w-0 bg-neutral-100">
+          <div className="flex items-center justify-center py-2 border-b border-neutral-200 bg-white">
+            <div className="flex border border-neutral-200">
+              <button
+                onClick={() => setViewMode("desktop")}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === "desktop" ? "bg-neutral-900 text-white" : "text-neutral-500 hover:text-neutral-900"}`}
+              >
+                Desktop
+              </button>
+              <button
+                onClick={() => setViewMode("mobile")}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors border-l border-neutral-200 ${viewMode === "mobile" ? "bg-neutral-900 text-white" : "text-neutral-500 hover:text-neutral-900"}`}
+              >
+                Mobile
+              </button>
+            </div>
+          </div>
+          <StorefrontPreview
+            shopSlug={shopSlug}
+            iframeRef={iframeRef}
+            isLoading={iframeLoading}
+            onLoad={() => setIframeLoading(false)}
+            viewMode={viewMode}
+          />
+        </div>
+        {/* ── RIGHT: Settings panel ── */}
+        <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">
+          <div className="px-5 py-4 border-b border-neutral-100">
+            <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
+              Settings
+            </p>
+          </div>
+          {selectedSection ? (
+            <SectionSettingsPanel
+              section={selectedSection}
+              shopId={shopId}
+              categories={categories}
+              onChange={handlePropChange}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-neutral-400 text-sm p-8 text-center">
+              Click a section in the preview or sidebar to edit it
+            </div>
+          )}
+        </div>
     </div>
   );
 }

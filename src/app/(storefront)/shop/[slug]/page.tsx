@@ -82,7 +82,8 @@ export default async function ShopPage({
                 section.type !== "banner" &&
                 section.type !== "announcement" &&
                 section.type !== "navbar" &&
-                section.type !== "testimonials"
+                section.type !== "testimonials" &&
+                section.type !== "collection"
               }
             >
               <Component {...sectionProps} {...extraProps} />
