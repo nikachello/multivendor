@@ -1,4 +1,5 @@
-import { err, ok, Result } from "@/lib/result";
+﻿import { err, ok, Result } from "@/lib/result";
+import { ErrorCode } from "@/lib/errors";
 import { ShopSection } from "@/lib/types/store-section";
 import prisma from "./prisma";
 import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
@@ -29,8 +30,8 @@ export type ProductWithRelations = Prisma.ProductGetPayload<{
 export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
   if (!slug) {
     return err({
-      code: "SHOP_SLUG_MISSING",
-      message: "საჭიროა მაღაზიის slug",
+      code: ErrorCode.SHOP_SLUG_MISSING,
+      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ slug",
       status: 400,
     });
   }
@@ -44,8 +45,8 @@ export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
 
   if (!shop) {
     return err({
-      code: "SHOP_NOT_FOUND",
-      message: "მაღაზია არ მოიძებნა",
+      code: ErrorCode.SHOP_NOT_FOUND,
+      message: "áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
       status: 404,
     });
   }
@@ -62,8 +63,8 @@ export async function getShopSections(
 ): Promise<Result<ShopSection[]>> {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
-      message: "საჭიროა მაღაზიის იდენტიფიკატორი",
+      code: ErrorCode.SHOP_ID_MISSING,
+      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -91,8 +92,8 @@ export async function getCategoriesByShop(
 ): Promise<Result<Category[]>> {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
-      message: "საჭიროა მაღაზიის იდენტიფიკატორი",
+      code: ErrorCode.SHOP_ID_MISSING,
+      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -125,8 +126,8 @@ export async function getCategoryBySlug(
 
   if (!category) {
     return err({
-      code: "CATEGORY_NOT_FOUND",
-      message: "კატეგორია არ მოიძებნა",
+      code: ErrorCode.CATEGORY_NOT_FOUND,
+      message: "áƒ™áƒáƒ¢áƒ”áƒ’áƒáƒ áƒ˜áƒ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
       status: 404,
     });
   }
@@ -144,16 +145,16 @@ export async function getProductBySlug(
 ): Promise<Result<ProductWithRelations>> {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
-      message: "საჭიროა მაღაზიის იდენტიფიკატორი",
+      code: ErrorCode.SHOP_ID_MISSING,
+      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
 
   if (!productSlug) {
     return err({
-      code: "PRODUCT_SLUG_MISSING",
-      message: "საჭიროა პროდუქტის იდენტიფიკატორი",
+      code: ErrorCode.PRODUCT_SLUG_MISSING,
+      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -165,8 +166,8 @@ export async function getProductBySlug(
 
   if (!product) {
     return err({
-      code: "PRODUCT_NOT_FOUND",
-      message: "პროდუქტი არ მოიძებნა",
+      code: ErrorCode.PRODUCT_NOT_FOUND,
+      message: "áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ˜ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
       status: 404,
     });
   }
@@ -184,7 +185,7 @@ export async function getProductsByCategory(
 ): Promise<Result<ProductWithRelations[]>> {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
+      code: ErrorCode.SHOP_ID_MISSING,
       message: "Shop id is required",
       status: 400,
     });
@@ -192,7 +193,7 @@ export async function getProductsByCategory(
 
   if (!categoryId) {
     return err({
-      code: "CATEGORY_ID_MISSING",
+      code: ErrorCode.CATEGORY_ID_MISSING,
       message: "Category id is required",
       status: 400,
     });
@@ -205,8 +206,8 @@ export async function getProductsByCategory(
 
   if (!products) {
     return err({
-      code: "PRODUCTS_NOT_FOUND",
-      message: "პროდუქტები არ მოიძებნა",
+      code: ErrorCode.PRODUCTS_NOT_FOUND,
+      message: "áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ”áƒ‘áƒ˜ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
       status: 404,
     });
   }
@@ -223,7 +224,7 @@ export async function getTestimonialsByShop(
 ): Promise<Result<Testimonial[]>> {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
+      code: ErrorCode.SHOP_ID_MISSING,
       message: "Shop id is required",
       status: 400,
     });
@@ -237,11 +238,12 @@ export async function getTestimonialsByShop(
 
   if (!testimonials) {
     return err({
-      code: "TESTIMONIALS_NOT_FOUND",
-      message: "შეფასება არ მოიძებნა",
+      code: ErrorCode.TESTIMONIALS_NOT_FOUND,
+      message: "áƒ¨áƒ”áƒ¤áƒáƒ¡áƒ”áƒ‘áƒ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
       status: 404,
     });
   }
 
   return ok(testimonials);
 }
+

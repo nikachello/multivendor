@@ -28,6 +28,7 @@ import SectionSettingsPanel from "./SectionSettingsPanel";
 import StorefrontPreview from "./StorefrontPreview";
 import AddSectionPanel from "./AddSectionPanel";
 import { saveSections } from "@/lib/actions/sections";
+import { toast } from "sonner";
 
 type Props = {
   initialSections: ShopSection[];
@@ -81,7 +82,12 @@ export default function SectionEditor({
   useEffect(() => {
     const timer = setTimeout(async () => {
       setIframeLoading(true);
-      await saveSections(shopId, sections);
+      const result = await saveSections(shopId, sections);
+      if (result && !result.ok) {
+        toast.error(result.error.message);
+        setIframeLoading(false);
+        return;
+      }
       iframeRef.current?.contentWindow?.location.reload();
     }, 800);
 

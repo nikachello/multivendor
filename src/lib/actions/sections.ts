@@ -2,19 +2,20 @@
 
 import prisma from "../db/prisma";
 import { err } from "../result";
+import { ErrorCode } from "../errors";
 import { ShopSection } from "../types/store-section";
 
 export async function saveSections(shopId: string, sections: ShopSection[]) {
   if (!shopId) {
     return err({
-      code: "SHOP_ID_MISSING",
+      code: ErrorCode.SHOP_ID_MISSING,
       message: "საჭიროა მაღაზიის ID",
       status: 400,
     });
   }
   if (!sections) {
     return err({
-      code: "SECTIONS_MISSING",
+      code: ErrorCode.SECTIONS_MISSING,
       message: "საჭიროა არსებული სექციები",
       status: 400,
     });

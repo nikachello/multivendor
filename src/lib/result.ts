@@ -1,5 +1,7 @@
+import { ErrorCode } from "@/lib/errors";
+
 export type AppError = {
-  code: string;
+  code: ErrorCode;
   message: string;
   status?: number;
   meta?: unknown;
