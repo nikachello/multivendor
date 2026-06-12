@@ -27,6 +27,7 @@ import SortableSectionRow from "./SortableSectionRow";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import StorefrontPreview from "./StorefrontPreview";
 import AddSectionPanel from "./AddSectionPanel";
+import { saveSections } from "@/lib/actions/sections";
 
 type Props = {
   initialSections: ShopSection[];
@@ -49,6 +50,7 @@ export default function SectionEditor({
   );
   const [saved, setSaved] = useState(false);
   const [showAddPanel, setShowAddPanel] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -76,27 +78,41 @@ export default function SectionEditor({
     }),
   );
 
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      setIframeLoading(true);
+      await saveSections(shopId, sections);
+      iframeRef.current?.contentWindow?.location.reload();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [sections]);
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    setSections((prev) => {
-      const oldIndex = prev.findIndex((s) => s.id === active.id);
-      const newIndex = prev.findIndex((s) => s.id === over.id);
-      const activeSection = prev[oldIndex];
-      const navbarIndex = prev.findIndex((s) => s.type === "navbar");
+    const oldIndex = sections.findIndex((s) => s.id === active.id);
+    const newIndex = sections.findIndex((s) => s.id === over.id);
+    const activeSection = sections[oldIndex];
+    const navbarIndex = sections.findIndex((s) => s.type === "navbar");
 
-      // Only announcement is allowed above the navbar.
-      // All other draggable sections must stay below it.
-      if (
-        activeSection.type !== "announcement" &&
-        activeSection.type !== "navbar" &&
-        newIndex <= navbarIndex
-      ) {
-        return prev; // reject the move
-      }
+    // Only announcement is allowed above the navbar.
+    // All other draggable sections must stay below it.
+    if (
+      activeSection.type !== "announcement" &&
+      activeSection.type !== "navbar" &&
+      newIndex <= navbarIndex
+    ) {
+      return;
+    }
 
-      return arrayMove(prev, oldIndex, newIndex);
+    const newSections = arrayMove(sections, oldIndex, newIndex);
+
+    setSections(newSections);
+    iframeRef.current?.contentWindow?.postMessage({
+      type: "REORDER_SECTIONS",
+      order: newSections.map((s) => s.id),
     });
   }
 
@@ -219,7 +235,12 @@ export default function SectionEditor({
       </div>
 
       {/* ── MIDDLE: Live preview ── */}
-      <StorefrontPreview shopSlug={shopSlug} iframeRef={iframeRef} />
+      <StorefrontPreview
+        shopSlug={shopSlug}
+        iframeRef={iframeRef}
+        isLoading={iframeLoading}
+        onLoad={() => setIframeLoading(false)}
+      />
 
       {/* ── RIGHT: Settings panel ── */}
       <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">

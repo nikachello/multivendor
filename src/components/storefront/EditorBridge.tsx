@@ -41,6 +41,29 @@ const EditorBridge = () => {
     return () => window.removeEventListener("message", handler);
   }, []);
 
+  useEffect(() => {
+    if (window === window.top) return;
+
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type !== "REORDER_SECTIONS") return;
+
+      const sectionsOrder = e.data?.order;
+
+      const parentEl =
+        document.querySelector("[data-section-id]")?.parentElement;
+
+      sectionsOrder.forEach((id: string) => {
+        const el = document.querySelector(`[data-section-id="${id}"]`);
+        if (el) parentEl?.appendChild(el);
+      });
+
+      // if (!el) return;
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
   return null;
 };
 
