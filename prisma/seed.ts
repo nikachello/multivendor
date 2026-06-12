@@ -317,12 +317,12 @@ async function main() {
       },
       {
         shopId: shop.id,
-        type: "pros",
+        type: "highlights",
         order: 5,
         props: {
-          pros: [
+          items: [
             {
-              type: "pro",
+              type: "text",
               title: "Free Shipping",
               description: "On all orders over $50. Fast, reliable delivery worldwide.",
             },
@@ -331,7 +331,7 @@ async function main() {
               imageUrl: "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=600",
             },
             {
-              type: "pro",
+              type: "text",
               title: "2-Year Warranty",
               description: "Every watch is covered by our comprehensive 2-year warranty.",
               buttonText: "Learn more",

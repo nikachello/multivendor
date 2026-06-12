@@ -1,5 +1,5 @@
 import { NavItem } from "@/lib/types/sections";
-import { Pro } from "../types/data-types";
+import { Highlight } from "../types/data-types";
 
 export const mainMenu: NavItem[] = [
   {
@@ -35,9 +35,9 @@ export const mainMenu: NavItem[] = [
   },
 ];
 
-export const pros: Pro[] = [
+export const highlights: Highlight[] = [
   {
-    type: "pro",
+    type: "text",
     title: "1. ხარისხი",
     description:
       "ჩვენთან არის უმაღლესი ხარისხი, რომლის შეძენისას გარანტიები გექნებათ",
@@ -47,7 +47,7 @@ export const pros: Pro[] = [
     imageUrl: "/banner.jpg",
   },
   {
-    type: "pro",
+    type: "text",
     title: "1. ხარისხი",
     description:
       "ჩვენთან არის უმაღლესი ხარისხი, რომლის შეძენისას გარანტიები გექნებათ",

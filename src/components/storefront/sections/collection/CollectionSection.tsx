@@ -1,6 +1,7 @@
 import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
-
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
+import CollectionFeatured from "@/components/storefront/collection/CollectionFeatured";
+import CollectionList from "@/components/storefront/collection/CollectionList";
 import { CollectionSectionProps } from "@/lib/types/sections";
 
 type Props = CollectionSectionProps & {
@@ -14,37 +15,32 @@ const CollectionSection = async ({
   shopId,
   shopSlug,
   currency,
+  variant = "grid",
 }: Props) => {
   if (!shopId || !shopSlug || !currency) return null;
 
   const categoriesResult = await getCategoriesByShop(shopId);
+  if (!categoriesResult.ok) return null;
 
-  if (!categoriesResult.ok) {
-    return null;
-  }
-
-  const categories = categoriesResult.data;
-
-  const category = categories.find((c) => c.id === categoryId);
-
+  const category = categoriesResult.data.find((c) => c.id === categoryId);
   if (!category) return null;
 
   const productsResult = await getProductsByCategory(shopId, categoryId);
-
-  if (!productsResult.ok) {
-    return null;
-  }
+  if (!productsResult.ok) return null;
 
   const products = productsResult.data;
 
+  if (variant === "featured") {
+    return <CollectionFeatured category={category} products={products} currency={currency} shopSlug={shopSlug} />;
+  }
+
+  if (variant === "list") {
+    return <CollectionList category={category} products={products} currency={currency} shopSlug={shopSlug} />;
+  }
+
   return (
     <div className="pt-20">
-      <CollectionContainer
-        category={category}
-        products={products}
-        currency={currency}
-        shopSlug={shopSlug}
-      />
+      <CollectionContainer category={category} products={products} currency={currency} shopSlug={shopSlug} />
     </div>
   );
 };

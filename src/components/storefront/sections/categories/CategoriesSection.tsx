@@ -1,21 +1,21 @@
 "use server";
 
 import Link from "next/link";
-
 import { CategoriesSectionProps } from "@/lib/types/sections";
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
+import { getCategoriesByShop } from "@/lib/db/queries";
 import CategoryImage from "./CategoryImage";
+import CategoriesLarge from "./CategoriesLarge";
+import CategoriesPills from "./CategoriesPills";
 
 export default async function CategoriesSection({
   title = "Shop by Category",
   categoryIds,
   columns = 4,
   showProductCount = false,
+  variant = "grid",
   shopId,
   shopSlug,
 }: CategoriesSectionProps & { shopId?: string; shopSlug?: string }) {
-  // const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
-
   if (!shopId || !shopSlug) return null;
 
   const result = await getCategoriesByShop(shopId);
@@ -29,7 +29,6 @@ export default async function CategoriesSection({
   }
 
   const allCategories = result.data;
-
   const displayCategories = categoryIds?.length
     ? allCategories.filter((c) => categoryIds.includes(c.id))
     : allCategories;
@@ -38,24 +37,23 @@ export default async function CategoriesSection({
     return (
       <div className="py-10">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {title}
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h2>
           <p className="mt-4 text-sm text-neutral-500">No categories found.</p>
         </div>
       </div>
     );
   }
 
-  const productCounts: Record<string, number> = {};
-  if (showProductCount) {
-    for (const cat of displayCategories) {
-      const r = await getProductsByCategory(shopId, cat.id);
-      productCounts[cat.id] = r.ok ? r.data.length : 0;
-    }
+  if (variant === "large") {
+    return <CategoriesLarge title={title} categories={displayCategories} shopSlug={shopSlug} />;
   }
 
-  const gridCols = {
+  if (variant === "pills") {
+    return <CategoriesPills title={title} categories={displayCategories} shopSlug={shopSlug} />;
+  }
+
+  // grid (default)
+  const gridCols: Record<number, string> = {
     2: "grid-cols-2",
     3: "grid-cols-2 md:grid-cols-3",
     4: "grid-cols-2 md:grid-cols-4",
@@ -66,11 +64,8 @@ export default async function CategoriesSection({
   return (
     <div className="py-10">
       <div className="text-center max-w-2xl mx-auto mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {title}
-        </h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h2>
       </div>
-
       <div className={`grid gap-4 md:gap-6 ${gridCols[columns]}`}>
         {displayCategories.map((category) => (
           <Link
@@ -81,14 +76,10 @@ export default async function CategoriesSection({
             <div className="relative aspect-square overflow-hidden bg-neutral-100">
               <CategoryImage category={category} />
             </div>
-
             <div className="mt-3 text-center">
               <h3 className="font-medium">{category.name}</h3>
-
               {showProductCount && (
-                <p className="mt-1 text-sm text-neutral-500">
-                  {productCounts[category.id] ?? 0} products
-                </p>
+                <p className="mt-1 text-sm text-neutral-500">View all</p>
               )}
             </div>
           </Link>
