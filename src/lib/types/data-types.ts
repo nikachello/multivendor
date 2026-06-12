@@ -17,11 +17,14 @@ export type Cart = {
   total: number;
 };
 
-export type Pro = {
-  type: "image" | "pro";
+export type Highlight = {
+  type: "image" | "text";
   title?: string;
   description?: string;
   imageUrl?: string;
   buttonText?: string;
   buttonUrl?: string;
 };
+
+// Legacy alias — keeps old imports compiling during migration
+export type Pro = Highlight;

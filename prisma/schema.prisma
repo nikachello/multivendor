@@ -97,6 +97,11 @@ model Shop {
   optionTypes  OptionType[]
   subscribers  Subscriber[]
   testimonials Testimonial[]
+
+
+  primaryColor  String  @default("#000000")
+fontFamily    String  @default("inter")
+borderRadius  String  @default("md")
 }
 
 // ============================================
