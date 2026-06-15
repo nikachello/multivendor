@@ -61,8 +61,6 @@ export const addableSections: { type: AddableSectionType; description: string }[
 export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]> = {
   announcement: {
     text: "Free shipping on orders over $50",
-    bgColor: "#F5D7C7",
-    textColor: "#000000",
   },
   banner: {
     title: "New Arrivals",
@@ -104,8 +102,6 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
     { type: "text", key: "text", label: "Text", placeholder: "Free shipping on orders over $50" },
     { type: "text", key: "link", label: "Link URL", placeholder: "/collections/all" },
     { type: "text", key: "linkText", label: "Link Text", placeholder: "Shop now" },
-    { type: "color", key: "bgColor", label: "Background color" },
-    { type: "color", key: "textColor", label: "Text color" },
   ],
   banner: [
     {

@@ -183,7 +183,8 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
             <Link
               href={`/shop/${shopSlug}/checkout`}
               onClick={() => setCartOpen(false)}
-              className="block w-full py-3.5 text-center text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity"
+              className="block w-full py-3.5 text-center text-sm tracking-widest uppercase hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
             >
               Checkout
             </Link>

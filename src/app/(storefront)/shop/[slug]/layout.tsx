@@ -17,14 +17,39 @@ export default async function ShopSlugLayout({
   if (!result.ok) notFound();
   const shop = result.data;
 
+  const fontMap: Record<string, string> = {
+    sans: "system-ui, sans-serif",
+    serif: "Georgia, serif",
+    mono: "ui-monospace, monospace",
+  };
+  const radiusMap: Record<string, string> = {
+    none: "0px",
+    sm: "4px",
+    md: "8px",
+    lg: "16px",
+  };
+
   return (
-    <>
+    <div
+      data-theme-root
+      style={
+        {
+          "--primary": shop.primaryColor,
+          "--secondary": shop.secondaryColor,
+          "--page-bg": shop.pageBackground,
+          "--font": fontMap[shop.fontFamily] ?? fontMap.sans,
+          "--radius": radiusMap[shop.borderRadius] ?? "0px",
+          fontFamily: "var(--font)",
+          backgroundColor: "var(--page-bg)",
+        } as React.CSSProperties
+      }
+    >
       {children}
       <CartDrawer
         shopId={shop.id}
         shopSlug={shop.slug}
         currency={shop.currency}
       />
-    </>
+    </div>
   );
 }

@@ -26,7 +26,8 @@ export default function RichTextSection({
         {buttonText && buttonHref && (
           <Link
             href={buttonHref}
-            className={`mt-8 inline-block bg-neutral-900 text-white px-7 py-3 text-sm hover:bg-neutral-700 transition-colors`}
+            className="mt-8 inline-block px-7 py-3 text-sm hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >
             {buttonText}
           </Link>

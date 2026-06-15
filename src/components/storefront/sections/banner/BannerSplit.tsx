@@ -43,7 +43,8 @@ export default function BannerSplit({
         {buttonText && (
           <Link
             href={resolveHref(href, shopSlug)}
-            className="mt-8 inline-block bg-neutral-900 px-8 py-3.5 text-sm text-white hover:bg-neutral-700 transition-colors"
+            className="mt-8 inline-block px-8 py-3.5 text-sm hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >
             {buttonText}
           </Link>

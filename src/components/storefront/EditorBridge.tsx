@@ -44,6 +44,36 @@ const EditorBridge = () => {
   useEffect(() => {
     if (window === window.top) return;
 
+    const fontMap: Record<string, string> = {
+      sans: "system-ui, sans-serif",
+      serif: "Georgia, serif",
+      mono: "ui-monospace, monospace",
+    };
+    const radiusMap: Record<string, string> = {
+      none: "0px", sm: "4px", md: "8px", lg: "16px",
+    };
+
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type !== "UPDATE_THEME") return;
+      const { theme } = e.data;
+      const root = document.querySelector("[data-theme-root]") as HTMLElement;
+      if (!root) return;
+      root.style.setProperty("--primary", theme.primaryColor);
+      root.style.setProperty("--secondary", theme.secondaryColor);
+      root.style.setProperty("--page-bg", theme.pageBackground);
+      root.style.setProperty("--font", fontMap[theme.fontFamily] ?? fontMap.sans);
+      root.style.setProperty("--radius", radiusMap[theme.borderRadius] ?? "0px");
+      root.style.fontFamily = "var(--font)";
+      root.style.backgroundColor = "var(--page-bg)";
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  useEffect(() => {
+    if (window === window.top) return;
+
     const handler = (e: MessageEvent) => {
       if (e.data?.type !== "REORDER_SECTIONS") return;
 
