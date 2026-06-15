@@ -24,8 +24,18 @@ export async function generateMetadata({
     categorySlug,
   );
   if (!categoryResult.ok) return { title: "Not Found" };
+  const category = categoryResult.data;
+  const shop = shopResult.data;
   return {
-    title: `${categoryResult.data.name} — ${shopResult.data.name}`,
+    title: `${category.name} — ${shop.name}`,
+    description: category.description ?? undefined,
+    openGraph: {
+      title: `${category.name} — ${shop.name}`,
+      description: category.description ?? undefined,
+      url: `/shop/${slug}/collections/${categorySlug}`,
+      siteName: shop.name,
+      type: "website",
+    },
   };
 }
 

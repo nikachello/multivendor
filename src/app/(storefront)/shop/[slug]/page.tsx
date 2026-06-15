@@ -19,7 +19,14 @@ export async function generateMetadata({
   const shop = result.data;
   return {
     title: shop.name,
-    description: shop.description,
+    description: shop.description ?? undefined,
+    openGraph: {
+      title: shop.name,
+      description: shop.description ?? undefined,
+      url: `/shop/${slug}`,
+      siteName: shop.name,
+      type: "website",
+    },
   };
 }
 
