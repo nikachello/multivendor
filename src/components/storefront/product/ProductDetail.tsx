@@ -112,7 +112,7 @@ export default function ProductDetail({
         {/* ── Image gallery ── */}
         <div className="flex flex-col gap-3">
           {/* Main image */}
-          <div className="relative aspect-square bg-neutral-100 overflow-hidden">
+          <div className="relative aspect-square bg-neutral-100 overflow-hidden" style={{ borderRadius: "calc(var(--radius) * 2)" }}>
             {mainImageSrc && !imgErrors["main"] ? (
               <Image
                 src={mainImageSrc}
@@ -192,9 +192,10 @@ export default function ProductDetail({
                       onClick={() => selectOption(key, val)}
                       className={`px-4 py-2 text-sm border transition-colors ${
                         active
-                          ? "border-black bg-black text-white"
+                          ? "border-transparent text-white"
                           : "border-neutral-200 text-neutral-700 hover:border-neutral-500"
                       }`}
+                      style={active ? { backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" } : { borderRadius: "var(--radius)" }}
                     >
                       {val}
                     </button>
@@ -238,7 +239,8 @@ export default function ProductDetail({
           <button
             disabled={!inStock || added}
             onClick={handleAddToCart}
-            className="mt-6 w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            className="mt-6 w-full py-4 text-sm tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >
             {!inStock ? "Out of Stock" : added ? "Added ✓" : "Add to Cart"}
           </button>

@@ -22,6 +22,7 @@ export default function CategoriesLarge({ title, categories, shopSlug }: Props) 
             key={category.id}
             href={`/shop/${shopSlug}/collections/${category.slug}`}
             className="relative h-[220px] overflow-hidden bg-neutral-100 group block"
+            style={{ borderRadius: "calc(var(--radius) * 2)" }}
           >
             <CategoryImage category={category} />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />

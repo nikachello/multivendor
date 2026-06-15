@@ -20,7 +20,7 @@ export default function GallerySection({ images = [], columns = 3 }: GallerySect
     <section className="py-10">
       <div className={`grid gap-3 ${gridCols[columns]}`}>
         {images.map((img, i) => (
-          <div key={i} className="relative aspect-square overflow-hidden bg-neutral-100">
+          <div key={i} className="relative aspect-square overflow-hidden bg-neutral-100" style={{ borderRadius: "calc(var(--radius) * 2)" }}>
             {img.url && (
               <Image
                 src={img.url}

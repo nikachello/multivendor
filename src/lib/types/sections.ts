@@ -9,8 +9,6 @@ export type SectionContext = {
 
 export type AnnouncementSectionProps = SectionContext & {
   text: string;
-  bgColor?: string;
-  textColor?: string;
   link?: string;
   linkText?: string;
 };

@@ -12,7 +12,7 @@ const TestimonialCard = ({ testimonial }: Props) => {
     .slice(0, 2);
 
   return (
-    <div className="h-[320px] w-[320px] rounded-3xl border border-border/50 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+    <div className="h-[320px] w-[320px] border border-border/50 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl" style={{ borderRadius: "calc(var(--radius) * 2)" }}>
       <div className="flex h-full flex-col">
         {/* top */}
         <div className="flex items-center gap-4">

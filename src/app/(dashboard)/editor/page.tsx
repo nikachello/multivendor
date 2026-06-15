@@ -25,6 +25,13 @@ export default async function EditorPage() {
       shopName={shop.name}
       currency={shop.currency}
       categories={categoriesResult.ok ? categoriesResult.data : []}
+      initialTheme={{
+        primaryColor: shop.primaryColor,
+        secondaryColor: shop.secondaryColor,
+        pageBackground: shop.pageBackground,
+        fontFamily: shop.fontFamily,
+        borderRadius: shop.borderRadius,
+      }}
     />
   );
 }

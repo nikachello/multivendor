@@ -19,9 +19,20 @@ const productInclude = {
   },
 } satisfies Prisma.ProductInclude;
 
-export type ProductWithRelations = Prisma.ProductGetPayload<{
-  include: typeof productInclude;
-}>;
+type RawProduct = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
+
+export type ProductWithRelations = Omit<RawProduct, "priceFrom" | "variants"> & {
+  priceFrom: number;
+  variants: (Omit<RawProduct["variants"][number], "price"> & { price: number })[];
+};
+
+function serializeProduct(p: RawProduct): ProductWithRelations {
+  return {
+    ...p,
+    priceFrom: Number(p.priceFrom),
+    variants: p.variants.map((v) => ({ ...v, price: Number(v.price) })),
+  };
+}
 
 // ============================================
 // SHOP
@@ -172,7 +183,7 @@ export async function getProductBySlug(
     });
   }
 
-  return ok(product);
+  return ok(serializeProduct(product));
 }
 
 // ============================================
@@ -212,7 +223,7 @@ export async function getProductsByCategory(
     });
   }
 
-  return ok(products);
+  return ok(products.map(serializeProduct));
 }
 
 // ============================================

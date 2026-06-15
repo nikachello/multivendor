@@ -32,7 +32,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
       className="group block"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-neutral-100">
+      <div className="relative aspect-square overflow-hidden bg-neutral-100" style={{ borderRadius: "calc(var(--radius) * 2)" }}>
         {hasImage ? (
           <Image
             src={mainImage}

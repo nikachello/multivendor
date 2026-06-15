@@ -38,7 +38,8 @@ export default function NewsletterSection({
               />
               <button
                 type="submit"
-                className="px-5 py-2 bg-neutral-900 text-white text-sm hover:bg-neutral-700 transition-colors"
+                className="px-5 py-2 text-sm hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
               >
                 {buttonText}
               </button>
@@ -51,16 +52,16 @@ export default function NewsletterSection({
 
   // banner (default)
   return (
-    <section className="bg-neutral-900 text-white py-20 px-5">
+    <section className="py-20 px-5" style={{ backgroundColor: "var(--primary)", color: "var(--secondary)" }}>
       <div className="max-w-xl mx-auto text-center">
         {title && (
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
         )}
         {subtitle && (
-          <p className="mt-3 text-sm text-white/70">{subtitle}</p>
+          <p className="mt-3 text-sm opacity-70">{subtitle}</p>
         )}
         {submitted ? (
-          <p className="mt-8 text-sm text-white/80">Thanks for subscribing!</p>
+          <p className="mt-8 text-sm opacity-80">Thanks for subscribing!</p>
         ) : (
           <form onSubmit={handleSubmit} className="mt-8 flex gap-0 max-w-sm mx-auto">
             <input

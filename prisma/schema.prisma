@@ -99,9 +99,11 @@ model Shop {
   testimonials Testimonial[]
 
 
-  primaryColor  String  @default("#000000")
-fontFamily    String  @default("inter")
-borderRadius  String  @default("md")
+  primaryColor     String @default("#000000")
+  secondaryColor   String @default("#ffffff")
+  fontFamily       String @default("sans")
+  borderRadius     String @default("none")
+  pageBackground   String @default("#ffffff")
 }
 
 // ============================================

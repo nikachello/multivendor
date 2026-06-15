@@ -53,7 +53,8 @@ const BannerSection = ({
         {buttonText && (
           <Link
             href={resolveHref(href, shopSlug)}
-            className="mt-8 inline-block bg-[#C25447] px-8 py-4 text-sm text-white transition hover:opacity-90"
+            className="mt-8 inline-block px-8 py-4 text-sm transition hover:opacity-90"
+            style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >
             {buttonText}
           </Link>
