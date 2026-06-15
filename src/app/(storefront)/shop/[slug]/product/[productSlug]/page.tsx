@@ -23,10 +23,20 @@ export async function generateMetadata({
   const productResult = await getProductBySlug(shopResult.data.id, productSlug);
   if (!productResult.ok) return { title: "Not Found" };
 
-  const { name, description } = productResult.data;
+  const product = productResult.data;
+  const shop = shopResult.data;
+  const firstImage = product.images?.[0]?.url;
   return {
-    title: `${name} — ${shopResult.data.name}`,
-    description,
+    title: `${product.name} — ${shop.name}`,
+    description: product.description ?? undefined,
+    openGraph: {
+      title: `${product.name} — ${shop.name}`,
+      description: product.description ?? undefined,
+      url: `/shop/${slug}/product/${productSlug}`,
+      siteName: shop.name,
+      type: "website",
+      ...(firstImage && { images: [{ url: firstImage, alt: product.name }] }),
+    },
   };
 }
 
@@ -52,8 +62,26 @@ export default async function ProductPage({
     NavbarSectionProps & { shopId?: string; shopName?: string }
   >;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description ?? undefined,
+    image: product.images?.map((img) => img.url) ?? [],
+    offers: {
+      "@type": "Offer",
+      price: product.priceFrom,
+      priceCurrency: shop.currency,
+      availability: "https://schema.org/InStock",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {navbarSection && NavbarComponent && (
         <NavbarComponent
           {...(navbarSection.props as NavbarSectionProps)}

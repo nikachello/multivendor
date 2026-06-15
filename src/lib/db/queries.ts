@@ -65,6 +65,17 @@ export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
   return ok(shop);
 }
 
+export async function getAllShops() {
+  return prisma.shop.findMany({
+    select: {
+      slug: true,
+      updatedAt: true,
+      products: { select: { slug: true, updatedAt: true } },
+      categories: { select: { slug: true, updatedAt: true } },
+    },
+  });
+}
+
 // ============================================
 // SHOP SECTIONS
 // ============================================
