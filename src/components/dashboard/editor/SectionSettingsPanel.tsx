@@ -224,9 +224,15 @@ export default function SectionSettingsPanel({ section, shopId, categories, onCh
       <div className="p-5 text-sm text-neutral-400">
         <p className="font-medium text-neutral-600 mb-1">{sectionLabels[section.type]}</p>
         <p>
-          {section.type === "navbar"
-            ? "Edit navigation links in the Navigation editor."
-            : "This section has no editable settings yet."}
+          {section.type === "navbar" ? (
+            <>
+              Edit navigation links in the{" "}
+              <a href="/dashboard/navigation" className="underline hover:text-neutral-900 transition-colors">
+                Navigation editor
+              </a>
+              .
+            </>
+          ) : "This section has no editable settings yet."}
         </p>
       </div>
     );
