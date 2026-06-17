@@ -13,12 +13,12 @@ type Props = {
 
 const CollectionItem = ({ product, currency, shopSlug }: Props) => {
   const [imgError, setImgError] = useState(false);
-  const mainImage = product.images[0].url;
+  const mainImage = product.images[0]?.url;
   const hasImage = !!mainImage && !imgError;
 
   const lowestPrice = product.variants.length
     ? Math.min(...product.variants.map((v) => Number(v.price)))
-    : 0;
+    : product.priceFrom;
   const hasMultipleVariantPrices = product.variants.some(
     (v) => Number(v.price) !== lowestPrice,
   );

@@ -18,6 +18,8 @@ export const ErrorCode = {
 
   // Sections
   SECTIONS_MISSING: "SECTIONS_MISSING",
+
+  GENERAL_ERROR: "SOME PROPERTIS ARE MISSING",
 } as const;
 
-export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

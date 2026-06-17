@@ -23,7 +23,7 @@ export default function ProductDetail({
 }: Props) {
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
-  >(() => getVariantOptions(product.variants[0]) ?? {});
+  >(() => product.variants[0] ? getVariantOptions(product.variants[0]) : {});
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
