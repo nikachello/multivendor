@@ -165,7 +165,7 @@ export default function SectionEditor({
   }
 
   return (
-    <div className="flex h-screen bg-neutral-50 overflow-hidden">
+    <div className="flex h-full bg-neutral-50 overflow-hidden">
       {/* ── LEFT: Section list ── */}
       <div className="w-64 flex-shrink-0 bg-white border-r border-neutral-200 flex flex-col">
         <div className="px-4 py-4 border-b border-neutral-100 flex items-center justify-between">

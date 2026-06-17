@@ -21,9 +21,14 @@ const productInclude = {
 
 type RawProduct = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
-export type ProductWithRelations = Omit<RawProduct, "priceFrom" | "variants"> & {
+export type ProductWithRelations = Omit<
+  RawProduct,
+  "priceFrom" | "variants"
+> & {
   priceFrom: number;
-  variants: (Omit<RawProduct["variants"][number], "price"> & { price: number })[];
+  variants: (Omit<RawProduct["variants"][number], "price"> & {
+    price: number;
+  })[];
 };
 
 function serializeProduct(p: RawProduct): ProductWithRelations {
@@ -86,7 +91,8 @@ export async function getShopSections(
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,
-      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
+      message:
+        "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -115,7 +121,8 @@ export async function getCategoriesByShop(
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,
-      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
+      message:
+        "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -158,7 +165,68 @@ export async function getCategoryBySlug(
 }
 
 // ============================================
-// PRODUCT BY ID
+// PRODUCT BY ID (dashboard)
+// ============================================
+
+export async function getProductById(
+  id: string,
+): Promise<Result<ProductWithRelations>> {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: productInclude,
+  });
+
+  if (!product) {
+    return err({
+      code: ErrorCode.PRODUCT_NOT_FOUND,
+      message: "Product not found",
+      status: 404,
+    });
+  }
+
+  return ok(serializeProduct(product));
+}
+
+// ============================================
+// PRODUCT WITH OPTIONS (dashboard edit page)
+// ============================================
+
+export type ProductOptionType = {
+  optionTypeId: string;
+  name: string;
+  values: { id: string; value: string }[];
+};
+
+export async function getProductWithOptions(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: {
+      ...productInclude,
+      optionTypes: {
+        include: {
+          optionType: {
+            include: { values: true },
+          },
+        },
+        orderBy: { position: "asc" },
+      },
+    },
+  });
+
+  if (!product) return null;
+
+  return {
+    ...serializeProduct(product),
+    optionTypes: product.optionTypes.map((pot) => ({
+      optionTypeId: pot.optionType.id,
+      name: pot.optionType.name,
+      values: pot.optionType.values.map((v) => ({ id: v.id, value: v.value })),
+    })) as ProductOptionType[],
+  };
+}
+
+// ============================================
+// PRODUCT BY SLUG (storefront)
 // ============================================
 
 export async function getProductBySlug(
@@ -168,7 +236,8 @@ export async function getProductBySlug(
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,
-      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
+      message:
+        "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒ›áƒáƒ¦áƒáƒ–áƒ˜áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -176,7 +245,8 @@ export async function getProductBySlug(
   if (!productSlug) {
     return err({
       code: ErrorCode.PRODUCT_SLUG_MISSING,
-      message: "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
+      message:
+        "áƒ¡áƒáƒ­áƒ˜áƒ áƒáƒ áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ˜áƒ¡ áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒáƒ¢áƒáƒ áƒ˜",
       status: 400,
     });
   }
@@ -238,6 +308,37 @@ export async function getProductsByCategory(
 }
 
 // ============================================
+// ALL PRODUCTS
+// ============================================
+
+export async function getProductsByShop(
+  shopId: string,
+): Promise<Result<ProductWithRelations[]>> {
+  if (!shopId) {
+    return err({
+      code: ErrorCode.SHOP_ID_MISSING,
+      message: "Shop id is required",
+      status: 400,
+    });
+  }
+
+  const products = await prisma.product.findMany({
+    where: { shopId, isActive: true },
+    include: productInclude,
+  });
+
+  if (!products) {
+    return err({
+      code: ErrorCode.PRODUCTS_NOT_FOUND,
+      message: "áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ”áƒ‘áƒ˜ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
+      status: 404,
+    });
+  }
+
+  return ok(products.map(serializeProduct));
+}
+
+// ============================================
 // TESTIMONIAL
 // ============================================
 
@@ -268,4 +369,3 @@ export async function getTestimonialsByShop(
 
   return ok(testimonials);
 }
-

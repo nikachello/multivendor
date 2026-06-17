@@ -79,11 +79,6 @@ export default function SortableSectionRow({
         {sectionLabels[section.type]}
       </span>
 
-      {/* Type badge */}
-      <span className="text-[10px] tracking-wide text-neutral-400 uppercase">
-        {section.type}
-      </span>
-
       {/* Remove button */}
       {canRemove && (
         <button
