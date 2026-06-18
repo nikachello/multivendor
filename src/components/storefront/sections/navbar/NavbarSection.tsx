@@ -48,27 +48,102 @@ const NavbarSection = ({
               }
 
               if (item.type === "group") {
+                const hasMegaMenu = item.children.some(c => c.type === "group");
+                const subGroups = item.children.filter(c => c.type === "group");
+                const standaloneLinks = item.children.filter(c => c.type === "link");
+
+                const chevron = (
+                  <svg
+                    className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                );
+
+                const trigger = (
+                  <span className={`cursor-pointer ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
+                    {item.label}
+                    {chevron}
+                  </span>
+                );
+
+                if (hasMegaMenu) {
+                  return (
+                    <li key={index} className="relative group">
+                      {trigger}
+                      <div className="absolute left-0 top-full pt-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                        <div className="bg-white border border-gray-100 shadow-xl rounded-sm flex divide-x divide-gray-100">
+                          {standaloneLinks.length > 0 && (
+                            <div className="min-w-[150px] py-3">
+                              {standaloneLinks.map((link, i) =>
+                                link.type === "link" ? (
+                                  <Link
+                                    key={i}
+                                    href={link.href}
+                                    className="block px-5 py-2.5 text-sm text-gray-600 hover:text-black hover:bg-gray-50 transition-colors duration-150"
+                                  >
+                                    {link.label}
+                                  </Link>
+                                ) : null
+                              )}
+                            </div>
+                          )}
+                          {subGroups.map((sg, i) =>
+                            sg.type === "group" ? (
+                              <div key={i} className="min-w-[160px] py-3">
+                                <p className="px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 font-medium border-b border-gray-100">
+                                  {sg.label}
+                                </p>
+                                {sg.children.map((gc, j) => {
+                                  if (gc.type === "link") {
+                                    return (
+                                      <Link
+                                        key={j}
+                                        href={gc.href}
+                                        className="block px-5 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 transition-colors duration-150"
+                                      >
+                                        {gc.label}
+                                      </Link>
+                                    );
+                                  }
+                                  if (gc.type === "group") {
+                                    return (
+                                      <div key={j} className="mt-1">
+                                        <p className="px-5 pt-2.5 pb-1 text-[10px] tracking-widest uppercase text-gray-300">
+                                          {gc.label}
+                                        </p>
+                                        {gc.children.map((ggc, k) =>
+                                          ggc.type === "link" ? (
+                                            <Link
+                                              key={k}
+                                              href={ggc.href}
+                                              className="block px-5 pl-7 py-1.5 text-sm text-gray-500 hover:text-black hover:bg-gray-50 transition-colors duration-150"
+                                            >
+                                              {ggc.label}
+                                            </Link>
+                                          ) : null
+                                        )}
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })}
+                              </div>
+                            ) : null
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                }
+
                 return (
                   <li key={index} className="relative group">
-                    <span
-                      className={`cursor-pointer ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}
-                    >
-                      {item.label}
-                      <svg
-                        className="w-3 h-3 transition-transform duration-200 group-hover:rotate-180"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </span>
-
+                    {trigger}
                     <div className="absolute left-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                       <div className="bg-white border border-gray-100 shadow-xl rounded-sm overflow-hidden">
                         {item.children.map((child, i) =>
@@ -201,6 +276,7 @@ const NavbarSection = ({
 
             if (item.type === "group") {
               const isGroupOpen = openGroup === index;
+              const hasSubs = item.children.some(c => c.type === "group");
               return (
                 <li key={index} className="border-b border-gray-100">
                   <button
@@ -209,39 +285,81 @@ const NavbarSection = ({
                   >
                     <span>{item.label}</span>
                     <svg
-                      className={`w-3 h-3 transition-transform duration-200 ${
-                        isGroupOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-3 h-3 transition-transform duration-200 ${isGroupOpen ? "rotate-180" : ""}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                       strokeWidth={2}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19 9l-7 7-7-7"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                   <div
-                    className={`overflow-hidden transition-all duration-200 ${
-                      isGroupOpen ? "max-h-40 pb-3" : "max-h-0"
+                    className={`overflow-hidden transition-all duration-300 ${
+                      isGroupOpen ? (hasSubs ? "max-h-96" : "max-h-48") + " pb-3" : "max-h-0"
                     }`}
                   >
-                    <div className="ml-3 flex flex-col gap-1">
-                      {item.children.map((child, i) =>
-                        child.type === "link" ? (
-                          <Link
-                            key={i}
-                            href={child.href}
-                            onClick={() => setOpen(false)}
-                            className="block py-2 text-gray-500 hover:text-black transition-colors"
-                          >
-                            {child.label}
-                          </Link>
-                        ) : null
-                      )}
+                    <div className="flex flex-col">
+                      {item.children.map((child, i) => {
+                        if (child.type === "link") {
+                          return (
+                            <Link
+                              key={i}
+                              href={child.href}
+                              onClick={() => setOpen(false)}
+                              className="block py-2 pl-3 text-gray-500 hover:text-black transition-colors"
+                            >
+                              {child.label}
+                            </Link>
+                          );
+                        }
+                        if (child.type === "group") {
+                          return (
+                            <div key={i} className="mt-2">
+                              <p className="pl-3 py-1.5 text-[10px] tracking-widest uppercase text-gray-400 bg-gray-50 border-y border-gray-100">
+                                {child.label}
+                              </p>
+                              {child.children.map((gc, j) => {
+                                if (gc.type === "link") {
+                                  return (
+                                    <Link
+                                      key={j}
+                                      href={gc.href}
+                                      onClick={() => setOpen(false)}
+                                      className="block py-2 pl-5 text-gray-500 hover:text-black transition-colors"
+                                    >
+                                      {gc.label}
+                                    </Link>
+                                  );
+                                }
+                                if (gc.type === "group") {
+                                  return (
+                                    <div key={j}>
+                                      <p className="pl-5 py-1.5 text-[10px] tracking-widest uppercase text-gray-300">
+                                        {gc.label}
+                                      </p>
+                                      {gc.children.map((ggc, k) =>
+                                        ggc.type === "link" ? (
+                                          <Link
+                                            key={k}
+                                            href={ggc.href}
+                                            onClick={() => setOpen(false)}
+                                            className="block py-1.5 pl-8 text-gray-400 hover:text-black transition-colors"
+                                          >
+                                            {ggc.label}
+                                          </Link>
+                                        ) : null
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
                     </div>
                   </div>
                 </li>

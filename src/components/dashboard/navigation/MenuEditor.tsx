@@ -16,12 +16,15 @@ import { DropPosition, reorderItem } from "@/lib/navigation/reorder-item";
 import { updateItem } from "@/lib/navigation/update-item";
 import { saveNavigation } from "@/lib/actions/navigation";
 
+type Category = { id: string; name: string; slug: string };
+
 type Props = {
   shopId: string;
   initialItems: NavItem[];
+  categories: Category[];
 };
 
-export default function MenuEditor({ shopId, initialItems }: Props) {
+export default function MenuEditor({ shopId, initialItems, categories }: Props) {
   const [menu, setMenu] = useState<NavItem[]>(initialItems);
   const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -188,6 +191,7 @@ export default function MenuEditor({ shopId, initialItems }: Props) {
           <ItemEditor
             item={selectedItem}
             allItems={menu}
+            categories={categories}
             onLabelChange={handleLabelChange}
             onHrefChange={handleHrefChange}
             onTypeChange={handleTypeChange}
