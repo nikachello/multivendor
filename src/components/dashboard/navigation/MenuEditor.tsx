@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 import MenuTree from "./MenuTree";
 import ItemEditor from "./ItemEditor";
-
-import { mainMenu } from "@/lib/db/mock-data";
 
 import { findItem } from "@/lib/navigation/find-item";
 import { createItem } from "@/lib/navigation/create-item";
@@ -15,10 +14,19 @@ import { containsId } from "@/lib/navigation/contains-id";
 import { NavItem } from "@/lib/types/sections";
 import { DropPosition, reorderItem } from "@/lib/navigation/reorder-item";
 import { updateItem } from "@/lib/navigation/update-item";
+import { saveNavigation } from "@/lib/actions/navigation";
 
-export default function MenuEditor() {
-  const [menu, setMenu] = useState<NavItem[]>(mainMenu);
-  const [savedMenu, setSavedMenu] = useState<NavItem[]>(mainMenu);
+type Category = { id: string; name: string; slug: string };
+
+type Props = {
+  shopId: string;
+  initialItems: NavItem[];
+  categories: Category[];
+};
+
+export default function MenuEditor({ shopId, initialItems, categories }: Props) {
+  const [menu, setMenu] = useState<NavItem[]>(initialItems);
+  const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedItem = selectedId ? findItem(menu, selectedId) : null;
@@ -90,10 +98,12 @@ export default function MenuEditor() {
 
   // ─── Save ─────────────────────────────────────────────────────────────────────
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    const result = await saveNavigation(shopId, menu);
+    if (!result.ok) { toast.error("Failed to save navigation"); return; }
     setSavedMenu(menu);
-    // TODO: Prisma call goes here
-  }, [menu]);
+    toast.success("Navigation saved");
+  }, [shopId, menu]);
 
   const handleDiscard = useCallback(() => {
     setMenu(savedMenu);
@@ -181,6 +191,7 @@ export default function MenuEditor() {
           <ItemEditor
             item={selectedItem}
             allItems={menu}
+            categories={categories}
             onLabelChange={handleLabelChange}
             onHrefChange={handleHrefChange}
             onTypeChange={handleTypeChange}

@@ -5,9 +5,12 @@ import { NavItem } from "@/lib/types/sections";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+type Category = { id: string; name: string; slug: string };
+
 type Props = {
   item: NavItem | null;
   allItems: NavItem[];
+  categories: Category[];
   onLabelChange: (value: string) => void;
   onHrefChange: (value: string) => void;
   onTypeChange: (type: "link" | "group") => void;
@@ -73,6 +76,7 @@ function validateHref(
 export default function ItemEditor({
   item,
   allItems,
+  categories,
   onLabelChange,
   onHrefChange,
   onTypeChange,
@@ -183,6 +187,7 @@ export default function ItemEditor({
           hintWarning={!!hrefError}
         >
           <input
+            list="nav-href-suggestions"
             value={localHref}
             onChange={(e) => setLocalHref(e.target.value)}
             className={`w-full border px-3 py-2 text-sm text-zinc-900 focus:outline-none transition-colors font-mono ${
@@ -192,6 +197,13 @@ export default function ItemEditor({
             }`}
             placeholder="/path or https://..."
           />
+          <datalist id="nav-href-suggestions">
+            {categories.map((cat) => (
+              <option key={cat.id} value={`/collections/${cat.slug}`}>
+                {cat.name}
+              </option>
+            ))}
+          </datalist>
         </Field>
       )}
 

@@ -39,13 +39,15 @@ export default function MenuTree({
   onReorder,
 }: Props) {
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [draggedParentId, setDraggedParentId] = useState<string | null>(null);
   const [dropIndicator, setDropIndicator] = useState<DropIndicator | null>(
     null
   );
 
   const handleDragStart = useCallback(
-    (e: React.DragEvent<HTMLDivElement>, id: string) => {
+    (e: React.DragEvent<HTMLDivElement>, id: string, itemParentId: string | null) => {
       setDraggedId(id);
+      setDraggedParentId(itemParentId);
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", id);
     },
@@ -54,6 +56,7 @@ export default function MenuTree({
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
+    setDraggedParentId(null);
     setDropIndicator(null);
   }, []);
 
@@ -77,6 +80,7 @@ export default function MenuTree({
       level={0}
       selectedId={selectedId}
       draggedId={draggedId}
+      draggedParentId={draggedParentId}
       dropIndicator={dropIndicator}
       onSelect={onSelect}
       onAddChild={onAddChild}
@@ -97,11 +101,12 @@ type TreeLevelProps = {
   level: number;
   selectedId: string | null;
   draggedId: string | null;
+  draggedParentId: string | null;
   dropIndicator: DropIndicator | null;
   onSelect: (id: string) => void;
   onAddChild?: (parentId: string) => void;
   onDelete?: (id: string) => void;
-  onDragStart: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
+  onDragStart: (e: React.DragEvent<HTMLDivElement>, id: string, itemParentId: string | null) => void;
   onDragEnd: () => void;
   onDrop: (e: React.DragEvent<HTMLElement>, indicator: DropIndicator) => void;
   onSetDropIndicator: (indicator: DropIndicator | null) => void;
@@ -113,6 +118,7 @@ function TreeLevel({
   level,
   selectedId,
   draggedId,
+  draggedParentId,
   dropIndicator,
   onSelect,
   onAddChild,
@@ -155,7 +161,7 @@ function TreeLevel({
             {/* Row */}
             <div
               draggable
-              onDragStart={(e) => onDragStart(e, item.id)}
+              onDragStart={(e) => onDragStart(e, item.id, parentId)}
               onDragEnd={onDragEnd}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -189,6 +195,8 @@ function TreeLevel({
                   ? "bg-zinc-900 text-white"
                   : isGroupTarget
                   ? "bg-zinc-100"
+                  : item.type === "group" && level > 0 && !isDragging
+                  ? "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-l-2 border-l-zinc-300"
                   : "hover:bg-zinc-50 text-zinc-700",
                 isDragging ? "opacity-25" : "opacity-100",
               ].join(" ")}
@@ -211,17 +219,23 @@ function TreeLevel({
                 </span>
 
                 {item.type === "group" && (
-                  <span className="shrink-0 text-[10px] text-zinc-400">▸</span>
+                  <span className={`shrink-0 text-[10px] ${isSelected ? "text-zinc-400" : level > 0 ? "text-zinc-500" : "text-zinc-400"}`}>
+                    {level > 0 ? "▸▸" : "▸"}
+                  </span>
                 )}
 
                 <span className="truncate tracking-wide">{item.label}</span>
 
                 <span
                   className={`shrink-0 text-[9px] tracking-widest uppercase ${
-                    isSelected ? "text-zinc-400" : "text-zinc-300"
+                    isSelected
+                      ? "text-zinc-400"
+                      : item.type === "group" && level > 0
+                      ? "text-zinc-400"
+                      : "text-zinc-300"
                   }`}
                 >
-                  {item.type}
+                  {item.type === "group" && level > 0 ? "group ↳" : item.type}
                 </span>
               </div>
 
@@ -270,6 +284,7 @@ function TreeLevel({
                 level={level + 1}
                 selectedId={selectedId}
                 draggedId={draggedId}
+                draggedParentId={draggedParentId}
                 dropIndicator={dropIndicator}
                 onSelect={onSelect}
                 onAddChild={onAddChild}
@@ -296,8 +311,8 @@ function TreeLevel({
         );
       })}
 
-      {/* End-of-list drop zone */}
-      {draggedId && (
+      {/* End-of-list drop zone: for nested levels, only show when dragging a child of this group */}
+      {draggedId && (parentId === null || draggedParentId === parentId) && (
         <div
           className="h-6"
           onDragOver={(e) => {

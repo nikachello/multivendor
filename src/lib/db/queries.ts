@@ -165,6 +165,16 @@ export async function getCategoryBySlug(
 }
 
 // ============================================
+// CATEGORY BY ID (dashboard)
+// ============================================
+
+export async function getCategoryById(id: string): Promise<Result<Category>> {
+  const category = await prisma.category.findUnique({ where: { id } });
+  if (!category) return err({ code: ErrorCode.CATEGORY_NOT_FOUND, message: "Category not found", status: 404 });
+  return ok(category);
+}
+
+// ============================================
 // PRODUCT BY ID (dashboard)
 // ============================================
 
