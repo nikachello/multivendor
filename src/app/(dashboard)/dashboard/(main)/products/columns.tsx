@@ -1,4 +1,5 @@
 "use client";
+
 import { ProductWithRelations } from "@/lib/db/queries";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
@@ -7,23 +8,41 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
   return [
     {
       accessorKey: "name",
-      header: "სახელი",
+      header: "Name",
+      cell: ({ row }) => (
+        <span className="font-medium text-gray-900">{row.original.name}</span>
+      ),
     },
     {
       accessorKey: "priceFrom",
-      header: "ფასი",
-      cell: ({ row }) => `${row.original.priceFrom} ${currency}`,
+      header: "Price",
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{row.original.priceFrom} {currency}</span>
+      ),
     },
     {
       accessorKey: "isActive",
-      header: "აქტიური",
-      cell: ({ row }) => (row.original.isActive ? "✓" : "—"),
+      header: "Status",
+      cell: ({ row }) =>
+        row.original.isActive ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-green-50 text-green-700">
+            Active
+          </span>
+        ) : (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-500">
+            Inactive
+          </span>
+        ),
     },
     {
       id: "actions",
-      header: "ქმედებები",
       cell: ({ row }) => (
-        <Link href={`/dashboard/products/${row.original.id}`}>რედაქტირება</Link>
+        <Link
+          href={`/dashboard/products/${row.original.id}`}
+          className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          Edit →
+        </Link>
       ),
     },
   ];
