@@ -1,14 +1,10 @@
-import { notFound } from "next/navigation";
-import { getShopBySlug, getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import MenuEditor from "@/components/dashboard/navigation/MenuEditor";
 
-const SHOP_SLUG = "niko-watches";
-
 export default async function NavigationPage() {
-  const shopResult = await getShopBySlug(SHOP_SLUG);
-  if (!shopResult.ok) notFound();
-  const shop = shopResult.data;
+  const shop = await getShop();
 
   const [sectionsResult, categoriesResult] = await Promise.all([
     getShopSections(shop.id),

@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getCategoriesByShop, getShopBySlug } from "@/lib/db/queries";
+import { getCategoriesByShop } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import CategoriesTable from "./CategoriesTable";
 
-const SHOP_SLUG = "niko-watches";
-
 export default async function CategoriesPage() {
-  const shopResult = await getShopBySlug(SHOP_SLUG);
-  if (!shopResult.ok) notFound();
+  const shop = await getShop();
 
-  const result = await getCategoriesByShop(shopResult.data.id);
+  const result = await getCategoriesByShop(shop.id);
   const categories = result.ok ? result.data : [];
 
   return (

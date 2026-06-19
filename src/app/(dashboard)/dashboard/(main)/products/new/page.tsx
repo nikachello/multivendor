@@ -1,15 +1,9 @@
-"use server";
-
-import { getCategoriesByShop, getShopBySlug } from "@/lib/db/queries";
-import { notFound } from "next/navigation";
+import { getCategoriesByShop } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import ProductForm from "./ProductForm";
 
 const page = async () => {
-  const SHOP_SLUG = "niko-watches";
-
-  const shopResult = await getShopBySlug(SHOP_SLUG);
-  if (!shopResult.ok) notFound();
-  const shop = shopResult.data;
+  const shop = await getShop();
 
   const categoriesResult = await getCategoriesByShop(shop.id);
   const categories = categoriesResult.ok ? categoriesResult.data : [];

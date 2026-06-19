@@ -1,15 +1,10 @@
 import { notFound } from "next/navigation";
-import { getShopBySlug, getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import SectionEditor from "@/components/dashboard/editor/SectionEditor";
 
-// Hardcoded to niko-watches until auth + shop-picker is built.
-// When auth lands, replace with: getShopByOwnerId(session.user.id)
-const EDITOR_SHOP_SLUG = "niko-watches";
-
 export default async function EditorPage() {
-  const shopResult = await getShopBySlug(EDITOR_SHOP_SLUG);
-  if (!shopResult.ok) notFound();
-  const shop = shopResult.data;
+  const shop = await getShop();
 
   const [sectionsResult, categoriesResult] = await Promise.all([
     getShopSections(shop.id),

@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
-import { getCategoryById, getShopBySlug } from "@/lib/db/queries";
+import { getCategoryById } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import CategoryForm from "../CategoryForm";
-
-const SHOP_SLUG = "niko-watches";
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  const shopResult = await getShopBySlug(SHOP_SLUG);
-  if (!shopResult.ok) notFound();
+  const shop = await getShop();
 
   const categoryResult = await getCategoryById(id);
   if (!categoryResult.ok) notFound();
@@ -18,7 +15,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold text-gray-900">{category.name}</h1>
       <CategoryForm
-        shopId={shopResult.data.id}
+        shopId={shop.id}
         categoryId={category.id}
         defaultValues={{
           name: category.name,

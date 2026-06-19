@@ -1,15 +1,12 @@
-"use server";
-
 import Link from "next/link";
-import { getProductsByShop, getShopBySlug } from "@/lib/db/queries";
+import { getProductsByShop } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import { notFound } from "next/navigation";
 import ProductsTable from "./ProductsTable";
 
 const page = async () => {
-  const shopSlug = "niko-watches";
-  const shopResult = await getShopBySlug(shopSlug);
-  if (!shopResult.ok) return notFound();
-  const result = await getProductsByShop(shopResult.data.id);
+  const shop = await getShop();
+  const result = await getProductsByShop(shop.id);
 
   if (!result.ok) return notFound();
 
@@ -25,7 +22,7 @@ const page = async () => {
           ახალი პროდუქტი
         </Link>
       </div>
-      <ProductsTable products={products} currency={shopResult.data.currency} />
+      <ProductsTable products={products} currency={shop.currency} />
     </div>
   );
 };
