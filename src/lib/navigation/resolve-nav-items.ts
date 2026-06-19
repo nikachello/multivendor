@@ -11,6 +11,10 @@ export function resolveNavItems(items: NavItem[], shopSlug: string): NavItem[] {
     if (item.type === "link") {
       return { ...item, href: resolveHref(item.href, shopSlug) };
     }
-    return { ...item, children: resolveNavItems(item.children, shopSlug) };
+    return {
+      ...item,
+      href: item.href ? resolveHref(item.href, shopSlug) : undefined,
+      children: resolveNavItems(item.children, shopSlug),
+    };
   });
 }

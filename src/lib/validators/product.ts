@@ -11,7 +11,7 @@ export const productSchema = z.object({
     ),
   description: z.string().optional(),
   price: z.coerce.number().positive("Price must be positive"),
-  categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
 });
 

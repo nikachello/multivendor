@@ -19,6 +19,7 @@ export default async function NavigationPage() {
   return (
     <MenuEditor
       shopId={shop.id}
+      shopSlug={shop.slug}
       initialItems={initialItems}
       categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
     />

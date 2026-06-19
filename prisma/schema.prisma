@@ -129,13 +129,13 @@ model Category {
   @@unique([shopId, slug])
 }
 
+
 // ============================================
 // PRODUCT
 // ============================================
 model Product {
   id          String   @id @default(cuid())
   shopId      String
-  categoryId  String?
   name        String
   slug        String
   description String?
@@ -145,7 +145,7 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   shop        Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  category    Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categories  Category[]
   images      ProductImage[]
   variants    Variant[]
   optionTypes ProductOptionType[]
@@ -163,6 +163,7 @@ model ProductImage {
   url       String
   altText   String?
   sortOrder Int     @default(0)
+  isMain    Boolean @default(false)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -217,12 +218,13 @@ model ProductOptionType {
 // VARIANT
 // ============================================
 model Variant {
-  id        String   @id @default(cuid())
-  productId String
-  sku       String
-  price     Decimal  @db.Decimal(10, 2)
-  stock     Int      @default(0)
-  image     String?
+  id             String   @id @default(cuid())
+  productId      String
+  sku            String
+  price          Decimal  @db.Decimal(10, 2)
+  stock          Int      @default(0)
+  trackInventory Boolean  @default(true)
+  image          String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

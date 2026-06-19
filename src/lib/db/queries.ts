@@ -6,6 +6,7 @@ import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
 
 const productInclude = {
   images: { orderBy: { sortOrder: "asc" } },
+  categories: true,
   variants: {
     include: {
       optionValues: {
@@ -332,7 +333,7 @@ export async function getProductsByCategory(
   }
 
   const products = await prisma.product.findMany({
-    where: { shopId, categoryId, isActive: true },
+    where: { shopId, categories: { some: { id: categoryId } }, isActive: true },
     include: productInclude,
   });
 
@@ -408,4 +409,88 @@ export async function getTestimonialsByShop(
   }
 
   return ok(testimonials);
+}
+
+export async function getOrderById(id: string) {
+  if (!id) return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order ID is required", status: 400 });
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true },
+  });
+
+  if (!order) return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+
+  return ok(order);
+}
+
+export async function getDashboardStats(shopId: string) {
+  const [productCount, categoryCount, orderCount, revenueAgg, recentOrders] =
+    await Promise.all([
+      prisma.product.count({ where: { shopId } }),
+      prisma.category.count({ where: { shopId } }),
+      prisma.order.count({ where: { shopId } }),
+      prisma.order.aggregate({ where: { shopId }, _sum: { total: true } }),
+      prisma.order.findMany({
+        where: { shopId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { items: true },
+      }),
+    ]);
+
+  return {
+    productCount,
+    categoryCount,
+    orderCount,
+    revenue: Number(revenueAgg._sum.total ?? 0),
+    recentOrders,
+  };
+}
+
+export async function searchProducts(
+  shopId: string,
+  query: string,
+): Promise<Result<ProductWithRelations[]>> {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID required", status: 400 });
+
+  const products = await prisma.product.findMany({
+    where: {
+      shopId,
+      isActive: true,
+      OR: [
+        { name: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+      ],
+    },
+    include: productInclude,
+  });
+
+  return ok(products.map(serializeProduct));
+}
+
+export async function getOrdersByShop(shopId: string) {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
+
+  const orders = await prisma.order.findMany({
+    where: { shopId },
+    include: { items: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return ok(orders);
+}
+
+export type CategoryWithCount = Category & { _count: { products: number } };
+
+export async function getCategoriesWithCount(shopId: string): Promise<Result<CategoryWithCount[]>> {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
+
+  const data = await prisma.category.findMany({
+    where: { shopId },
+    include: { _count: { select: { products: true } } },
+    orderBy: { name: "asc" },
+  });
+
+  return ok(data);
 }

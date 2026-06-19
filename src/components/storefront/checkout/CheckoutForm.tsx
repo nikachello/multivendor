@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
+import { createOrder } from "@/lib/actions/order";
+import { orderSchema } from "@/lib/validations/order";
 
 type Props = {
   shopId: string;
@@ -34,16 +37,18 @@ const EMPTY_FORM: FormData = {
   country: "",
 };
 
-export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: Props) {
+export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, currency }: Props) {
+  const router = useRouter();
   const { cart, clear } = useCart(shopId);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
 
-  // Redirect-like empty cart message
   if (items.length === 0 && !submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
@@ -58,33 +63,46 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
     );
   }
 
-  if (submitted) {
-    return <OrderConfirmation shopSlug={shopSlug} shopName={shopName} name={form.fullName} />;
-  }
-
   function update(field: keyof FormData, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (serverError) setServerError(null);
   }
 
   function validate(): boolean {
-    const required: (keyof FormData)[] = ["fullName", "email", "line1", "city", "postalCode", "country"];
-    const next: Partial<FormData> = {};
-    for (const key of required) {
-      if (!form[key].trim()) next[key] = "Required";
+    const result = orderSchema.safeParse(form);
+    if (result.success) {
+      setErrors({});
+      return true;
     }
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      next.email = "Invalid email";
-    }
-    setErrors(next);
-    return Object.keys(next).length === 0;
+    const fieldErrors = result.error.flatten().fieldErrors;
+    setErrors({
+      fullName: fieldErrors.fullName?.[0],
+      email: fieldErrors.email?.[0],
+      line1: fieldErrors.line1?.[0],
+      city: fieldErrors.city?.[0],
+      postalCode: fieldErrors.postalCode?.[0],
+      country: fieldErrors.country?.[0],
+    });
+    return false;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!validate()) return;
-    clear();
+
+    setLoading(true);
+    const result = await createOrder(shopId, items, form);
+    setLoading(false);
+
+    if (!result?.ok) {
+      setServerError(result?.error.message ?? "Something went wrong. Please try again.");
+      return;
+    }
+
     setSubmitted(true);
+    clear();
+    router.push(`/shop/${shopSlug}/order/${result.data.id}`);
   }
 
   return (
@@ -92,6 +110,12 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
       {/* ── LEFT: Form ── */}
       <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
         <h1 className="text-2xl font-semibold tracking-tight">Checkout</h1>
+
+        {serverError && (
+          <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {serverError}
+          </div>
+        )}
 
         {/* Contact */}
         <section>
@@ -189,9 +213,10 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
 
         <button
           type="submit"
-          className="w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity"
+          disabled={loading}
+          className="w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Place Order
+          {loading ? "Placing order…" : "Place Order"}
         </button>
       </form>
 
@@ -211,7 +236,6 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
                   ) : (
                     <div className="w-full h-full bg-neutral-100" />
                   )}
-                  {/* Quantity badge */}
                   <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-neutral-600 text-white text-[10px] flex items-center justify-center font-medium">
                     {item.quantity}
                   </span>
@@ -251,7 +275,6 @@ export default function CheckoutForm({ shopId, shopSlug, shopName, currency }: P
   );
 }
 
-// ── Small reusable field wrapper ──
 function Field({
   label,
   hint,
@@ -283,37 +306,4 @@ function inputCls(hasError: boolean) {
       ? "border-red-300 focus:border-red-500"
       : "border-neutral-200 focus:border-neutral-500"
   }`;
-}
-
-// ── Success screen ──
-function OrderConfirmation({
-  shopSlug,
-  shopName,
-  name,
-}: {
-  shopSlug: string;
-  shopName: string;
-  name: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 gap-6 text-center max-w-md mx-auto">
-      <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
-        <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-        </svg>
-      </div>
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Order placed!</h1>
-        <p className="mt-2 text-neutral-500 text-sm">
-          Thank you{name ? `, ${name.split(" ")[0]}` : ""}. We{"'"}ll send a confirmation to your email shortly.
-        </p>
-      </div>
-      <Link
-        href={`/shop/${shopSlug}`}
-        className="px-8 py-3 text-sm tracking-widest uppercase bg-black text-white hover:opacity-80 transition-opacity"
-      >
-        Continue shopping
-      </Link>
-    </div>
-  );
 }

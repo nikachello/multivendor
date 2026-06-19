@@ -20,11 +20,12 @@ type Category = { id: string; name: string; slug: string };
 
 type Props = {
   shopId: string;
+  shopSlug: string;
   initialItems: NavItem[];
   categories: Category[];
 };
 
-export default function MenuEditor({ shopId, initialItems, categories }: Props) {
+export default function MenuEditor({ shopId, shopSlug, initialItems, categories }: Props) {
   const [menu, setMenu] = useState<NavItem[]>(initialItems);
   const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -192,6 +193,7 @@ export default function MenuEditor({ shopId, initialItems, categories }: Props) 
             item={selectedItem}
             allItems={menu}
             categories={categories}
+            shopSlug={shopSlug}
             onLabelChange={handleLabelChange}
             onHrefChange={handleHrefChange}
             onTypeChange={handleTypeChange}

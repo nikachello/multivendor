@@ -8,6 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { categorySchema } from "@/lib/validators/category";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
+import ImageUploader from "@/components/ui/ImageUploader";
 
 type Props = {
   shopId: string;
@@ -31,12 +32,12 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
   useEffect(() => {
     if (!name || isEditing) return;
     setValue("slug", name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
-  }, [name]);
+  }, [name, isEditing, setValue]);
 
   async function onSubmit(data: FormInput) {
     const result = isEditing
-      ? await updateCategory(categoryId, data.name, data.description ?? "", data.isActive ?? true)
-      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true);
+      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image)
+      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image);
 
     if (!result || !result.ok) {
       toast.error(isEditing ? "Failed to update category" : "Failed to create category");
@@ -62,13 +63,10 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         <label className="text-sm font-medium text-gray-700">Slug</label>
         <input
           {...register("slug")}
-          readOnly={isEditing}
-          className={`border border-gray-200 rounded px-3 py-2 text-sm outline-none transition-colors font-mono ${
-            isEditing ? "bg-gray-50 text-gray-400 cursor-not-allowed" : "focus:border-gray-400"
-          }`}
+          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors font-mono"
           placeholder="category-slug"
         />
-        {isEditing && <p className="text-xs text-gray-400">Slug cannot be changed after creation.</p>}
+        {isEditing && <p className="text-xs text-gray-400">Changing the slug will break any existing links to this category.</p>}
         {errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
       </div>
 
@@ -80,6 +78,33 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
           className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors resize-none"
           placeholder="Optional description"
         />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">Image</label>
+        {watch("image") && (
+          <div className="relative w-32 h-32 group">
+            <img
+              src={watch("image")}
+              alt=""
+              className="w-32 h-32 object-cover rounded border border-gray-200"
+            />
+            <button
+              type="button"
+              onClick={() => setValue("image", "")}
+              className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {!watch("image") && (
+          <ImageUploader
+            endpoint="categoryImage"
+            maxFiles={1}
+            onUploadComplete={(urls) => setValue("image", urls[0])}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-2">

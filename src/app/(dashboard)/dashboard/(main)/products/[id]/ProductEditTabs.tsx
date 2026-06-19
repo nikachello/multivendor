@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Category, Shop } from "@/generated/prisma/client";
 import { ProductOptionType } from "@/lib/db/queries";
@@ -9,6 +10,15 @@ import OptionsEditor from "./OptionsEditor";
 import VariantsEditor from "./VariantsEditor";
 import ImagesEditor from "./ImagesEditor";
 
+type Tab = "details" | "images" | "options" | "variants";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "details", label: "Details" },
+  { id: "images", label: "Images" },
+  { id: "options", label: "Options" },
+  { id: "variants", label: "Variants" },
+];
+
 type Props = {
   product: ProductWithRelations & { optionTypes: ProductOptionType[] };
   shop: Shop;
@@ -17,45 +27,54 @@ type Props = {
 
 export default function ProductEditTabs({ product, shop, categories }: Props) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("details");
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Simple manual tab state using URL hash would be cleaner but for now two sections */}
-      <div className="flex flex-col gap-10">
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest border-b border-gray-100 pb-2">
-            Details
-          </h2>
-          <ProductForm
-            shopId={shop.id}
-            categories={categories}
-            productId={product.id}
-            defaultValues={{
-              name: product.name,
-              slug: product.slug,
-              description: product.description ?? "",
-              price: product.priceFrom,
-              categoryId: product.categoryId ?? "",
-              isActive: product.isActive,
-            }}
-          />
-        </section>
+      {/* Tab bar */}
+      <div className="flex border-b border-gray-100">
+        {TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              activeTab === id
+                ? "border-gray-900 text-gray-900"
+                : "border-transparent text-gray-400 hover:text-gray-700"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest border-b border-gray-100 pb-2">
-            Images
-          </h2>
-          <ImagesEditor
-            productId={product.id}
-            images={product.images}
-            onUpdate={() => router.refresh()}
-          />
-        </section>
+      {/* Tab panels */}
+      {activeTab === "details" && (
+        <ProductForm
+          shopId={shop.id}
+          categories={categories}
+          productId={product.id}
+          defaultValues={{
+            name: product.name,
+            slug: product.slug,
+            description: product.description ?? "",
+            price: product.priceFrom,
+            categoryIds: product.categories.map((c) => c.id),
+            isActive: product.isActive,
+          }}
+        />
+      )}
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest border-b border-gray-100 pb-2">
-            Options
-          </h2>
+      {activeTab === "images" && (
+        <ImagesEditor
+          productId={product.id}
+          images={product.images}
+          onUpdate={() => router.refresh()}
+        />
+      )}
+
+      {activeTab === "options" && (
+        <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-400">
             Define options like Size or Color. Variants are generated from all combinations.
           </p>
@@ -65,19 +84,16 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
             optionTypes={product.optionTypes}
             onUpdate={() => router.refresh()}
           />
-        </section>
+        </div>
+      )}
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest border-b border-gray-100 pb-2">
-            Variants
-          </h2>
-          <VariantsEditor
-            productId={product.id}
-            priceFrom={product.priceFrom}
-            variants={product.variants}
-          />
-        </section>
-      </div>
+      {activeTab === "variants" && (
+        <VariantsEditor
+          productId={product.id}
+          priceFrom={product.priceFrom}
+          variants={product.variants}
+        />
+      )}
     </div>
   );
 }

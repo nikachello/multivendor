@@ -20,7 +20,8 @@ export type FieldDef =
       itemFields: FlatFieldDef[];
       itemDefault: Record<string, unknown>;
     }
-  | { type: "select-shop-categories"; key: string; label: string };
+  | { type: "select-shop-categories"; key: string; label: string }
+  | { type: "multiselect-shop-categories"; key: string; label: string };
 
 export const sectionLabels: Record<SectionType, string> = {
   announcement: "Announcement Bar",
@@ -138,6 +139,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
       label: "Columns",
       options: [2, 3, 4, 5, 6].map((n) => ({ value: n, label: String(n) })),
     },
+    { type: "multiselect-shop-categories", key: "categoryIds", label: "Show only these categories (leave empty for all)" },
   ],
   collection: [
     {

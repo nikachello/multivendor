@@ -64,7 +64,12 @@ const NavbarSection = ({
                   </svg>
                 );
 
-                const trigger = (
+                const trigger = item.href ? (
+                  <Link href={item.href} className={`${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
+                    {item.label}
+                    {chevron}
+                  </Link>
+                ) : (
                   <span className={`cursor-pointer ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
                     {item.label}
                     {chevron}
@@ -95,9 +100,15 @@ const NavbarSection = ({
                           {subGroups.map((sg, i) =>
                             sg.type === "group" ? (
                               <div key={i} className="min-w-[160px] py-3">
-                                <p className="px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 font-medium border-b border-gray-100">
-                                  {sg.label}
-                                </p>
+                                {sg.href ? (
+                                  <Link href={sg.href} className="block px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 hover:text-black font-medium border-b border-gray-100 transition-colors">
+                                    {sg.label}
+                                  </Link>
+                                ) : (
+                                  <p className="px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 font-medium border-b border-gray-100">
+                                    {sg.label}
+                                  </p>
+                                )}
                                 {sg.children.map((gc, j) => {
                                   if (gc.type === "link") {
                                     return (
@@ -177,7 +188,16 @@ const NavbarSection = ({
           </Link>
         </div>
 
-        <div className="flex-1 flex justify-end">
+        <div className="flex-1 flex justify-end items-center gap-4">
+          <Link
+            href={`/shop/${shopSlug}/search`}
+            className={`${mutedColor} ${hoverColor} transition-colors duration-200`}
+            aria-label="Search"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </Link>
           <button
             onClick={() => setCartOpen(true)}
             className={`relative ${mutedColor} ${hoverColor} cursor-pointer transition-colors duration-200`}
@@ -228,12 +248,22 @@ const NavbarSection = ({
           </Link>
         </div>
 
-        <button
-          onClick={() => setCartOpen(true)}
-          className={`relative ${transparent ? "text-white" : "text-black"}`}
-          aria-label="Open cart"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="flex items-center gap-4">
+          <Link
+            href={`/shop/${shopSlug}/search`}
+            className={`${transparent ? "text-white" : "text-black"}`}
+            aria-label="Search"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </Link>
+          <button
+            onClick={() => setCartOpen(true)}
+            className={`relative ${transparent ? "text-white" : "text-black"}`}
+            aria-label="Open cart"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
           </svg>
           {itemCount > 0 && (
@@ -241,7 +271,8 @@ const NavbarSection = ({
               {itemCount > 9 ? "9+" : itemCount}
             </span>
           )}
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile backdrop — always in DOM so opacity can transition with the menu */}
@@ -279,21 +310,29 @@ const NavbarSection = ({
               const hasSubs = item.children.some(c => c.type === "group");
               return (
                 <li key={index} className="border-b border-gray-100">
-                  <button
-                    onClick={() => setOpenGroup(isGroupOpen ? null : index)}
-                    className="w-full flex items-center justify-between py-3 text-gray-700 hover:text-black transition-colors"
-                  >
-                    <span>{item.label}</span>
-                    <svg
-                      className={`w-3 h-3 transition-transform duration-200 ${isGroupOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
+                  <div className="flex items-center justify-between py-3">
+                    {item.href ? (
+                      <Link href={item.href} onClick={() => setOpen(false)} className="text-gray-700 hover:text-black transition-colors">
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-700">{item.label}</span>
+                    )}
+                    <button
+                      onClick={() => setOpenGroup(isGroupOpen ? null : index)}
+                      className="p-1 text-gray-400 hover:text-black transition-colors"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <svg
+                        className={`w-3 h-3 transition-transform duration-200 ${isGroupOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                   <div
                     className={`overflow-hidden transition-all duration-300 ${
                       isGroupOpen ? (hasSubs ? "max-h-96" : "max-h-48") + " pb-3" : "max-h-0"
