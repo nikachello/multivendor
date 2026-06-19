@@ -57,6 +57,16 @@ export const createOrder = async (
       })),
     });
 
+    // Decrement stock for variants that track inventory
+    await Promise.all(
+      items.map((item) =>
+        prisma.variant.updateMany({
+          where: { id: item.variantId, trackInventory: true },
+          data: { stock: { decrement: item.quantity } },
+        }),
+      ),
+    );
+
     return ok({ id: order.id });
   } catch {
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });

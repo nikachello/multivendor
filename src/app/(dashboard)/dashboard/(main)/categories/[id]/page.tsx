@@ -21,6 +21,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
           name: category.name,
           slug: category.slug,
           description: category.description ?? "",
+          image: category.image ?? "",
           isActive: category.isActive,
         }}
       />

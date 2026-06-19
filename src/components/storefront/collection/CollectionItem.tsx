@@ -24,7 +24,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
   );
   const isSoldOut =
     product.variants.length === 0 ||
-    product.variants.every((v) => v.stock === 0);
+    product.variants.every((v) => ((v as { trackInventory?: boolean }).trackInventory ?? true) && v.stock === 0);
 
   return (
     <Link

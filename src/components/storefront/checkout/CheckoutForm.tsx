@@ -44,11 +44,12 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
 
-  if (items.length === 0) {
+  if (items.length === 0 && !submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <p className="text-neutral-500 text-sm">Your cart is empty.</p>
@@ -99,6 +100,7 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
       return;
     }
 
+    setSubmitted(true);
     clear();
     router.push(`/shop/${shopSlug}/order/${result.data.id}`);
   }

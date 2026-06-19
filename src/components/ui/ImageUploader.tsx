@@ -8,14 +8,15 @@ const { useUploadThing } = generateReactHelpers<OurFileRouter>();
 
 type Props = {
   onUploadComplete: (urls: string[]) => void;
+  endpoint?: keyof OurFileRouter;
   maxFiles?: number;
 };
 
-export default function ImageUploader({ onUploadComplete, maxFiles = 8 }: Props) {
+export default function ImageUploader({ onUploadComplete, endpoint = "productImage", maxFiles = 8 }: Props) {
   const [dragging, setDragging] = useState(false);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  const { startUpload, isUploading } = useUploadThing("productImage", {
+  const { startUpload, isUploading } = useUploadThing(endpoint, {
     onClientUploadComplete: (res) => {
       const urls = res.map((r) => r.ufsUrl);
       onUploadComplete(urls);

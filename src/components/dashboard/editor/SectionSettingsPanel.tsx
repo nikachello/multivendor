@@ -146,6 +146,50 @@ function Field({
     );
   }
 
+  // Multi-select checkboxes for categoryIds
+  if (field.type === "multiselect-shop-categories") {
+    const selected: string[] = Array.isArray(value) ? (value as string[]) : [];
+    return (
+      <div>
+        <label className="block text-xs font-medium text-neutral-600 mb-1.5">{field.label}</label>
+        {categories.length === 0 ? (
+          <p className="text-xs text-neutral-400">No categories yet.</p>
+        ) : (
+          <div className="border border-neutral-200 divide-y divide-neutral-100 max-h-48 overflow-y-auto">
+            {categories.map((cat) => {
+              const checked = selected.includes(cat.id);
+              return (
+                <label key={cat.id} className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-neutral-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) =>
+                      onChange(
+                        e.target.checked
+                          ? [...selected, cat.id]
+                          : selected.filter((id) => id !== cat.id),
+                      )
+                    }
+                    className="w-3.5 h-3.5 accent-neutral-900"
+                  />
+                  <span className="text-xs text-neutral-700">{cat.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        )}
+        {selected.length > 0 && (
+          <button
+            onClick={() => onChange([])}
+            className="mt-1.5 text-[10px] text-neutral-400 hover:text-neutral-700 transition-colors"
+          >
+            Clear selection (show all)
+          </button>
+        )}
+      </div>
+    );
+  }
+
   // List of items, each editable via their own FlatField set
   if (field.type === "list") {
     const items = (value as Record<string, unknown>[]) ?? [];

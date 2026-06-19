@@ -59,7 +59,7 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
             slug: product.slug,
             description: product.description ?? "",
             price: product.priceFrom,
-            categoryId: product.categoryId ?? "",
+            categoryIds: product.categories.map((c) => c.id),
             isActive: product.isActive,
           }}
         />

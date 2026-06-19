@@ -3,8 +3,29 @@
 import { headers } from "next/headers";
 import { auth } from "../auth";
 import { err, ok } from "../result";
+import { ErrorCode } from "../errors";
 import prisma from "../db/prisma";
 import { redirect } from "next/navigation";
+
+export async function updateShop(
+  shopId: string,
+  data: { name: string; description?: string; currency: string; logo?: string },
+) {
+  if (!shopId || !data.name || !data.currency)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
+
+  const shop = await prisma.shop.update({
+    where: { id: shopId },
+    data: {
+      name: data.name,
+      description: data.description || null,
+      currency: data.currency,
+      logo: data.logo || null,
+    },
+  });
+
+  return ok(shop);
+}
 
 export const createShop = async (name: string, slug: string) => {
   const session = await auth.api.getSession({ headers: await headers() });

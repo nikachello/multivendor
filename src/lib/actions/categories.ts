@@ -10,12 +10,13 @@ export async function createCategory(
   slug: string,
   description: string,
   isActive: boolean,
+  image?: string,
 ) {
   if (!shopId || !name || !slug)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
 
   const category = await prisma.category.create({
-    data: { shopId, name, slug, description: description || null, isActive },
+    data: { shopId, name, slug, description: description || null, isActive, image: image || null },
   });
 
   return ok(category);
@@ -27,13 +28,14 @@ export async function updateCategory(
   slug: string,
   description: string,
   isActive: boolean,
+  image?: string,
 ) {
   if (!id || !name || !slug)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
 
   const category = await prisma.category.update({
     where: { id },
-    data: { name, slug, description: description || null, isActive },
+    data: { name, slug, description: description || null, isActive, image: image ?? null },
   });
 
   return ok(category);

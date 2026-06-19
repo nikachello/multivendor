@@ -21,6 +21,7 @@ export function updateItem(
           id: item.id,
           type: "group",
           label: patch.label ?? item.label,
+          href: undefined,
           children: [],
         } satisfies NavItem;
       }
@@ -53,6 +54,9 @@ export function updateItem(
           ...item,
           ...("label" in patch && patch.label !== undefined
             ? { label: patch.label }
+            : {}),
+          ...("href" in patch
+            ? { href: patch.href || undefined }
             : {}),
           ...("children" in patch && patch.children !== undefined
             ? { children: patch.children }

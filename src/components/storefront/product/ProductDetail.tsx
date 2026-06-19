@@ -77,7 +77,8 @@ export default function ProductDetail({
     setImgErrors((prev) => ({ ...prev, [index]: true }));
   }
 
-  const inStock = (selectedVariant?.stock ?? 0) > 0;
+  const tracksInventory = (selectedVariant as { trackInventory?: boolean } | undefined)?.trackInventory ?? true;
+  const inStock = !selectedVariant ? false : (!tracksInventory || selectedVariant.stock > 0);
 
   function handleAddToCart() {
     if (!selectedVariant || !inStock) return;
@@ -171,9 +172,11 @@ export default function ProductDetail({
 
           {selectedVariant && (
             <p className="mt-1 text-sm text-neutral-400">
-              {selectedVariant.stock > 0
-                ? `${selectedVariant.stock} in stock`
-                : "Out of stock"}
+              {!tracksInventory
+                ? "In stock"
+                : selectedVariant.stock > 0
+                  ? `${selectedVariant.stock} in stock`
+                  : "Out of stock"}
             </p>
           )}
 
@@ -224,7 +227,9 @@ export default function ProductDetail({
               <button
                 onClick={() =>
                   setQuantity((q) =>
-                    Math.min(selectedVariant?.stock ?? 99, q + 1),
+                    tracksInventory
+                      ? Math.min(selectedVariant?.stock ?? 99, q + 1)
+                      : q + 1,
                   )
                 }
                 aria-label="Increase quantity"

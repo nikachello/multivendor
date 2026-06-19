@@ -8,6 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { categorySchema } from "@/lib/validators/category";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
+import ImageUploader from "@/components/ui/ImageUploader";
 
 type Props = {
   shopId: string;
@@ -35,8 +36,8 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
 
   async function onSubmit(data: FormInput) {
     const result = isEditing
-      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true)
-      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true);
+      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image)
+      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image);
 
     if (!result || !result.ok) {
       toast.error(isEditing ? "Failed to update category" : "Failed to create category");
@@ -77,6 +78,33 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
           className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors resize-none"
           placeholder="Optional description"
         />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">Image</label>
+        {watch("image") && (
+          <div className="relative w-32 h-32 group">
+            <img
+              src={watch("image")}
+              alt=""
+              className="w-32 h-32 object-cover rounded border border-gray-200"
+            />
+            <button
+              type="button"
+              onClick={() => setValue("image", "")}
+              className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {!watch("image") && (
+          <ImageUploader
+            endpoint="categoryImage"
+            maxFiles={1}
+            onUploadComplete={(urls) => setValue("image", urls[0])}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-2">

@@ -55,15 +55,19 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
 
   async function onSubmit(data: FormInput) {
     const result = isEditing
-      ? await updateProduct(productId, data.name, data.slug, data.description ?? "", Number(data.price), data.categoryId ?? "")
-      : await createProduct(shopId, data.name, data.slug, data.description ?? "", Number(data.price), data.categoryId ?? "");
+      ? await updateProduct(productId, data.name, data.slug, data.description ?? "", Number(data.price), data.categoryIds ?? [])
+      : await createProduct(shopId, data.name, data.slug, data.description ?? "", Number(data.price), data.categoryIds ?? []);
 
     if (!result || !result.ok) {
       toast.error(isEditing ? "Failed to update product" : "Failed to create product");
       return;
     }
     toast.success(isEditing ? "Product updated" : "Product created");
-    router.push("/dashboard/products");
+    if (isEditing) {
+      router.push("/dashboard/products");
+    } else {
+      router.push(`/dashboard/products/${result.data.id}`);
+    }
   }
 
   async function handleCreateCategory() {
@@ -74,7 +78,8 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
     if (!result.ok) { toast.error("Failed to create category"); return; }
     const created = { id: result.data.id, name: result.data.name };
     setCategories((prev) => [...prev, created]);
-    setValue("categoryId", created.id);
+    const current = watch("categoryIds") ?? [];
+    setValue("categoryIds", [...current, created.id]);
     setShowModal(false);
     setNewCatName("");
     setNewCatSlug("");
@@ -130,7 +135,7 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
 
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700">Category</label>
+            <label className="text-sm font-medium text-gray-700">Categories</label>
             <button
               type="button"
               onClick={() => setShowModal(true)}
@@ -139,15 +144,31 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
               + New category
             </button>
           </div>
-          <select
-            {...register("categoryId")}
-            className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
-          >
-            <option value="">No category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
+          <div className="border border-gray-200 rounded divide-y divide-gray-100 max-h-48 overflow-y-auto">
+            {categories.length === 0 && (
+              <p className="px-3 py-2 text-sm text-gray-400">No categories yet</p>
+            )}
+            {categories.map((c) => {
+              const selected = (watch("categoryIds") ?? []).includes(c.id);
+              return (
+                <label key={c.id} className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={(e) => {
+                      const current = watch("categoryIds") ?? [];
+                      setValue(
+                        "categoryIds",
+                        e.target.checked ? [...current, c.id] : current.filter((id) => id !== c.id),
+                      );
+                    }}
+                    className="w-4 h-4 accent-gray-900"
+                  />
+                  <span className="text-sm text-gray-700">{c.name}</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

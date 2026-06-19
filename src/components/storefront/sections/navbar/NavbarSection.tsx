@@ -100,9 +100,15 @@ const NavbarSection = ({
                           {subGroups.map((sg, i) =>
                             sg.type === "group" ? (
                               <div key={i} className="min-w-[160px] py-3">
-                                <p className="px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 font-medium border-b border-gray-100">
-                                  {sg.label}
-                                </p>
+                                {sg.href ? (
+                                  <Link href={sg.href} className="block px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 hover:text-black font-medium border-b border-gray-100 transition-colors">
+                                    {sg.label}
+                                  </Link>
+                                ) : (
+                                  <p className="px-5 pt-1 pb-2.5 text-[10px] tracking-widest uppercase text-gray-400 font-medium border-b border-gray-100">
+                                    {sg.label}
+                                  </p>
+                                )}
                                 {sg.children.map((gc, j) => {
                                   if (gc.type === "link") {
                                     return (
@@ -182,7 +188,16 @@ const NavbarSection = ({
           </Link>
         </div>
 
-        <div className="flex-1 flex justify-end">
+        <div className="flex-1 flex justify-end items-center gap-4">
+          <Link
+            href={`/shop/${shopSlug}/search`}
+            className={`${mutedColor} ${hoverColor} transition-colors duration-200`}
+            aria-label="Search"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </Link>
           <button
             onClick={() => setCartOpen(true)}
             className={`relative ${mutedColor} ${hoverColor} cursor-pointer transition-colors duration-200`}
@@ -233,12 +248,22 @@ const NavbarSection = ({
           </Link>
         </div>
 
-        <button
-          onClick={() => setCartOpen(true)}
-          className={`relative ${transparent ? "text-white" : "text-black"}`}
-          aria-label="Open cart"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="flex items-center gap-4">
+          <Link
+            href={`/shop/${shopSlug}/search`}
+            className={`${transparent ? "text-white" : "text-black"}`}
+            aria-label="Search"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </Link>
+          <button
+            onClick={() => setCartOpen(true)}
+            className={`relative ${transparent ? "text-white" : "text-black"}`}
+            aria-label="Open cart"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
           </svg>
           {itemCount > 0 && (
@@ -246,7 +271,8 @@ const NavbarSection = ({
               {itemCount > 9 ? "9+" : itemCount}
             </span>
           )}
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile backdrop — always in DOM so opacity can transition with the menu */}

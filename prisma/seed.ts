@@ -109,7 +109,7 @@ async function main() {
   const p1 = await prisma.product.create({
     data: {
       shopId: shop.id,
-      categoryId: luxuryCat.id,
+      categories: { connect: { id: luxuryCat.id } },
       name: "Royal Classic Watch",
       slug: "royal-classic-watch",
       description:
@@ -153,7 +153,7 @@ async function main() {
   const p2 = await prisma.product.create({
     data: {
       shopId: shop.id,
-      categoryId: luxuryCat.id,
+      categories: { connect: { id: luxuryCat.id } },
       name: "Crystal Pearl Watch",
       slug: "crystal-pearl-watch",
       description:
@@ -194,7 +194,7 @@ async function main() {
   const p3 = await prisma.product.create({
     data: {
       shopId: shop.id,
-      categoryId: sportCat.id,
+      categories: { connect: { id: sportCat.id } },
       name: "Sport Pro Watch",
       slug: "sport-pro-watch",
       description:
@@ -230,7 +230,7 @@ async function main() {
   const p4 = await prisma.product.create({
     data: {
       shopId: shop.id,
-      categoryId: sportCat.id,
+      categories: { connect: { id: sportCat.id } },
       name: "Trail Runner Watch",
       slug: "trail-runner-watch",
       description:

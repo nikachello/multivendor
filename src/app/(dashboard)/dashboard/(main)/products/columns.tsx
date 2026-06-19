@@ -24,7 +24,11 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
       id: "category",
       header: "Category",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-500">{row.original.category?.name ?? <span className="text-gray-300">—</span>}</span>
+        <span className="text-sm text-gray-500">
+          {row.original.categories.length
+            ? row.original.categories.map((c) => c.name).join(", ")
+            : <span className="text-gray-300">—</span>}
+        </span>
       ),
     },
     {

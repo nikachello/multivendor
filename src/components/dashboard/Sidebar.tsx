@@ -10,6 +10,7 @@ import {
   Store,
   LogOut,
   ShoppingBag,
+  Settings,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
   { label: "Navigation", href: "/dashboard/navigation", icon: Navigation },
   { label: "Editor", href: "/dashboard/editor", icon: Layout },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 type Props = {
