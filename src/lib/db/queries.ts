@@ -409,3 +409,28 @@ export async function getTestimonialsByShop(
 
   return ok(testimonials);
 }
+
+export async function getOrderById(id: string) {
+  if (!id) return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order ID is required", status: 400 });
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true },
+  });
+
+  if (!order) return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+
+  return ok(order);
+}
+
+export async function getOrdersByShop(shopId: string) {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
+
+  const orders = await prisma.order.findMany({
+    where: { shopId },
+    include: { items: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return ok(orders);
+}
