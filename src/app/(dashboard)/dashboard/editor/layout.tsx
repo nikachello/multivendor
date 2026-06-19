@@ -1,11 +1,8 @@
 import Link from "next/link";
-import { getShopBySlug } from "@/lib/db/queries";
-
-const EDITOR_SHOP_SLUG = "niko-watches";
+import { getShop } from "@/lib/auth/get-shop";
 
 export default async function EditorLayout({ children }: { children: React.ReactNode }) {
-  const shopResult = await getShopBySlug(EDITOR_SHOP_SLUG);
-  const shop = shopResult.ok ? shopResult.data : null;
+  const shop = await getShop();
 
   return (
     <div className="flex flex-col h-screen">
@@ -16,17 +13,15 @@ export default async function EditorLayout({ children }: { children: React.React
         >
           ← Dashboard
         </Link>
-        <span className="font-medium text-gray-900">{shop?.name ?? "Editor"}</span>
-        {shop && (
-          <a
-            href={`/shop/${shop.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            View Store ↗
-          </a>
-        )}
+        <span className="font-medium text-gray-900">{shop.name}</span>
+        <a
+          href={`/shop/${shop.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          View Store ↗
+        </a>
       </header>
       <div className="flex-1 min-h-0">{children}</div>
     </div>

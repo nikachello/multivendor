@@ -4,6 +4,8 @@ export const ErrorCode = {
   SHOP_ID_MISSING: "SHOP_ID_MISSING",
   SHOP_NOT_FOUND: "SHOP_NOT_FOUND",
 
+  SHOP_CREATE_FAILED: "SHOP_CREATE_FAILED",
+
   // Category
   CATEGORY_ID_MISSING: "CATEGORY_ID_MISSING",
   CATEGORY_NOT_FOUND: "CATEGORY_NOT_FOUND",
@@ -19,7 +21,7 @@ export const ErrorCode = {
   // Sections
   SECTIONS_MISSING: "SECTIONS_MISSING",
 
-  GENERAL_ERROR: "SOME PROPERTIS ARE MISSING",
+  GENERAL_ERROR: "SOME_PROPERTIS_ARE_MISSING",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

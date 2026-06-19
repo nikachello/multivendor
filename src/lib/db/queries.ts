@@ -70,6 +70,31 @@ export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
   return ok(shop);
 }
 
+export async function getShopByOwnerId(ownerId: string) {
+  if (!ownerId)
+    return err({
+      code: "SOME_PROPERTIS_ARE_MISSING",
+      message: "Owner ID is required",
+      status: 400,
+    });
+
+  const shop = await prisma.shop.findFirst({
+    where: {
+      ownerId: ownerId,
+    },
+  });
+
+  if (!shop) {
+    return err({
+      code: ErrorCode.SHOP_NOT_FOUND,
+      message: "Shop not found",
+      status: 404,
+    });
+  }
+
+  return ok(shop);
+}
+
 export async function getAllShops() {
   return prisma.shop.findMany({
     select: {
@@ -170,7 +195,12 @@ export async function getCategoryBySlug(
 
 export async function getCategoryById(id: string): Promise<Result<Category>> {
   const category = await prisma.category.findUnique({ where: { id } });
-  if (!category) return err({ code: ErrorCode.CATEGORY_NOT_FOUND, message: "Category not found", status: 404 });
+  if (!category)
+    return err({
+      code: ErrorCode.CATEGORY_NOT_FOUND,
+      message: "Category not found",
+      status: 404,
+    });
   return ok(category);
 }
 

@@ -1,11 +1,8 @@
-"use server";
-
 import { notFound } from "next/navigation";
-import { getCategoriesByShop, getProductWithOptions, getShopBySlug } from "@/lib/db/queries";
+import { getCategoriesByShop, getProductWithOptions } from "@/lib/db/queries";
+import { getShop } from "@/lib/auth/get-shop";
 import ProductForm from "../new/ProductForm";
 import ProductEditTabs from "./ProductEditTabs";
-
-const SHOP_SLUG = "niko-watches";
 
 export default async function EditProductPage({
   params,
@@ -13,10 +10,7 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  const shopResult = await getShopBySlug(SHOP_SLUG);
-  if (!shopResult.ok) notFound();
-  const shop = shopResult.data;
+  const shop = await getShop();
 
   const [product, categoriesResult] = await Promise.all([
     getProductWithOptions(id),
