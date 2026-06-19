@@ -31,11 +31,11 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
   useEffect(() => {
     if (!name || isEditing) return;
     setValue("slug", name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
-  }, [name]);
+  }, [name, isEditing, setValue]);
 
   async function onSubmit(data: FormInput) {
     const result = isEditing
-      ? await updateCategory(categoryId, data.name, data.description ?? "", data.isActive ?? true)
+      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true)
       : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true);
 
     if (!result || !result.ok) {
@@ -62,13 +62,10 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         <label className="text-sm font-medium text-gray-700">Slug</label>
         <input
           {...register("slug")}
-          readOnly={isEditing}
-          className={`border border-gray-200 rounded px-3 py-2 text-sm outline-none transition-colors font-mono ${
-            isEditing ? "bg-gray-50 text-gray-400 cursor-not-allowed" : "focus:border-gray-400"
-          }`}
+          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors font-mono"
           placeholder="category-slug"
         />
-        {isEditing && <p className="text-xs text-gray-400">Slug cannot be changed after creation.</p>}
+        {isEditing && <p className="text-xs text-gray-400">Changing the slug will break any existing links to this category.</p>}
         {errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
       </div>
 

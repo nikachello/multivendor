@@ -6,6 +6,7 @@ import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
 
 const productInclude = {
   images: { orderBy: { sortOrder: "asc" } },
+  category: true,
   variants: {
     include: {
       optionValues: {
@@ -433,4 +434,18 @@ export async function getOrdersByShop(shopId: string) {
   });
 
   return ok(orders);
+}
+
+export type CategoryWithCount = Category & { _count: { products: number } };
+
+export async function getCategoriesWithCount(shopId: string): Promise<Result<CategoryWithCount[]>> {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
+
+  const data = await prisma.category.findMany({
+    where: { shopId },
+    include: { _count: { select: { products: true } } },
+    orderBy: { name: "asc" },
+  });
+
+  return ok(data);
 }

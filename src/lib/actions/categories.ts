@@ -24,15 +24,16 @@ export async function createCategory(
 export async function updateCategory(
   id: string,
   name: string,
+  slug: string,
   description: string,
   isActive: boolean,
 ) {
-  if (!id || !name)
+  if (!id || !name || !slug)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
 
   const category = await prisma.category.update({
     where: { id },
-    data: { name, description: description || null, isActive },
+    data: { name, slug, description: description || null, isActive },
   });
 
   return ok(category);

@@ -2,19 +2,29 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Category } from "@/generated/prisma/client";
+import { CategoryWithCount } from "@/lib/db/queries";
 
-export function createColumns(onDelete: (id: string) => void): ColumnDef<Category>[] {
+export function createColumns(onDelete: (id: string) => void): ColumnDef<CategoryWithCount>[] {
   return [
     {
       accessorKey: "name",
       header: "Name",
+      cell: ({ row }) => (
+        <span className="font-medium text-gray-900">{row.original.name}</span>
+      ),
     },
     {
       accessorKey: "slug",
       header: "Slug",
       cell: ({ row }) => (
         <span className="font-mono text-xs text-gray-400">{row.original.slug}</span>
+      ),
+    },
+    {
+      id: "products",
+      header: "Products",
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">{row.original._count.products}</span>
       ),
     },
     {

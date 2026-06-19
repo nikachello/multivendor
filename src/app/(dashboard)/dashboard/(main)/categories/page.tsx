@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getCategoriesByShop } from "@/lib/db/queries";
+import { getCategoriesWithCount } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import CategoriesTable from "./CategoriesTable";
 
 export default async function CategoriesPage() {
   const shop = await getShop();
 
-  const result = await getCategoriesByShop(shop.id);
+  const result = await getCategoriesWithCount(shop.id);
   const categories = result.ok ? result.data : [];
 
   return (

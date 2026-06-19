@@ -7,6 +7,7 @@ import prisma from "../db/prisma";
 import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
 import { orderSchema, OrderFormData } from "../validations/order";
+import { OrderStatus } from "@/generated/prisma/client";
 
 export const createOrder = async (
   shopId: string,
@@ -59,5 +60,19 @@ export const createOrder = async (
     return ok({ id: order.id });
   } catch {
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
+  }
+};
+
+export const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+  if (!orderId || !status) return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
+
+  try {
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+    });
+    return ok(order);
+  } catch {
+    return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
   }
 };
