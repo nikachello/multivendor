@@ -64,7 +64,12 @@ const NavbarSection = ({
                   </svg>
                 );
 
-                const trigger = (
+                const trigger = item.href ? (
+                  <Link href={item.href} className={`${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
+                    {item.label}
+                    {chevron}
+                  </Link>
+                ) : (
                   <span className={`cursor-pointer ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
                     {item.label}
                     {chevron}
@@ -279,21 +284,29 @@ const NavbarSection = ({
               const hasSubs = item.children.some(c => c.type === "group");
               return (
                 <li key={index} className="border-b border-gray-100">
-                  <button
-                    onClick={() => setOpenGroup(isGroupOpen ? null : index)}
-                    className="w-full flex items-center justify-between py-3 text-gray-700 hover:text-black transition-colors"
-                  >
-                    <span>{item.label}</span>
-                    <svg
-                      className={`w-3 h-3 transition-transform duration-200 ${isGroupOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
+                  <div className="flex items-center justify-between py-3">
+                    {item.href ? (
+                      <Link href={item.href} onClick={() => setOpen(false)} className="text-gray-700 hover:text-black transition-colors">
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-700">{item.label}</span>
+                    )}
+                    <button
+                      onClick={() => setOpenGroup(isGroupOpen ? null : index)}
+                      className="p-1 text-gray-400 hover:text-black transition-colors"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <svg
+                        className={`w-3 h-3 transition-transform duration-200 ${isGroupOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                   <div
                     className={`overflow-hidden transition-all duration-300 ${
                       isGroupOpen ? (hasSubs ? "max-h-96" : "max-h-48") + " pb-3" : "max-h-0"

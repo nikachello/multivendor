@@ -20,7 +20,7 @@ export type NavbarSectionProps = SectionContext & {
 
 export type NavItem =
   | { id: string; type: "link"; label: string; href: string }
-  | { id: string; type: "group"; label: string; children: NavItem[] };
+  | { id: string; type: "group"; label: string; href?: string; children: NavItem[] };
 
 export type CollectionSectionProps = {
   categoryId: string;

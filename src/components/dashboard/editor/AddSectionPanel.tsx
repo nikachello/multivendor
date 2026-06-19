@@ -5,6 +5,8 @@ import { AddableSectionType } from "@/lib/editor-schema";
 
 type Props = {
   onAdd: (type: AddableSectionType) => void;
+  onAddNavbar: () => void;
+  hasNavbar: boolean;
   onClose: () => void;
 };
 
@@ -206,7 +208,13 @@ const sectionIcons: Record<AddableSectionType, React.ReactNode> = {
   ),
 };
 
-export default function AddSectionPanel({ onAdd, onClose }: Props) {
+const navbarIcon = (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5" />
+  </svg>
+);
+
+export default function AddSectionPanel({ onAdd, onAddNavbar, hasNavbar, onClose }: Props) {
   return (
     <div className="border-t border-neutral-100 bg-neutral-50 overflow-scroll">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-100">
@@ -234,6 +242,20 @@ export default function AddSectionPanel({ onAdd, onClose }: Props) {
       </div>
 
       <ul className="py-1 max-h-80 overflow-y-auto">
+        {!hasNavbar && (
+          <li>
+            <button
+              onClick={onAddNavbar}
+              className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-white transition-colors text-left"
+            >
+              <span className="mt-0.5 text-neutral-400 flex-shrink-0">{navbarIcon}</span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-neutral-700">Navbar</p>
+                <p className="text-xs text-neutral-400 mt-0.5">Site navigation — always pinned to top</p>
+              </div>
+            </button>
+          </li>
+        )}
         {addableSections.map(({ type, description }) => (
           <li key={type}>
             <button

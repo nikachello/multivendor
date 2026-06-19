@@ -147,7 +147,6 @@ export default function SectionEditor({
   }
 
   function handleAddSection(type: AddableSectionType) {
-    // crypto.randomUUID() generates a unique id — built into modern browsers and Node 14.17+
     const newSection = {
       id: crypto.randomUUID(),
       type,
@@ -155,6 +154,26 @@ export default function SectionEditor({
     } as ShopSection;
 
     setSections((prev) => [...prev, newSection]);
+    setSelectedId(newSection.id);
+    setShowAddPanel(false);
+  }
+
+  function handleAddNavbar() {
+    const newSection = {
+      id: crypto.randomUUID(),
+      type: "navbar",
+      props: { items: [], transparent: false },
+    } as ShopSection;
+
+    setSections((prev) => {
+      const announcementIdx = prev.findIndex((s) => s.type === "announcement");
+      if (announcementIdx >= 0) {
+        const next = [...prev];
+        next.splice(announcementIdx + 1, 0, newSection);
+        return next;
+      }
+      return [newSection, ...prev];
+    });
     setSelectedId(newSection.id);
     setShowAddPanel(false);
   }
@@ -222,6 +241,8 @@ export default function SectionEditor({
             {showAddPanel && (
               <AddSectionPanel
                 onAdd={handleAddSection}
+                onAddNavbar={handleAddNavbar}
+                hasNavbar={sections.some((s) => s.type === "navbar")}
                 onClose={() => setShowAddPanel(false)}
               />
             )}
