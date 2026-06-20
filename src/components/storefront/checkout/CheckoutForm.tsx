@@ -30,6 +30,7 @@ type FormData = {
   city: string;
   postalCode: string;
   country: string;
+  notes: string;
 };
 
 const EMPTY_FORM: FormData = {
@@ -41,6 +42,7 @@ const EMPTY_FORM: FormData = {
   city: "",
   postalCode: "",
   country: "Georgia",
+  notes: "",
 };
 
 export default function CheckoutForm({
@@ -211,6 +213,23 @@ export default function CheckoutForm({
           </div>
         </section>
 
+        {/* Delivery note */}
+        <section>
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
+            Note
+          </h2>
+          <Field label="Delivery note" hint="Optional">
+            <textarea
+              value={form.notes}
+              onChange={(e) => update("notes", e.target.value)}
+              placeholder="Any special instructions for delivery…"
+              rows={3}
+              maxLength={500}
+              className="w-full border border-neutral-200 focus:border-neutral-500 px-3 py-2.5 text-sm outline-none transition-colors bg-white resize-none"
+            />
+          </Field>
+        </section>
+
         {/* Payment placeholder */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
@@ -311,8 +330,10 @@ function Field({
     <div className={className}>
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-xs font-medium text-neutral-700">{label}</label>
-        {hint && <span className="text-xs text-neutral-400">{hint}</span>}
-        {error && <span className="text-xs text-red-500">{error}</span>}
+        {error
+          ? <span className="text-xs text-red-500">{error}</span>
+          : hint && <span className="text-xs text-neutral-400">{hint}</span>
+        }
       </div>
       {children}
     </div>

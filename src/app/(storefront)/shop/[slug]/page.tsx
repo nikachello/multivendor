@@ -1,4 +1,3 @@
-"use server";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Section from "@/components/storefront/layout/Section";
@@ -27,6 +26,7 @@ export async function generateMetadata({
       siteName: shop.name,
       type: "website",
     },
+    twitter: { card: "summary" },
   };
 }
 

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getOrderById } from "@/lib/db/queries";
@@ -6,6 +7,20 @@ import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { sectionRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getShopBySlug(slug);
+  if (!result.ok) return { title: "Not Found" };
+  return {
+    title: `Order confirmed — ${result.data.name}`,
+    robots: { index: false },
+  };
+}
 
 type ShippingAddress = {
   name: string;
@@ -32,6 +47,8 @@ export default async function OrderConfirmationPage({
 
   const shop = shopResult.data;
   const order = orderResult.data;
+
+  if (order.shopId !== shop.id) notFound();
 
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
@@ -72,7 +89,7 @@ export default async function OrderConfirmationPage({
             Thank you{firstName ? `, ${firstName}` : ""}. We&apos;ll send a confirmation to{" "}
             <span className="text-neutral-800">{order.customerEmail}</span> shortly.
           </p>
-          <p className="mt-3 text-xs text-neutral-400 font-mono">#{order.id}</p>
+          <p className="mt-3 text-xs text-neutral-400 font-mono">#{order.id.slice(-8).toUpperCase()}</p>
         </div>
 
         {/* Items */}
@@ -120,7 +137,7 @@ export default async function OrderConfirmationPage({
             <p className="font-medium text-neutral-900">{address.name}</p>
             <p>{address.line1}</p>
             {address.line2 && <p>{address.line2}</p>}
-            <p>{address.city}, {address.postalCode}</p>
+            <p>{[address.city, address.postalCode].filter(Boolean).join(", ")}</p>
             <p>{address.country}</p>
           </div>
         </section>

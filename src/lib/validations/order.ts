@@ -9,6 +9,7 @@ export const orderSchema = z.object({
   city: z.string().min(1, "Required"),
   postalCode: z.string().optional(),
   country: z.string().optional(),
+  notes: z.string().max(500).optional(),
 });
 
 export type OrderFormData = z.infer<typeof orderSchema>;

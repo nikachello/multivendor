@@ -14,7 +14,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const result = await getShopBySlug(slug);
   if (!result.ok) return { title: "Not Found" };
-  return { title: `Checkout — ${result.data.name}` };
+  return { title: `Checkout — ${result.data.name}`, robots: { index: false } };
 }
 
 export default async function CheckoutPage({

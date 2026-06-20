@@ -17,7 +17,7 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
       accessorKey: "priceFrom",
       header: "Price",
       cell: ({ row }) => (
-        <span className="font-mono text-sm">{row.original.priceFrom} {currency}</span>
+        <span className="font-mono text-sm">{Number(row.original.priceFrom).toFixed(2)} {currency}</span>
       ),
     },
     {
@@ -30,6 +30,22 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
             : <span className="text-gray-300">—</span>}
         </span>
       ),
+    },
+    {
+      id: "stock",
+      header: "Stock",
+      cell: ({ row }) => {
+        const variants = row.original.variants;
+        const tracked = variants.filter((v) => v.trackInventory);
+        if (tracked.length === 0)
+          return <span className="text-xs text-gray-400">Unlimited</span>;
+        const total = tracked.reduce((s, v) => s + v.stock, 0);
+        if (total === 0)
+          return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-red-50 text-red-600">Out of stock</span>;
+        if (total <= 5)
+          return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700">{total} left</span>;
+        return <span className="text-xs text-gray-600">{total}</span>;
+      },
     },
     {
       accessorKey: "isActive",

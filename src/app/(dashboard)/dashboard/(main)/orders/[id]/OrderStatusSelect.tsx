@@ -26,7 +26,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   refunded:   "bg-red-50 text-red-500 border-red-200",
 };
 
-export default function OrderStatusSelect({ orderId, currentStatus }: { orderId: string; currentStatus: OrderStatus }) {
+export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { orderId: string; currentStatus: OrderStatus; shopId: string }) {
   const router = useRouter();
   const [status, setStatus] = useState<OrderStatus>(currentStatus);
   const [saving, setSaving] = useState(false);
@@ -34,7 +34,7 @@ export default function OrderStatusSelect({ orderId, currentStatus }: { orderId:
   async function handleChange(next: OrderStatus) {
     if (next === status) return;
     setSaving(true);
-    const result = await updateOrderStatus(orderId, next);
+    const result = await updateOrderStatus(orderId, next, shopId);
     setSaving(false);
     if (!result?.ok) { toast.error("Failed to update status"); return; }
     setStatus(next);

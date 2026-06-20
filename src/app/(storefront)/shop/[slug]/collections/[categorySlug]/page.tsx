@@ -35,6 +35,13 @@ export async function generateMetadata({
       url: `/shop/${slug}/collections/${categorySlug}`,
       siteName: shop.name,
       type: "website",
+      ...(category.image && { images: [{ url: category.image, alt: category.name }] }),
+    },
+    twitter: {
+      card: category.image ? "summary_large_image" : "summary",
+      title: `${category.name} — ${shop.name}`,
+      description: category.description ?? undefined,
+      ...(category.image && { images: [category.image] }),
     },
   };
 }

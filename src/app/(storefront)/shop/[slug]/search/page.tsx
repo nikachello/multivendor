@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { getShopBySlug, searchProducts, getShopSections } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
@@ -8,6 +9,20 @@ import Section from "@/components/storefront/layout/Section";
 import CollectionItem from "@/components/storefront/collection/CollectionItem";
 import SearchInput from "./SearchInput";
 import EditorBridge from "@/components/storefront/EditorBridge";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getShopBySlug(slug);
+  if (!result.ok) return { title: "Not Found" };
+  return {
+    title: `Search — ${result.data.name}`,
+    robots: { index: false },
+  };
+}
 
 export default async function SearchPage({
   params,

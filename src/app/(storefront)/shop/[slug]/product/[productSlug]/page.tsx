@@ -40,6 +40,12 @@ export async function generateMetadata({
       type: "website",
       ...(firstImage && { images: [{ url: firstImage, alt: product.name }] }),
     },
+    twitter: {
+      card: firstImage ? "summary_large_image" : "summary",
+      title: `${product.name} — ${shop.name}`,
+      description: product.description ?? undefined,
+      ...(firstImage && { images: [firstImage] }),
+    },
   };
 }
 

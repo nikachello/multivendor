@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getShop } from "@/lib/auth/get-shop";
 import { getOrderById } from "@/lib/db/queries";
 import OrderStatusSelect from "./OrderStatusSelect";
+import CopyButton from "./CopyButton";
 
 type ShippingAddress = {
   name: string;
@@ -50,12 +51,13 @@ export default async function OrderDetailPage({
           >
             ← Orders
           </Link>
-          <h1 className="text-xl font-semibold text-gray-900 mt-2">
-            Order <span className="font-mono text-gray-400">#{order.id.slice(-8).toUpperCase()}</span>
+          <h1 className="text-xl font-semibold text-gray-900 mt-2 flex items-center">
+            Order <span className="font-mono text-gray-400 ml-1.5">#{order.id.slice(-8).toUpperCase()}</span>
+            <CopyButton text={order.id} />
           </h1>
           <p className="text-sm text-gray-400 mt-0.5">{formatDate(order.createdAt)}</p>
         </div>
-        <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+        <OrderStatusSelect orderId={order.id} currentStatus={order.status} shopId={shop.id} />
       </div>
 
       {/* Customer */}
@@ -80,10 +82,18 @@ export default async function OrderDetailPage({
           <p className="font-medium text-gray-900">{address.name}</p>
           <p>{address.line1}</p>
           {address.line2 && <p>{address.line2}</p>}
-          <p>{address.city}, {address.postalCode}</p>
+          <p>{[address.city, address.postalCode].filter(Boolean).join(", ")}</p>
           <p>{address.country}</p>
         </div>
       </section>
+
+      {/* Delivery note */}
+      {order.notes && (
+        <section className="border border-gray-100 rounded-lg p-5">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Delivery note</h2>
+          <p className="text-sm text-gray-600">{order.notes}</p>
+        </section>
+      )}
 
       {/* Items */}
       <section className="border border-gray-100 rounded-lg overflow-hidden">
