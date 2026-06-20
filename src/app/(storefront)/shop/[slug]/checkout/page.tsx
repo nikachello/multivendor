@@ -57,6 +57,9 @@ export default async function CheckoutPage({
           shopSlug={shop.slug}
           shopName={shop.name}
           currency={shop.currency}
+          defaultShippingRate={Number(shop.shippingRate)}
+          freeThreshold={Number(shop.freeThreshold)}
+          shippingZones={(shop.shippingZones as { city_en: string; city_ka: string; rate: number }[]) ?? []}
         />
       </div>
     </>

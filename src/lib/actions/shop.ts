@@ -7,6 +7,15 @@ import { ErrorCode } from "../errors";
 import prisma from "../db/prisma";
 import { redirect } from "next/navigation";
 
+export type ShippingZone = { city_en: string; city_ka: string; rate: number };
+
+export async function updateShipping(
+  shopId: string,
+  data: { shippingRate: number; freeThreshold: number; shippingZones: ShippingZone[] },
+) {
+  await prisma.shop.update({ where: { id: shopId }, data });
+}
+
 export async function updateShopTheme(shopId: string, themeId: string) {
   await prisma.shop.update({ where: { id: shopId }, data: { themeId } });
 }

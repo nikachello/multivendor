@@ -9,6 +9,19 @@ import { ErrorCode } from "../errors";
 import { orderSchema, OrderFormData } from "../validations/order";
 import { OrderStatus } from "@/generated/prisma/client";
 import { sendOrderConfirmation } from "../email";
+import { ShippingZone } from "./shop";
+
+function calcShipping(
+  subtotal: number,
+  city: string,
+  defaultRate: number,
+  freeThreshold: number,
+  zones: ShippingZone[],
+): number {
+  if (freeThreshold > 0 && subtotal >= freeThreshold) return 0;
+  const zone = zones.find((z) => z.city_en === city);
+  return zone ? zone.rate : defaultRate;
+}
 
 export const createOrder = async (
   shopId: string,
@@ -22,9 +35,7 @@ export const createOrder = async (
       status: 400,
     });
 
-  const shopDetails = await prisma.shop.findFirst({
-    where: { id: shopId },
-  });
+  const shopDetails = await prisma.shop.findFirst({ where: { id: shopId } });
 
   const parsed = orderSchema.safeParse(rawForm);
   if (!parsed.success)
@@ -39,6 +50,16 @@ export const createOrder = async (
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
+  const shippingCost = calcShipping(
+    subtotal,
+    form.city,
+    Number(shopDetails?.shippingRate ?? 0),
+    Number(shopDetails?.freeThreshold ?? 0),
+    (shopDetails?.shippingZones as ShippingZone[]) ?? [],
+  );
+
+  const total = subtotal + shippingCost;
+
   try {
     const order = await prisma.order.create({
       data: {
@@ -47,14 +68,14 @@ export const createOrder = async (
         customerEmail: form.email,
         customerPhone: form.phone ?? null,
         subtotal,
-        total: subtotal,
+        total,
         shippingAddress: {
           name: form.fullName,
           line1: form.line1,
           line2: form.line2 ?? "",
           city: form.city,
-          postalCode: form.postalCode,
-          country: form.country,
+          postalCode: form.postalCode ?? "",
+          country: "Georgia",
         },
       },
     });
@@ -72,7 +93,6 @@ export const createOrder = async (
       })),
     });
 
-    // Decrement stock for variants that track inventory
     await Promise.all(
       items.map((item) =>
         prisma.variant.updateMany({
@@ -95,13 +115,13 @@ export const createOrder = async (
         quantity: item.quantity,
         price: item.price,
       })),
-      total: subtotal,
-      currency: shopDetails?.currency ?? "USD",
+      total,
+      currency: shopDetails?.currency ?? "GEL",
       shippingAddress: {
         name: form.fullName,
         line1: form.line1,
         city: form.city,
-        country: form.country,
+        country: "Georgia",
       },
     });
 
