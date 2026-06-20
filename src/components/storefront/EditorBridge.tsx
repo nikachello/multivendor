@@ -5,6 +5,15 @@
 import React, { useEffect } from "react";
 
 const EditorBridge = () => {
+  // Notify parent editor which page is currently loaded in the iframe
+  useEffect(() => {
+    if (window === window.top) return;
+    window.parent.postMessage(
+      { type: "PAGE_LOAD", pathname: window.location.pathname },
+      "*",
+    );
+  }, []);
+
   useEffect(() => {
     if (window === window.top) return;
 

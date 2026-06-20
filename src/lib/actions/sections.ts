@@ -5,7 +5,11 @@ import { err } from "../result";
 import { ErrorCode } from "../errors";
 import { ShopSection } from "../types/store-section";
 
-export async function saveSections(shopId: string, sections: ShopSection[]) {
+export async function saveSections(
+  shopId: string,
+  pageType: string,
+  sections: ShopSection[],
+) {
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,
@@ -13,21 +17,11 @@ export async function saveSections(shopId: string, sections: ShopSection[]) {
       status: 400,
     });
   }
-  if (!sections) {
-    return err({
-      code: ErrorCode.SECTIONS_MISSING,
-      message: "საჭიროა არსებული სექციები",
-      status: 400,
-    });
-  }
 
   await prisma.$transaction([
     prisma.shopSection.deleteMany({
-      where: {
-        shopId,
-      },
+      where: { shopId, pageType },
     }),
-
     prisma.shopSection.createMany({
       data: sections.map((s, i) => ({
         id: s.id,
@@ -35,6 +29,7 @@ export async function saveSections(shopId: string, sections: ShopSection[]) {
         type: s.type,
         props: s.props,
         order: i,
+        pageType,
       })),
     }),
   ]);

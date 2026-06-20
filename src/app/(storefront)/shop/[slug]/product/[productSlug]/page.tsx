@@ -5,10 +5,13 @@ import {
   getProductBySlug,
   getShopSections,
 } from "@/lib/db/queries";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import ProductDetail from "@/components/storefront/product/ProductDetail";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+import { ShopSection } from "@/lib/types/store-section";
+import Section from "@/components/storefront/layout/Section";
+import EditorBridge from "@/components/storefront/EditorBridge";
 
 export async function generateMetadata({
   params,
@@ -55,12 +58,24 @@ export default async function ProductPage({
   if (!productResult.ok) notFound();
   const product = productResult.data;
 
-  const sectionsResult = await getShopSections(shop.id);
-  const sections = sectionsResult.ok ? sectionsResult.data : [];
-  const navbarSection = sections.find((s) => s.type === "navbar");
-  const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
-    NavbarSectionProps & { shopId?: string; shopName?: string }
+  const [homeSectionsResult, pageSectionsResult] = await Promise.all([
+    getShopSections(shop.id, "home"),
+    getShopSections(shop.id, "product"),
+  ]);
+
+  const homeSections = homeSectionsResult.ok ? homeSectionsResult.data : [];
+  const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
+
+  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+
+  const navbarSection = homeSections.find((s) => s.type === "navbar");
+  const NavbarComponent = registry["navbar"] as React.ComponentType<
+    NavbarSectionProps & { shopId?: string; shopName?: string; shopSlug?: string }
   >;
+
+  const noContainerTypes = new Set([
+    "banner", "announcement", "navbar", "testimonials", "collection", "newsletter", "divider",
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -105,6 +120,28 @@ export default async function ProductPage({
           shopId={shop.id}
         />
       </div>
+
+      <EditorBridge />
+
+      {pageSections.map((section) => {
+        const Component = registry[section.type] as React.ComponentType<
+          ShopSection["props"]
+        >;
+        if (!Component) return null;
+        return (
+          <div key={section.id} data-section-id={section.id}>
+            <Section container={!noContainerTypes.has(section.type)}>
+              <Component
+                {...section.props}
+                shopId={shop.id}
+                shopSlug={shop.slug}
+                shopName={shop.name}
+                currency={shop.currency}
+              />
+            </Section>
+          </div>
+        );
+      })}
     </>
   );
 }

@@ -8,16 +8,31 @@ import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
 import { orderSchema, OrderFormData } from "../validations/order";
 import { OrderStatus } from "@/generated/prisma/client";
+import { sendOrderConfirmation } from "../email";
 
 export const createOrder = async (
   shopId: string,
   items: CartItem[],
   rawForm: OrderFormData,
 ) => {
-  if (!shopId || items.length === 0) return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
+  if (!shopId || items.length === 0)
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Missing required data",
+      status: 400,
+    });
+
+  const shopDetails = await prisma.shop.findFirst({
+    where: { id: shopId },
+  });
 
   const parsed = orderSchema.safeParse(rawForm);
-  if (!parsed.success) return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid form data", status: 400 });
+  if (!parsed.success)
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid form data",
+      status: 400,
+    });
   const form = parsed.data;
 
   const session = await auth.api.getSession({ headers: await headers() });
@@ -67,14 +82,49 @@ export const createOrder = async (
       ),
     );
 
+    sendOrderConfirmation({
+      to: form.email,
+      shopName: shopDetails?.name ?? "Store",
+      orderId: order.id,
+      customerName: form.fullName,
+      items: items.map((item) => ({
+        productName: item.productName,
+        variantOptions: Object.entries(item.variantOptions)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(", "),
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      total: subtotal,
+      currency: shopDetails?.currency ?? "USD",
+      shippingAddress: {
+        name: form.fullName,
+        line1: form.line1,
+        city: form.city,
+        country: form.country,
+      },
+    });
+
     return ok({ id: order.id });
   } catch {
-    return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
+    return err({
+      code: ErrorCode.ORDER_CREATE_FAILED,
+      message: "Failed to place order",
+      status: 500,
+    });
   }
 };
 
-export const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
-  if (!orderId || !status) return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
+export const updateOrderStatus = async (
+  orderId: string,
+  status: OrderStatus,
+) => {
+  if (!orderId || !status)
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Missing required data",
+      status: 400,
+    });
 
   try {
     const order = await prisma.order.update({
@@ -83,6 +133,10 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
     });
     return ok(order);
   } catch {
-    return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+    return err({
+      code: ErrorCode.ORDER_NOT_FOUND,
+      message: "Order not found",
+      status: 404,
+    });
   }
 };

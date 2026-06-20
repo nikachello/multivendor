@@ -1,20 +1,44 @@
 import { notFound } from "next/navigation";
-import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+import {
+  getShopSections,
+  getCategoriesByShop,
+  getFirstCategorySlug,
+  getFirstProductSlug,
+} from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import SectionEditor from "@/components/dashboard/editor/SectionEditor";
 
 export default async function EditorPage() {
   const shop = await getShop();
 
-  const [sectionsResult, categoriesResult] = await Promise.all([
-    getShopSections(shop.id),
+  const [
+    homeSectionsResult,
+    collectionSectionsResult,
+    productSectionsResult,
+    searchSectionsResult,
+    categoriesResult,
+    firstCategorySlug,
+    firstProductSlug,
+  ] = await Promise.all([
+    getShopSections(shop.id, "home"),
+    getShopSections(shop.id, "collection"),
+    getShopSections(shop.id, "product"),
+    getShopSections(shop.id, "search"),
     getCategoriesByShop(shop.id),
+    getFirstCategorySlug(shop.id),
+    getFirstProductSlug(shop.id),
   ]);
-  if (!sectionsResult.ok) notFound();
+
+  if (!homeSectionsResult.ok) notFound();
 
   return (
     <SectionEditor
-      initialSections={sectionsResult.data}
+      initialPagesSections={{
+        home: homeSectionsResult.data,
+        collection: collectionSectionsResult.ok ? collectionSectionsResult.data : [],
+        product: productSectionsResult.ok ? productSectionsResult.data : [],
+        search: searchSectionsResult.ok ? searchSectionsResult.data : [],
+      }}
       shopId={shop.id}
       shopSlug={shop.slug}
       shopName={shop.name}
@@ -27,6 +51,8 @@ export default async function EditorPage() {
         fontFamily: shop.fontFamily,
         borderRadius: shop.borderRadius,
       }}
+      firstCategorySlug={firstCategorySlug}
+      firstProductSlug={firstProductSlug}
     />
   );
 }

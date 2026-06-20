@@ -93,9 +93,9 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
 
     setLoading(true);
     const result = await createOrder(shopId, items, form);
-    setLoading(false);
 
     if (!result?.ok) {
+      setLoading(false);
       setServerError(result?.error.message ?? "Something went wrong. Please try again.");
       return;
     }

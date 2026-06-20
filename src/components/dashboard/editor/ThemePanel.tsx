@@ -46,7 +46,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Primary color */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Primary Color
@@ -62,7 +61,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
         </div>
       </div>
 
-      {/* Secondary color */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Secondary Color
@@ -79,7 +77,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
         </div>
       </div>
 
-      {/* Page background */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Page Background
@@ -96,7 +93,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
         </div>
       </div>
 
-      {/* Font */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Font
@@ -112,7 +108,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
         </select>
       </div>
 
-      {/* Border radius */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Border Radius
@@ -134,7 +129,6 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
         </div>
       </div>
 
-      {/* Preview swatch */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
           Preview
@@ -156,6 +150,13 @@ export default function ThemePanel({ shopId, initialTheme, iframeRef }: Props) {
           </div>
         </div>
       </div>
+
+      <a
+        href="/dashboard/themes"
+        className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-2 text-center"
+      >
+        Switch theme →
+      </a>
     </div>
   );
 }
