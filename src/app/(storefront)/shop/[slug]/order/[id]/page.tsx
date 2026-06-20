@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getOrderById } from "@/lib/db/queries";
 import { getShopBySlug, getShopSections } from "@/lib/db/queries";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 
@@ -53,7 +53,8 @@ export default async function OrderConfirmationPage({
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
-  const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
+  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopSlug?: string; shopName?: string; transparent?: boolean }
   >;
 

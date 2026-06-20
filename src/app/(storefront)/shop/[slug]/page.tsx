@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Section from "@/components/storefront/layout/Section";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { ShopSection } from "@/lib/types/store-section";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
@@ -53,16 +53,23 @@ export default async function ShopPage({
   // NAVBAR LOGIC
   // -------------------------
   const navbarIndex = sections.findIndex((s) => s.type === "navbar");
+  const hasAnnouncement = sections.some((s) => s.type === "announcement");
 
   const sectionAfterNavbar =
     navbarIndex !== -1 ? sections[navbarIndex + 1] : null;
 
-  const hasLeadingBanner = sectionAfterNavbar?.type === "banner";
+  // Disable transparent-over-banner when an announcement bar is also present,
+  // because the banner's -mt only accounts for navbar height, not announcement height.
+  const hasLeadingBanner = !hasAnnouncement && sectionAfterNavbar?.type === "banner";
+
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
+  const isMaison = themeId === "maison";
 
   return (
-    <div className="flex flex-col pb-20">
+    <div className={`flex flex-col pb-20${isMaison ? " bg-[var(--page-bg)]" : ""}`}>
       {sections.map((section) => {
-        const Component = sectionRegistry[section.type] as React.ComponentType<
+        const Component = registry[section.type] as React.ComponentType<
           ShopSection["props"]
         >;
 
@@ -86,6 +93,7 @@ export default async function ShopPage({
           <div key={section.id} data-section-id={section.id}>
             <Section
               container={
+                !isMaison &&
                 section.type !== "banner" &&
                 section.type !== "announcement" &&
                 section.type !== "navbar" &&

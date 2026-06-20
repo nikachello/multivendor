@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getShopBySlug, getShopSections } from "@/lib/db/queries";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
@@ -31,7 +31,8 @@ export default async function CheckoutPage({
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
-  const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
+  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopName?: string }
   >;
 

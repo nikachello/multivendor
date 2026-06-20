@@ -16,8 +16,32 @@ export async function updateShipping(
   await prisma.shop.update({ where: { id: shopId }, data });
 }
 
+const THEME_DEFAULTS: Record<string, {
+  primaryColor: string;
+  secondaryColor: string;
+  pageBackground: string;
+  borderRadius: string;
+  fontFamily: string;
+}> = {
+  maison: {
+    primaryColor: "#1C1C1C",
+    secondaryColor: "#F8F6F1",
+    pageBackground: "#F8F6F1",
+    borderRadius: "none",
+    fontFamily: "sans",
+  },
+  minimal: {
+    primaryColor: "#000000",
+    secondaryColor: "#ffffff",
+    pageBackground: "#ffffff",
+    borderRadius: "none",
+    fontFamily: "sans",
+  },
+};
+
 export async function updateShopTheme(shopId: string, themeId: string) {
-  await prisma.shop.update({ where: { id: shopId }, data: { themeId } });
+  const defaults = THEME_DEFAULTS[themeId] ?? {};
+  await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
 }
 
 export async function updateShop(

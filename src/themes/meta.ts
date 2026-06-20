@@ -13,6 +13,12 @@ export const THEMES_META: ThemeMeta[] = [
     available: true,
   },
   {
+    id: "maison",
+    name: "Maison",
+    description: "Luxury editorial with Playfair Display headings and warm parchment tones",
+    available: true,
+  },
+  {
     id: "bold",
     name: "Bold",
     description: "High-contrast editorial look with dramatic sections",
