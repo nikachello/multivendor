@@ -7,6 +7,10 @@ import { ErrorCode } from "../errors";
 import prisma from "../db/prisma";
 import { redirect } from "next/navigation";
 
+export async function updateShopTheme(shopId: string, themeId: string) {
+  await prisma.shop.update({ where: { id: shopId }, data: { themeId } });
+}
+
 export async function updateShop(
   shopId: string,
   data: { name: string; description?: string; currency: string; logo?: string },

@@ -32,42 +32,93 @@ import { toast } from "sonner";
 import ThemePanel from "./ThemePanel";
 import { ThemeData } from "@/lib/actions/theme";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageType } from "@/themes/types";
+
+type PagesSections = Record<PageType, ShopSection[]>;
 
 type Props = {
-  initialSections: ShopSection[];
+  initialPagesSections: PagesSections;
   shopId: string;
   shopSlug: string;
   shopName: string;
   currency: string;
   categories: { id: string; name: string }[];
   initialTheme: ThemeData;
+  firstCategorySlug: string | null;
+  firstProductSlug: string | null;
 };
 
+const PAGE_TABS: { label: string; value: PageType }[] = [
+  { label: "Home", value: "home" },
+  { label: "Collection", value: "collection" },
+  { label: "Product", value: "product" },
+  { label: "Search", value: "search" },
+];
+
 export default function SectionEditor({
-  initialSections,
+  initialPagesSections,
   shopId,
   shopSlug,
   categories,
   initialTheme,
+  firstCategorySlug,
+  firstProductSlug,
 }: Props) {
-  const [sections, setSections] = useState<ShopSection[]>(initialSections);
+  const [pagesSections, setPagesSections] = useState<PagesSections>(initialPagesSections);
+  const [activePage, setActivePage] = useState<PageType>("home");
   const [selectedId, setSelectedId] = useState<string | null>(
-    initialSections[0]?.id ?? null,
+    initialPagesSections.home[0]?.id ?? null,
   );
-  const [saved, setSaved] = useState(false);
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const justSwitchedPage = useRef(false);
+
+  const sections = pagesSections[activePage];
+
+  function getPreviewUrl(page: PageType): string {
+    switch (page) {
+      case "home":
+        return `/shop/${shopSlug}`;
+      case "collection":
+        return firstCategorySlug
+          ? `/shop/${shopSlug}/collections/${firstCategorySlug}`
+          : `/shop/${shopSlug}`;
+      case "product":
+        return firstProductSlug
+          ? `/shop/${shopSlug}/product/${firstProductSlug}`
+          : `/shop/${shopSlug}`;
+      case "search":
+        return `/shop/${shopSlug}/search`;
+    }
+  }
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {
-      if (e.data?.type === "SECTION_CLICK") setSelectedId(e.data.id);
+      if (e.data?.type === "SECTION_CLICK") {
+        setSelectedId(e.data.id);
+      }
+      if (e.data?.type === "PAGE_LOAD") {
+        const pathname: string = e.data.pathname ?? "";
+        let page: PageType | null = null;
+        if (pathname === `/shop/${shopSlug}`) page = "home";
+        else if (pathname.startsWith(`/shop/${shopSlug}/collections/`)) page = "collection";
+        else if (pathname.startsWith(`/shop/${shopSlug}/product/`)) page = "product";
+        else if (pathname.startsWith(`/shop/${shopSlug}/search`)) page = "search";
+        if (page && page !== activePage) {
+          justSwitchedPage.current = true;
+          setActivePage(page);
+          setSelectedId(null);
+          setShowAddPanel(false);
+        }
+      }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePage, shopSlug]);
 
   useEffect(() => {
     iframeRef.current?.contentWindow?.postMessage(
@@ -75,6 +126,28 @@ export default function SectionEditor({
       "*",
     );
   }, [selectedId]);
+
+  // Auto-save when current page's sections change (skip on page switch)
+  useEffect(() => {
+    if (justSwitchedPage.current) {
+      justSwitchedPage.current = false;
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIframeLoading(true);
+      const result = await saveSections(shopId, activePage, sections);
+      if (result && !result.ok) {
+        toast.error(result.error.message);
+        setIframeLoading(false);
+        return;
+      }
+      iframeRef.current?.contentWindow?.location.reload();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections]);
 
   const selectedSection = sections.find((s) => s.id === selectedId) ?? null;
 
@@ -85,20 +158,24 @@ export default function SectionEditor({
     }),
   );
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      setIframeLoading(true);
-      const result = await saveSections(shopId, sections);
-      if (result && !result.ok) {
-        toast.error(result.error.message);
-        setIframeLoading(false);
-        return;
-      }
-      iframeRef.current?.contentWindow?.location.reload();
-    }, 800);
+  function handlePageSwitch(page: PageType) {
+    if (page === activePage) return;
+    justSwitchedPage.current = true;
+    setActivePage(page);
+    setSelectedId(pagesSections[page][0]?.id ?? null);
+    setShowAddPanel(false);
+    if (iframeRef.current) {
+      iframeRef.current.src = getPreviewUrl(page);
+    }
+  }
 
-    return () => clearTimeout(timer);
-  }, [sections]);
+  function setSections(updater: ShopSection[] | ((prev: ShopSection[]) => ShopSection[])) {
+    setPagesSections((prev) => ({
+      ...prev,
+      [activePage]:
+        typeof updater === "function" ? updater(prev[activePage]) : updater,
+    }));
+  }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -109,8 +186,6 @@ export default function SectionEditor({
     const activeSection = sections[oldIndex];
     const navbarIndex = sections.findIndex((s) => s.type === "navbar");
 
-    // Only announcement is allowed above the navbar.
-    // All other draggable sections must stay below it.
     if (
       activeSection.type !== "announcement" &&
       activeSection.type !== "navbar" &&
@@ -120,7 +195,6 @@ export default function SectionEditor({
     }
 
     const newSections = arrayMove(sections, oldIndex, newIndex);
-
     setSections(newSections);
     iframeRef.current?.contentWindow?.postMessage({
       type: "REORDER_SECTIONS",
@@ -178,11 +252,6 @@ export default function SectionEditor({
     setShowAddPanel(false);
   }
 
-  function handleSave() {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }
-
   return (
     <div className="flex h-full bg-neutral-50 overflow-hidden">
       {/* ── LEFT: Section list ── */}
@@ -192,7 +261,6 @@ export default function SectionEditor({
             <h1 className="text-sm font-semibold text-neutral-800">Editor</h1>
             <p className="text-xs text-neutral-400 mt-0.5">{shopSlug}</p>
           </div>
-
           <a
             href={`/shop/${shopSlug}`}
             target="_blank"
@@ -201,6 +269,28 @@ export default function SectionEditor({
           >
             Live ↗
           </a>
+        </div>
+
+        {/* Page picker */}
+        <div className="px-3 pt-3 pb-2 border-b border-neutral-100">
+          <p className="text-[10px] font-medium tracking-widest uppercase text-neutral-400 mb-2">
+            Page
+          </p>
+          <div className="grid grid-cols-2 gap-1">
+            {PAGE_TABS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handlePageSwitch(value)}
+                className={`px-2 py-1.5 text-xs font-medium rounded transition-colors ${
+                  activePage === value
+                    ? "bg-neutral-900 text-white"
+                    : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <Tabs defaultValue="sections" className="flex flex-col flex-1 min-h-0">
@@ -212,6 +302,16 @@ export default function SectionEditor({
           </div>
 
           <TabsContent value="sections" className="flex flex-col flex-1 min-h-0 mt-0">
+            {activePage === "collection" && !firstCategorySlug && (
+              <p className="mx-3 mt-3 px-3 py-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded">
+                No categories yet — preview unavailable. You can still add sections.
+              </p>
+            )}
+            {activePage === "product" && !firstProductSlug && (
+              <p className="mx-3 mt-3 px-3 py-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded">
+                No products yet — preview unavailable. You can still add sections.
+              </p>
+            )}
             <div className="flex-1 overflow-y-auto p-3">
               <DndContext
                 sensors={sensors}
@@ -236,6 +336,12 @@ export default function SectionEditor({
                   </div>
                 </SortableContext>
               </DndContext>
+
+              {sections.length === 0 && (
+                <p className="text-xs text-neutral-400 text-center py-6">
+                  No sections yet — add one below
+                </p>
+              )}
             </div>
 
             {showAddPanel && (
@@ -252,18 +358,8 @@ export default function SectionEditor({
                 onClick={() => setShowAddPanel((v) => !v)}
                 className="w-full py-2 text-sm font-medium border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center gap-1.5"
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
-                  />
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 Add section
               </button>
@@ -279,6 +375,7 @@ export default function SectionEditor({
           </TabsContent>
         </Tabs>
       </div>
+
       {/* ── MIDDLE: Live preview ── */}
       <div className="flex-1 flex flex-col min-w-0 bg-neutral-100">
         <div className="flex items-center justify-center py-2 border-b border-neutral-200 bg-white">
@@ -298,13 +395,14 @@ export default function SectionEditor({
           </div>
         </div>
         <StorefrontPreview
-          shopSlug={shopSlug}
+          initialUrl={`/shop/${shopSlug}`}
           iframeRef={iframeRef}
           isLoading={iframeLoading}
           onLoad={() => setIframeLoading(false)}
           viewMode={viewMode}
         />
       </div>
+
       {/* ── RIGHT: Settings panel ── */}
       <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">
         <div className="px-5 py-4 border-b border-neutral-100">

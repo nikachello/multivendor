@@ -11,6 +11,7 @@ import {
   LogOut,
   ShoppingBag,
   Settings,
+  Paintbrush,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { label: "Categories", href: "/dashboard/categories", icon: Tag },
   { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
   { label: "Navigation", href: "/dashboard/navigation", icon: Navigation },
+  { label: "Themes", href: "/dashboard/themes", icon: Paintbrush },
   { label: "Editor", href: "/dashboard/editor", icon: Layout },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
@@ -48,10 +50,14 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
               {shopName.charAt(0)}
             </span>
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{shopName}</p>
-            <p className="text-[10px] text-gray-400 truncate">Dashboard</p>
-          </div>
+          <Link href={"/dashboard"}>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                {shopName}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate">Dashboard</p>
+            </div>
+          </Link>
         </div>
       </div>
 

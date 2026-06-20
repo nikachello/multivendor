@@ -30,13 +30,11 @@ function initialEdit(v: Variant): EditState {
     price: String(v.price),
     stock: String(v.stock),
     sku: v.sku,
-    // @ts-expect-error — trackInventory added after migration
     trackInventory: v.trackInventory ?? true,
   };
 }
 
 function isDirty(v: Variant, edit: EditState): boolean {
-  // @ts-expect-error — trackInventory added after migration
   const origTrack = v.trackInventory ?? true;
   return (
     edit.price !== String(v.price) ||

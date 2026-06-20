@@ -6,10 +6,13 @@ import {
   getProductsByCategory,
   getShopSections,
 } from "@/lib/db/queries";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+import { ShopSection } from "@/lib/types/store-section";
+import Section from "@/components/storefront/layout/Section";
+import EditorBridge from "@/components/storefront/EditorBridge";
 
 export async function generateMetadata({
   params,
@@ -19,10 +22,7 @@ export async function generateMetadata({
   const { slug, categorySlug } = await params;
   const shopResult = await getShopBySlug(slug);
   if (!shopResult.ok) return { title: "Not Found" };
-  const categoryResult = await getCategoryBySlug(
-    shopResult.data.id,
-    categorySlug,
-  );
+  const categoryResult = await getCategoryBySlug(shopResult.data.id, categorySlug);
   if (!categoryResult.ok) return { title: "Not Found" };
   const category = categoryResult.data;
   const shop = shopResult.data;
@@ -54,15 +54,27 @@ export default async function CollectionPage({
   if (!categoryResult.ok) notFound();
   const category = categoryResult.data;
 
-  const productsResult = await getProductsByCategory(shop.id, category.id);
-  const products = productsResult.ok ? productsResult.data : [];
+  const [productsResult, homeSectionsResult, pageSectionsResult] =
+    await Promise.all([
+      getProductsByCategory(shop.id, category.id),
+      getShopSections(shop.id, "home"),
+      getShopSections(shop.id, "collection"),
+    ]);
 
-  const sectionsResult = await getShopSections(shop.id);
-  const sections = sectionsResult.ok ? sectionsResult.data : [];
-  const navbarSection = sections.find((s) => s.type === "navbar");
-  const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
-    NavbarSectionProps & { shopId?: string; shopName?: string }
+  const products = productsResult.ok ? productsResult.data : [];
+  const homeSections = homeSectionsResult.ok ? homeSectionsResult.data : [];
+  const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
+
+  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+
+  const navbarSection = homeSections.find((s) => s.type === "navbar");
+  const NavbarComponent = registry["navbar"] as React.ComponentType<
+    NavbarSectionProps & { shopId?: string; shopName?: string; shopSlug?: string }
   >;
+
+  const noContainerTypes = new Set([
+    "banner", "announcement", "navbar", "testimonials", "collection", "newsletter", "divider",
+  ]);
 
   return (
     <>
@@ -98,6 +110,28 @@ export default async function CollectionPage({
           currency={shop.currency}
           shopSlug={shop.slug}
         />
+
+        <EditorBridge />
+
+        {pageSections.map((section) => {
+          const Component = registry[section.type] as React.ComponentType<
+            ShopSection["props"]
+          >;
+          if (!Component) return null;
+          return (
+            <div key={section.id} data-section-id={section.id}>
+              <Section container={!noContainerTypes.has(section.type)}>
+                <Component
+                  {...section.props}
+                  shopId={shop.id}
+                  shopSlug={shop.slug}
+                  shopName={shop.name}
+                  currency={shop.currency}
+                />
+              </Section>
+            </div>
+          );
+        })}
       </div>
     </>
   );

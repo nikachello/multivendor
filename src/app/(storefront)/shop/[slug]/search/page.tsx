@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { getShopBySlug, searchProducts, getShopSections } from "@/lib/db/queries";
-import { sectionRegistry } from "@/lib/section-registry";
+import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+import { ShopSection } from "@/lib/types/store-section";
+import Section from "@/components/storefront/layout/Section";
 import CollectionItem from "@/components/storefront/collection/CollectionItem";
 import SearchInput from "./SearchInput";
+import EditorBridge from "@/components/storefront/EditorBridge";
 
 export default async function SearchPage({
   params,
@@ -20,15 +23,26 @@ export default async function SearchPage({
   if (!shopResult.ok) notFound();
   const shop = shopResult.data;
 
-  const sectionsResult = await getShopSections(shop.id);
-  const sections = sectionsResult.ok ? sectionsResult.data : [];
-  const navbarSection = sections.find((s) => s.type === "navbar");
-  const NavbarComponent = sectionRegistry["navbar"] as React.ComponentType<
-    NavbarSectionProps & { shopId?: string; shopSlug?: string; shopName?: string; transparent?: boolean }
+  const [homeSectionsResult, pageSectionsResult, productsResult] = await Promise.all([
+    getShopSections(shop.id, "home"),
+    getShopSections(shop.id, "search"),
+    q.trim() ? searchProducts(shop.id, q.trim()) : Promise.resolve(null),
+  ]);
+
+  const homeSections = homeSectionsResult.ok ? homeSectionsResult.data : [];
+  const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
+  const products = productsResult?.ok ? productsResult.data : [];
+
+  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+
+  const navbarSection = homeSections.find((s) => s.type === "navbar");
+  const NavbarComponent = registry["navbar"] as React.ComponentType<
+    NavbarSectionProps & { shopId?: string; shopName?: string; shopSlug?: string }
   >;
 
-  const productsResult = q.trim() ? await searchProducts(shop.id, q.trim()) : null;
-  const products = productsResult?.ok ? productsResult.data : [];
+  const noContainerTypes = new Set([
+    "banner", "announcement", "navbar", "testimonials", "collection", "newsletter", "divider",
+  ]);
 
   return (
     <>
@@ -45,6 +59,8 @@ export default async function SearchPage({
           transparent={false}
         />
       )}
+
+      <EditorBridge />
 
       <div className="pb-20">
         <div className="px-5 md:px-10 pt-10 pb-6 max-w-2xl">
@@ -76,6 +92,26 @@ export default async function SearchPage({
             </div>
           </div>
         )}
+
+        {pageSections.map((section) => {
+          const Component = registry[section.type] as React.ComponentType<
+            ShopSection["props"]
+          >;
+          if (!Component) return null;
+          return (
+            <div key={section.id} data-section-id={section.id}>
+              <Section container={!noContainerTypes.has(section.type)}>
+                <Component
+                  {...section.props}
+                  shopId={shop.id}
+                  shopSlug={shop.slug}
+                  shopName={shop.name}
+                  currency={shop.currency}
+                />
+              </Section>
+            </div>
+          );
+        })}
       </div>
     </>
   );

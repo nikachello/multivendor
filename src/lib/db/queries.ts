@@ -113,6 +113,7 @@ export async function getAllShops() {
 
 export async function getShopSections(
   shopId: string,
+  pageType: string = "home",
 ): Promise<Result<ShopSection[]>> {
   if (!shopId) {
     return err({
@@ -124,7 +125,7 @@ export async function getShopSections(
   }
 
   const rows = await prisma.shopSection.findMany({
-    where: { shopId },
+    where: { shopId, pageType },
     orderBy: { order: "asc" },
   });
 
@@ -137,8 +138,25 @@ export async function getShopSections(
   return ok(sections);
 }
 
-// ============================================
-// CATEGORIES
+export async function getFirstCategorySlug(shopId: string): Promise<string | null> {
+  const category = await prisma.category.findFirst({
+    where: { shopId },
+    select: { slug: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return category?.slug ?? null;
+}
+
+export async function getFirstProductSlug(shopId: string): Promise<string | null> {
+  const product = await prisma.product.findFirst({
+    where: { shopId },
+    select: { slug: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return product?.slug ?? null;
+}
+
+// ============================================// CATEGORIES
 // ============================================
 
 export async function getCategoriesByShop(

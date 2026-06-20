@@ -104,6 +104,13 @@ model Shop {
   fontFamily       String @default("sans")
   borderRadius     String @default("none")
   pageBackground   String @default("#ffffff")
+  themeId          String @default("minimal")
+
+
+  shippingType      String   @default("free")  // "free" | "flat_rate" | "free_above_threshold"
+  shippingRate      Decimal  @default(0) @db.Decimal(10, 2)
+  freeThreshold     Decimal  @default(0) @db.Decimal(10, 2)
+ 
 }
 
 // ============================================
@@ -253,15 +260,16 @@ model VariantOptionValue {
 // SHOP SECTION
 // ============================================
 model ShopSection {
-  id     String @id @default(cuid())
-  shopId String
-  type   String
-  props  Json
-  order  Int
+  id       String @id @default(cuid())
+  shopId   String
+  type     String
+  props    Json
+  order    Int
+  pageType String @default("home")
 
   shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
-  @@index([shopId, order])
+  @@index([shopId, pageType, order])
 }
 
 // ============================================
