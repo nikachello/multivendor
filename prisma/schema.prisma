@@ -107,9 +107,9 @@ model Shop {
   themeId          String @default("minimal")
 
 
-  shippingType      String   @default("free")  // "free" | "flat_rate" | "free_above_threshold"
   shippingRate      Decimal  @default(0) @db.Decimal(10, 2)
   freeThreshold     Decimal  @default(0) @db.Decimal(10, 2)
+  shippingZones Json @default("[]")
  
 }
 

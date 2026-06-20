@@ -1,18 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import { createOrder } from "@/lib/actions/order";
 import { orderSchema } from "@/lib/validations/order";
+import { GEORGIA_CITIES } from "@/lib/constants/georgia-cities";
+
+type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
 type Props = {
   shopId: string;
   shopSlug: string;
   shopName: string;
   currency: string;
+  defaultShippingRate: number;
+  freeThreshold: number;
+  shippingZones: ShippingZone[];
 };
 
 type FormData = {
@@ -34,10 +40,18 @@ const EMPTY_FORM: FormData = {
   line2: "",
   city: "",
   postalCode: "",
-  country: "",
+  country: "Georgia",
 };
 
-export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, currency }: Props) {
+export default function CheckoutForm({
+  shopId,
+  shopSlug,
+  shopName: _shopName,
+  currency,
+  defaultShippingRate,
+  freeThreshold,
+  shippingZones,
+}: Props) {
   const router = useRouter();
   const { cart, clear } = useCart(shopId);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
@@ -48,6 +62,14 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
+
+  const shippingCost = useMemo(() => {
+    if (freeThreshold > 0 && subtotal >= freeThreshold) return 0;
+    const zone = shippingZones.find((z) => z.city_en === form.city);
+    return zone ? zone.rate : defaultShippingRate;
+  }, [form.city, subtotal, shippingZones, defaultShippingRate, freeThreshold]);
+
+  const total = subtotal + shippingCost;
 
   if (items.length === 0 && !submitted) {
     return (
@@ -81,8 +103,6 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
       email: fieldErrors.email?.[0],
       line1: fieldErrors.line1?.[0],
       city: fieldErrors.city?.[0],
-      postalCode: fieldErrors.postalCode?.[0],
-      country: fieldErrors.country?.[0],
     });
     return false;
   }
@@ -145,14 +165,14 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
                 type="tel"
                 value={form.phone}
                 onChange={(e) => update("phone", e.target.value)}
-                placeholder="+1 555 000 0000"
+                placeholder="+995 555 00 00 00"
                 className={inputCls(false)}
               />
             </Field>
           </div>
         </section>
 
-        {/* Shipping */}
+        {/* Shipping address */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
             Shipping address
@@ -162,41 +182,31 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
               <input
                 value={form.line1}
                 onChange={(e) => update("line1", e.target.value)}
-                placeholder="123 Main St"
+                placeholder="Street, building, apartment"
                 className={inputCls(!!errors.line1)}
               />
             </Field>
-            <Field label="Apartment, suite, etc." hint="Optional" className="sm:col-span-2">
+            <Field label="Address line 2" hint="Optional" className="sm:col-span-2">
               <input
                 value={form.line2}
                 onChange={(e) => update("line2", e.target.value)}
-                placeholder="Apt 4B"
+                placeholder="Entrance, floor, etc."
                 className={inputCls(false)}
               />
             </Field>
-            <Field label="City" error={errors.city}>
-              <input
+            <Field label="City" error={errors.city} className="sm:col-span-2">
+              <select
                 value={form.city}
                 onChange={(e) => update("city", e.target.value)}
-                placeholder="New York"
                 className={inputCls(!!errors.city)}
-              />
-            </Field>
-            <Field label="Postal code" error={errors.postalCode}>
-              <input
-                value={form.postalCode}
-                onChange={(e) => update("postalCode", e.target.value)}
-                placeholder="10001"
-                className={inputCls(!!errors.postalCode)}
-              />
-            </Field>
-            <Field label="Country" error={errors.country} className="sm:col-span-2">
-              <input
-                value={form.country}
-                onChange={(e) => update("country", e.target.value)}
-                placeholder="United States"
-                className={inputCls(!!errors.country)}
-              />
+              >
+                <option value="">Select city…</option>
+                {GEORGIA_CITIES.map((c) => (
+                  <option key={c.name_en} value={c.name_en}>
+                    {c.name_ka}
+                  </option>
+                ))}
+              </select>
             </Field>
           </div>
         </section>
@@ -207,7 +217,7 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
             Payment
           </h2>
           <div className="rounded border border-dashed border-neutral-200 bg-neutral-50 px-5 py-6 text-center text-sm text-neutral-400">
-            Payment integration coming soon
+            Cash on delivery
           </div>
         </section>
 
@@ -262,11 +272,20 @@ export default function CheckoutForm({ shopId, shopSlug, shopName: _shopName, cu
             </div>
             <div className="flex justify-between text-neutral-500">
               <span>Shipping</span>
-              <span className="text-green-600">Free</span>
+              {shippingCost === 0 ? (
+                <span className="text-green-600">Free</span>
+              ) : (
+                <span>{currency} {shippingCost.toFixed(2)}</span>
+              )}
             </div>
+            {freeThreshold > 0 && subtotal < freeThreshold && (
+              <p className="text-xs text-neutral-400">
+                Add {currency} {(freeThreshold - subtotal).toFixed(2)} more for free shipping
+              </p>
+            )}
             <div className="flex justify-between font-semibold text-neutral-900 text-base pt-2 border-t border-neutral-100">
               <span>Total</span>
-              <span>{currency} {subtotal.toFixed(2)}</span>
+              <span>{currency} {total.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -301,7 +320,7 @@ function Field({
 }
 
 function inputCls(hasError: boolean) {
-  return `w-full border px-3 py-2.5 text-sm outline-none transition-colors ${
+  return `w-full border px-3 py-2.5 text-sm outline-none transition-colors bg-white ${
     hasError
       ? "border-red-300 focus:border-red-500"
       : "border-neutral-200 focus:border-neutral-500"

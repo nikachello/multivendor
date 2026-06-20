@@ -12,6 +12,8 @@ import {
   ShoppingBag,
   Settings,
   Paintbrush,
+  icons,
+  Earth,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
@@ -23,6 +25,7 @@ const NAV_ITEMS = [
   { label: "Navigation", href: "/dashboard/navigation", icon: Navigation },
   { label: "Themes", href: "/dashboard/themes", icon: Paintbrush },
   { label: "Editor", href: "/dashboard/editor", icon: Layout },
+  { label: "Shipping", href: "/dashboard/shipping", icon: Earth },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
