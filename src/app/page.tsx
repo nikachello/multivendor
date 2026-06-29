@@ -147,7 +147,7 @@ function StorefrontMockup() {
           className="flex-1 h-5 rounded text-[10px] flex items-center justify-center"
           style={{ background: "#e5e7eb", color: "#6b7280" }}
         >
-          multistore.ge/shop/anano-atelier
+          multistore.ge/shop/zari
         </div>
       </div>
 
@@ -174,7 +174,7 @@ function StorefrontMockup() {
             ))}
           </div>
           <div className="font-display text-sm font-semibold tracking-wider" style={{ color: "#1f1b16" }}>
-            ANANO
+            ZARI
           </div>
           <div className="flex gap-3">
             <div className="text-[8px]" style={{ color: "#6b5b45" }}>ძიება</div>
@@ -254,7 +254,7 @@ function MaisonPreview() {
         <div className="flex gap-2">
           {[1, 2, 3].map((i) => <div key={i} className="h-px w-4" style={{ background: "#8c7a65" }} />)}
         </div>
-        <div className="font-display text-xs font-semibold" style={{ color: "#1f1b16" }}>ANANO</div>
+        <div className="font-display text-xs font-semibold" style={{ color: "#1f1b16" }}>ZARI</div>
         <div className="h-px w-8" style={{ background: "#c0a882" }} />
       </div>
       <div className="flex items-end p-3" style={{ background: "#e8e0d2", minHeight: "56px" }}>
@@ -669,7 +669,7 @@ export default function Home() {
               დაიწყე უფასოდ
             </Link>
             <a
-              href="/shop/anano-atelier"
+              href="/shop/zari"
               className="px-8 py-3.5 text-sm font-medium border"
               style={{ borderColor: SURFACE, color: INK }}
             >

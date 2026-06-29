@@ -382,24 +382,24 @@ async function main() {
   console.log(`✓ Testimonials: 5`);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // DEMO SHOP — Anano Atelier (Georgian fashion, Maison theme)
+  // DEMO SHOP — Zari (Georgian fashion, Maison theme)
   // Linked from the landing page "ნახე დემო მაღაზია" button
   // ══════════════════════════════════════════════════════════════════════════
 
-  const ananoOwner = await prisma.user.create({
+  const zariOwner = await prisma.user.create({
     data: {
-      email: "anano@atelier.ge",
-      name: "Anano",
+      email: "owner@zari.ge",
+      name: "Zari",
       role: "seller",
       emailVerified: true,
     },
   });
 
-  const anano = await prisma.shop.create({
+  const zari = await prisma.shop.create({
     data: {
-      ownerId: ananoOwner.id,
-      name: "Anano Atelier",
-      slug: "anano-atelier",
+      ownerId: zariOwner.id,
+      name: "Zari",
+      slug: "zari",
       description: "ხელნაკეთი ქართული ფეშენ-ბრენდი. ლინენი, ტყავი, ბუნებრივი ქსოვილები.",
       currency: "GEL",
       isActive: true,
@@ -411,10 +411,10 @@ async function main() {
 
   // ── Option types ──────────────────────────────────────────────────────────
   const aSizeType = await prisma.optionType.create({
-    data: { shopId: anano.id, name: "ზომა" },
+    data: { shopId: zari.id, name: "ზომა" },
   });
   const aColorType = await prisma.optionType.create({
-    data: { shopId: anano.id, name: "ფერი" },
+    data: { shopId: zari.id, name: "ფერი" },
   });
 
   const [aXS, aS, aM, aL, aXL] = await Promise.all([
@@ -435,7 +435,7 @@ async function main() {
   // ── Categories ────────────────────────────────────────────────────────────
   const aNewCat = await prisma.category.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       name: "ახალი კოლექცია",
       slug: "axali-kolekcia",
       image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600",
@@ -444,7 +444,7 @@ async function main() {
   });
   const aDressCat = await prisma.category.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       name: "კაბები",
       slug: "kabebi",
       image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600",
@@ -453,7 +453,7 @@ async function main() {
   });
   const aBagCat = await prisma.category.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       name: "ჩანთები",
       slug: "chantebi",
       image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600",
@@ -462,7 +462,7 @@ async function main() {
   });
   const aJacketCat = await prisma.category.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       name: "ჟაკეტები",
       slug: "zhaketebi",
       image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
@@ -475,7 +475,7 @@ async function main() {
   // P1: სელის კაბა (Linen Dress)
   const ap1 = await prisma.product.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       categories: { connect: [{ id: aDressCat.id }, { id: aNewCat.id }] },
       name: "სელის კაბა",
       slug: "selis-kaba",
@@ -521,7 +521,7 @@ async function main() {
   // P2: ტყავის ჩანთა (Leather Bag)
   const ap2 = await prisma.product.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       categories: { connect: [{ id: aBagCat.id }, { id: aNewCat.id }] },
       name: "ტყავის ჩანთა",
       slug: "tyavis-chanta",
@@ -558,7 +558,7 @@ async function main() {
   // P3: შალის ჟაკეტი (Wool Jacket)
   const ap3 = await prisma.product.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       categories: { connect: [{ id: aJacketCat.id }] },
       name: "შალის ჟაკეტი",
       slug: "shalis-zhaketi",
@@ -600,7 +600,7 @@ async function main() {
   // P4: ლინენის სათამაშო (Linen Set)
   const ap4 = await prisma.product.create({
     data: {
-      shopId: anano.id,
+      shopId: zari.id,
       categories: { connect: [{ id: aDressCat.id }] },
       name: "ლინენის კოსტუმი",
       slug: "linenis-kostumi",
@@ -637,7 +637,7 @@ async function main() {
   await prisma.shopSection.createMany({
     data: [
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "announcement",
         pageType: "home",
         order: 0,
@@ -648,7 +648,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "navbar",
         pageType: "home",
         order: 1,
@@ -669,7 +669,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "banner",
         pageType: "home",
         order: 2,
@@ -684,7 +684,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "categories",
         pageType: "home",
         order: 3,
@@ -695,7 +695,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "collection",
         pageType: "home",
         order: 4,
@@ -705,7 +705,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "highlights",
         pageType: "home",
         order: 5,
@@ -731,7 +731,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "testimonials",
         pageType: "home",
         order: 6,
@@ -739,7 +739,7 @@ async function main() {
           testimonials: [
             { name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ. კმაყოფილი ვარ!" },
             { name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
-            { name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Anano Atelier-ის ნაწარმი ყველაზე ლამაზი ჩუქრია." },
+            { name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Zari-ს ნაწარმი ყველაზე ლამაზი ჩუქრია." },
           ],
         },
       },
@@ -750,7 +750,7 @@ async function main() {
   await prisma.shopSection.createMany({
     data: [
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "navbar",
         pageType: "collection",
         order: 0,
@@ -769,7 +769,7 @@ async function main() {
         },
       },
       {
-        shopId: anano.id,
+        shopId: zari.id,
         type: "navbar",
         pageType: "product",
         order: 0,
@@ -791,13 +791,13 @@ async function main() {
 
   await prisma.testimonial.createMany({
     data: [
-      { shopId: anano.id, name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ." },
-      { shopId: anano.id, name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
-      { shopId: anano.id, name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Anano Atelier-ის ნაწარმი ყველაზე ლამაზი ჩუქრია." },
+      { shopId: zari.id, name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ." },
+      { shopId: zari.id, name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
+      { shopId: zari.id, name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Zari-ს ნაწარმი ყველაზე ლამაზი ჩუქრია." },
     ],
   });
 
-  console.log(`✓ Demo shop: ${anano.name} (${anano.slug})`);
+  console.log(`✓ Demo shop: ${zari.name} (${zari.slug})`);
   console.log(`✓ Categories: ახალი კოლექცია, კაბები, ჩანთები, ჟაკეტები`);
   console.log(`✓ Products: სელის კაბა, ტყავის ჩანთა, შალის ჟაკეტი, ლინენის კოსტუმი`);
   console.log("Seed complete!");
