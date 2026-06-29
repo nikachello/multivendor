@@ -7,6 +7,7 @@ import { ShopSection } from "@/lib/types/store-section";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import EditorBridge from "@/components/storefront/EditorBridge";
 import { getThemeConfig } from "@/themes";
+import { getShopBase } from "@/lib/shop-base";
 
 export async function generateMetadata({
   params,
@@ -66,6 +67,7 @@ export default async function ShopPage({
   const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
   const registry = getThemeRegistry(themeId);
   const themeConfig = getThemeConfig(themeId);
+  const shopBase = await getShopBase(slug);
 
   return (
     <div className="flex flex-col pb-20 bg-[var(--page-bg)]">
@@ -79,6 +81,7 @@ export default async function ShopPage({
         const extraProps = {
           shopId: shop.id,
           shopSlug: shop.slug,
+          shopBase,
           shopName: shop.name,
           currency: shop.currency,
           transparent: hasLeadingBanner,
@@ -89,7 +92,7 @@ export default async function ShopPage({
           section.type === "navbar"
             ? {
                 ...section.props,
-                items: resolveNavItems(section.props.items ?? [], shop.slug),
+                items: resolveNavItems(section.props.items ?? [], shopBase),
               }
             : section.props;
 

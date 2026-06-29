@@ -11,13 +11,15 @@ const NavbarSection = ({
   transparent = false,
   shopName,
   shopSlug = "",
+  shopBase,
   shopId = "",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { itemCount } = useCart(shopId);
 
-  const logoHref = shopSlug ? `/shop/${shopSlug}` : "/";
+  const base = shopBase !== undefined ? shopBase : (shopSlug ? `/shop/${shopSlug}` : "");
+  const logoHref = base || "/";
   const bg = transparent ? "bg-transparent" : "bg-[#141210] border-b border-[#2a2622]";
 
   return (
@@ -72,7 +74,7 @@ const NavbarSection = ({
         </nav>
 
         <div className="flex items-center gap-5">
-          <Link href={`/shop/${shopSlug}/search`} className="text-[#b3a9a0] hover:text-[#f5f1ea] transition-colors" aria-label="Search">
+          <Link href={`${base}/search`} className="text-[#b3a9a0] hover:text-[#f5f1ea] transition-colors" aria-label="Search">
             <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>

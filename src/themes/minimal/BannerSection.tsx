@@ -4,13 +4,13 @@ import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 import BannerSplit from "@/components/storefront/sections/banner/BannerSplit";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -19,11 +19,13 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   if (variant === "split") {
-    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} />;
+    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} shopBase={shopBase} />;
   }
 
   if (variant === "compact") {
@@ -43,7 +45,7 @@ const BannerSection = ({
           {subtitle && <p className="mt-2 text-sm text-white/75">{subtitle}</p>}
           {buttonText && (
             <Link
-              href={resolveHref(href, shopSlug)}
+              href={resolveHref(href, base)}
               className="mt-6 inline-block bg-white text-zinc-900 text-sm font-medium px-7 py-3 hover:bg-zinc-100 transition-colors"
               style={{ borderRadius: "var(--radius)" }}
             >
@@ -74,7 +76,7 @@ const BannerSection = ({
         )}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-block bg-white text-zinc-900 text-sm font-semibold px-8 py-3.5 hover:bg-zinc-100 transition-colors"
             style={{ borderRadius: "var(--radius)" }}
           >

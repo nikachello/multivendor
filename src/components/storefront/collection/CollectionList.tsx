@@ -8,9 +8,11 @@ type Props = {
   products: ProductWithRelations[];
   currency: string;
   shopSlug: string;
+  shopBase?: string;
 };
 
-export default function CollectionList({ category, products, currency, shopSlug }: Props) {
+export default function CollectionList({ category, products, currency, shopSlug, shopBase }: Props) {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   return (
     <div className="px-5 md:px-10 py-10">
       <div className="text-center max-w-2xl mx-auto mb-8">
@@ -33,7 +35,7 @@ export default function CollectionList({ category, products, currency, shopSlug 
             return (
               <Link
                 key={product.id}
-                href={`/shop/${shopSlug}/product/${product.slug}`}
+                href={`${base}/product/${product.slug}`}
                 className="flex items-center gap-5 py-4 group"
               >
                 <div className="relative w-20 h-20 flex-shrink-0 bg-neutral-100 overflow-hidden">

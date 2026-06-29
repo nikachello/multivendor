@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -18,9 +18,11 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const isCompact = variant === "compact";
 
   return (
@@ -43,7 +45,7 @@ const BannerSection = ({
         </h1>
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-flex items-center text-[#141210] text-sm font-bold px-8 py-4 uppercase tracking-[0.06em] hover:opacity-90 transition-opacity"
             style={{ backgroundColor: "oklch(0.68 0.2 38)" }}
           >

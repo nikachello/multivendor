@@ -4,13 +4,13 @@ import { BannerSectionProps } from "@/lib/types/sections";
 import BannerSplit from "./BannerSplit";
 import BannerCompact from "./BannerCompact";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -19,15 +19,17 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   if (variant === "split") {
-    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} />;
+    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} shopBase={shopBase} />;
   }
 
   if (variant === "compact") {
-    return <BannerCompact title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} transparent={transparent} />;
+    return <BannerCompact title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} shopBase={shopBase} transparent={transparent} />;
   }
 
   // cover (default)
@@ -52,7 +54,7 @@ const BannerSection = ({
         )}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-block px-8 py-4 text-sm transition hover:opacity-90"
             style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >

@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-type Props = { shopSlug: string; initialQuery: string };
+type Props = { shopSlug: string; shopBase?: string; initialQuery: string };
 
-export default function SearchInput({ shopSlug, initialQuery }: Props) {
+export default function SearchInput({ shopSlug, shopBase, initialQuery }: Props) {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
   const isFirstRender = useRef(true);
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -17,10 +18,10 @@ export default function SearchInput({ shopSlug, initialQuery }: Props) {
     }
     const timer = setTimeout(() => {
       const q = query.trim();
-      router.push(`/shop/${shopSlug}/search${q ? `?q=${encodeURIComponent(q)}` : ""}`);
+      router.push(`${base}/search${q ? `?q=${encodeURIComponent(q)}` : ""}`);
     }, 300);
     return () => clearTimeout(timer);
-  }, [query, shopSlug, router]);
+  }, [query, base, router]);
 
   return (
     <input

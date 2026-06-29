@@ -11,6 +11,7 @@ const NavbarSection = ({
   transparent = false,
   shopName,
   shopSlug = "",
+  shopBase,
   shopId = "",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
@@ -18,7 +19,8 @@ const NavbarSection = ({
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { itemCount } = useCart(shopId);
 
-  const logoHref = shopSlug ? `/shop/${shopSlug}` : "/";
+  const base = shopBase !== undefined ? shopBase : (shopSlug ? `/shop/${shopSlug}` : "");
+  const logoHref = base || "/";
 
   const textColor = transparent ? "text-white" : "text-black";
   const mutedColor = transparent ? "text-white/80" : "text-gray-500";
@@ -190,7 +192,7 @@ const NavbarSection = ({
 
         <div className="flex-1 flex justify-end items-center gap-4">
           <Link
-            href={`/shop/${shopSlug}/search`}
+            href={`${base}/search`}
             className={`${mutedColor} ${hoverColor} transition-colors duration-200`}
             aria-label="Search"
           >
@@ -250,7 +252,7 @@ const NavbarSection = ({
 
         <div className="flex items-center gap-4">
           <Link
-            href={`/shop/${shopSlug}/search`}
+            href={`${base}/search`}
             className={`${transparent ? "text-white" : "text-black"}`}
             aria-label="Search"
           >

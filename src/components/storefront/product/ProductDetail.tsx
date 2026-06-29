@@ -10,6 +10,7 @@ type Props = {
   product: ProductWithRelations;
   currency: string;
   shopSlug: string;
+  shopBase?: string;
   shopName: string;
   shopId: string;
 };
@@ -18,9 +19,11 @@ export default function ProductDetail({
   product,
   currency,
   shopSlug,
+  shopBase,
   shopName,
   shopId,
 }: Props) {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
   >(() => product.variants[0] ? getVariantOptions(product.variants[0]) : {});
@@ -100,7 +103,7 @@ export default function ProductDetail({
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-neutral-400 mb-8">
         <Link
-          href={`/shop/${shopSlug}`}
+          href={base || "/"}
           className="hover:text-neutral-600 transition-colors"
         >
           {shopName}

@@ -14,6 +14,7 @@ type ShippingZone = { city_en: string; city_ka: string; rate: number };
 type Props = {
   shopId: string;
   shopSlug: string;
+  shopBase?: string;
   shopName: string;
   currency: string;
   defaultShippingRate: number;
@@ -48,12 +49,14 @@ const EMPTY_FORM: FormData = {
 export default function CheckoutForm({
   shopId,
   shopSlug,
+  shopBase,
   shopName: _shopName,
   currency,
   defaultShippingRate,
   freeThreshold,
   shippingZones,
 }: Props) {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const router = useRouter();
   const { cart, clear } = useCart(shopId);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
@@ -78,7 +81,7 @@ export default function CheckoutForm({
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <p className="text-neutral-500 text-sm">Your cart is empty.</p>
         <Link
-          href={`/shop/${shopSlug}`}
+          href={base || "/"}
           className="text-sm underline underline-offset-4 hover:text-neutral-600 transition-colors"
         >
           Continue shopping
@@ -124,7 +127,7 @@ export default function CheckoutForm({
 
     setSubmitted(true);
     clear();
-    router.push(`/shop/${shopSlug}/order/${result.data.id}`);
+    router.push(`${base}/order/${result.data.id}`);
   }
 
   return (

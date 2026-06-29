@@ -4,13 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string };
 
 const BannerSection = ({
   title,
@@ -19,8 +19,10 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
   if (variant === "compact") {
     return (
@@ -71,7 +73,7 @@ const BannerSection = ({
           )}
           {buttonText && (
             <Link
-              href={resolveHref(href, shopSlug)}
+              href={resolveHref(href, base)}
               className="self-start text-[12px] tracking-[0.18em] uppercase text-[#1B1714] border-b border-[#1B1714] pb-1 hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
             >
               {buttonText}
@@ -114,7 +116,7 @@ const BannerSection = ({
         )}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="inline-block text-[#EFE8DA] text-[12px] tracking-[0.2em] uppercase px-8 py-4 transition-colors hover:bg-[#EFE8DA] hover:text-[#1B1714]"
             style={{ backgroundColor: "var(--accent)", borderRadius: "var(--radius)" }}
           >

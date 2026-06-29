@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -17,8 +17,10 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   return (
     <section
       className={`relative min-h-screen flex items-center justify-center overflow-hidden ${transparent ? "-mt-[88px]" : ""}`}
@@ -41,7 +43,7 @@ const BannerSection = ({
         )}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-10 inline-block border border-white/50 text-white text-[11px] tracking-[0.25em] uppercase px-10 py-4 hover:bg-white hover:text-[#1C1C1C] transition-colors duration-200"
             style={{ borderRadius: "var(--radius)" }}
           >

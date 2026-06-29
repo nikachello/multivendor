@@ -9,9 +9,11 @@ type Props = {
   product: ProductWithRelations;
   currency: string;
   shopSlug: string;
+  shopBase?: string;
 };
 
-const CollectionItem = ({ product, currency, shopSlug }: Props) => {
+const CollectionItem = ({ product, currency, shopSlug, shopBase }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const [imgError, setImgError] = useState(false);
   const mainImage = product.images[0]?.url;
   const hasImage = !!mainImage && !imgError;
@@ -28,7 +30,7 @@ const CollectionItem = ({ product, currency, shopSlug }: Props) => {
 
   return (
     <Link
-      href={`/shop/${shopSlug}/product/${product.slug}`}
+      href={`${base}/product/${product.slug}`}
       className="group block"
     >
       {/* Image */}

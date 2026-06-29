@@ -7,6 +7,7 @@ import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
+import { getShopBase } from "@/lib/shop-base";
 
 export async function generateMetadata({
   params,
@@ -50,6 +51,7 @@ export default async function OrderConfirmationPage({
 
   if (order.shopId !== shop.id) notFound();
 
+  const shopBase = await getShopBase(slug);
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
@@ -68,10 +70,11 @@ export default async function OrderConfirmationPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug
+            shopBase
           )}
           shopId={shop.id}
           shopSlug={shop.slug}
+          shopBase={shopBase}
           shopName={shop.name}
           transparent={false}
         />
@@ -144,7 +147,7 @@ export default async function OrderConfirmationPage({
         </section>
 
         <Link
-          href={`/shop/${shop.slug}`}
+          href={shopBase || "/"}
           className="inline-block px-8 py-3 text-sm tracking-widest uppercase bg-black text-white hover:opacity-80 transition-opacity"
         >
           Continue shopping

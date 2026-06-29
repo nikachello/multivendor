@@ -7,9 +7,10 @@ type Props = {
   products: ProductWithRelations[];
   currency: string;
   shopSlug: string;
+  shopBase?: string;
 };
 
-export default function CollectionFeatured({ category, products, currency, shopSlug }: Props) {
+export default function CollectionFeatured({ category, products, currency, shopSlug, shopBase }: Props) {
   const [featured, ...rest] = products;
   const side = rest.slice(0, 3);
 
@@ -28,11 +29,11 @@ export default function CollectionFeatured({ category, products, currency, shopS
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="col-span-2 md:col-span-2 row-span-2">
             {featured && (
-              <CollectionItem product={featured} currency={currency} shopSlug={shopSlug} />
+              <CollectionItem product={featured} currency={currency} shopSlug={shopSlug} shopBase={shopBase} />
             )}
           </div>
           {side.map((product) => (
-            <CollectionItem key={product.id} product={product} currency={currency} shopSlug={shopSlug} />
+            <CollectionItem key={product.id} product={product} currency={currency} shopSlug={shopSlug} shopBase={shopBase} />
           ))}
         </div>
       )}

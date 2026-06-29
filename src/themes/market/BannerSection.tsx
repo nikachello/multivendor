@@ -4,13 +4,13 @@ import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 import BannerSplit from "@/components/storefront/sections/banner/BannerSplit";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -19,11 +19,13 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   if (variant === "split") {
-    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} />;
+    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} shopBase={shopBase} />;
   }
 
   if (variant === "compact") {
@@ -39,7 +41,7 @@ const BannerSection = ({
           </div>
           {buttonText && (
             <Link
-              href={resolveHref(href, shopSlug)}
+              href={resolveHref(href, base)}
               className="shrink-0 text-white text-sm font-semibold px-5 py-2.5 hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "oklch(0.68 0.16 50)", borderRadius: "8px" }}
             >
@@ -68,7 +70,7 @@ const BannerSection = ({
         {subtitle && <p className="mt-3 max-w-xl text-sm text-white/80 md:text-base">{subtitle}</p>}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-block bg-white font-bold text-sm px-8 py-3.5 hover:bg-zinc-100 transition-colors"
             style={{ color: "oklch(0.55 0.13 145)", borderRadius: "8px" }}
           >

@@ -2,13 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { BannerSectionProps } from "@/lib/types/sections";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string };
 
 export default function BannerSplit({
   title,
@@ -17,7 +17,9 @@ export default function BannerSplit({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
 }: Props) {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   return (
     <section className="grid md:grid-cols-2 min-h-[500px]">
       <div className="relative overflow-hidden bg-neutral-100 min-h-[300px]">
@@ -42,7 +44,7 @@ export default function BannerSplit({
         )}
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-block px-8 py-3.5 text-sm hover:opacity-90 transition-opacity"
             style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >

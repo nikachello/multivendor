@@ -8,10 +8,12 @@ import { useCart } from "@/hooks/useCart";
 type Props = {
   shopId: string;
   shopSlug: string;
+  shopBase?: string;
   currency: string;
 };
 
-export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
+export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Props) {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const cartOpen = useCartStore((s) => s.cartOpen);
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { cart, remove, setQuantity } = useCart(shopId);
@@ -181,7 +183,7 @@ export default function CartDrawer({ shopId, shopSlug, currency }: Props) {
               </span>
             </div>
             <Link
-              href={`/shop/${shopSlug}/checkout`}
+              href={`${base}/checkout`}
               onClick={() => setCartOpen(false)}
               className="block w-full py-3.5 text-center text-sm tracking-widest uppercase hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}

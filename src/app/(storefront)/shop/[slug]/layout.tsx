@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
 import { getThemeConfig } from "@/themes";
+import { getShopBase } from "@/lib/shop-base";
 
 // This layout wraps every page under /shop/[slug]/ (main, product, collection,
 // checkout). Rendering CartDrawer here means one instance per shop visit,
@@ -17,6 +18,7 @@ export default async function ShopSlugLayout({
   const result = await getShopBySlug(slug);
   if (!result.ok) notFound();
   const shop = result.data;
+  const shopBase = await getShopBase(slug);
 
   const themeConfig = getThemeConfig((shop as { themeId?: string }).themeId ?? "minimal");
 
@@ -57,6 +59,7 @@ export default async function ShopSlugLayout({
       <CartDrawer
         shopId={shop.id}
         shopSlug={shop.slug}
+        shopBase={shopBase}
         currency={shop.currency}
       />
     </div>

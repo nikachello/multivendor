@@ -5,6 +5,7 @@ import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
+import { getShopBase } from "@/lib/shop-base";
 
 export async function generateMetadata({
   params,
@@ -32,6 +33,7 @@ export default async function CheckoutPage({
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
   const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const shopBase = await getShopBase(slug);
   const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopName?: string }
   >;
@@ -43,10 +45,11 @@ export default async function CheckoutPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug
+            shopBase
           )}
           shopId={shop.id}
           shopSlug={shop.slug}
+          shopBase={shopBase}
           shopName={shop.name}
           transparent={false}
         />
@@ -56,6 +59,7 @@ export default async function CheckoutPage({
         <CheckoutForm
           shopId={shop.id}
           shopSlug={shop.slug}
+          shopBase={shopBase}
           shopName={shop.name}
           currency={shop.currency}
           defaultShippingRate={Number(shop.shippingRate)}

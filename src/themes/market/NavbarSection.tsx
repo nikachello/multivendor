@@ -11,13 +11,15 @@ const NavbarSection = ({
   transparent = false,
   shopName,
   shopSlug = "",
+  shopBase,
   shopId = "",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { itemCount } = useCart(shopId);
 
-  const logoHref = shopSlug ? `/shop/${shopSlug}` : "/";
+  const base = shopBase !== undefined ? shopBase : (shopSlug ? `/shop/${shopSlug}` : "");
+  const logoHref = base || "/";
 
   return (
     <header className="relative w-full z-20">
@@ -31,7 +33,7 @@ const NavbarSection = ({
         </Link>
 
         <Link
-          href={`/shop/${shopSlug}/search`}
+          href={`${base}/search`}
           className="flex-1 max-w-lg bg-white rounded-lg px-4 py-2 text-sm text-neutral-400 hover:text-neutral-600 transition-colors"
         >
           Search products...
@@ -64,7 +66,7 @@ const NavbarSection = ({
             {shopName ?? "Market"}
           </Link>
           <div className="flex items-center gap-3">
-            <Link href={`/shop/${shopSlug}/search`} className="text-white/85" aria-label="Search">
+            <Link href={`${base}/search`} className="text-white/85" aria-label="Search">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>

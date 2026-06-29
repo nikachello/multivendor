@@ -147,7 +147,7 @@ function StorefrontMockup() {
           className="flex-1 h-5 rounded text-[10px] flex items-center justify-center"
           style={{ background: "#e5e7eb", color: "#6b7280" }}
         >
-          multistore.ge/shop/zari
+          zari.multistore.ge
         </div>
       </div>
 
@@ -669,7 +669,7 @@ export default function Home() {
               დაიწყე უფასოდ
             </Link>
             <a
-              href="/shop/zari"
+              href={process.env.NEXT_PUBLIC_ROOT_DOMAIN ? `https://zari.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : "/shop/zari"}
               className="px-8 py-3.5 text-sm font-medium border"
               style={{ borderColor: SURFACE, color: INK }}
             >

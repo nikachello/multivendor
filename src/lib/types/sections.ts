@@ -3,6 +3,7 @@ import { Highlight } from "./data-types";
 export type SectionContext = {
   shopId?: string;
   shopSlug?: string;
+  shopBase?: string;
   shopName?: string;
   currency?: string;
 };

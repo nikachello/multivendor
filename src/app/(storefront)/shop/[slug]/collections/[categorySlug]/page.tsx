@@ -13,6 +13,7 @@ import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { ShopSection } from "@/lib/types/store-section";
 import Section from "@/components/storefront/layout/Section";
 import EditorBridge from "@/components/storefront/EditorBridge";
+import { getShopBase } from "@/lib/shop-base";
 
 export async function generateMetadata({
   params,
@@ -73,6 +74,7 @@ export default async function CollectionPage({
   const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
 
   const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const shopBase = await getShopBase(slug);
 
   const navbarSection = homeSections.find((s) => s.type === "navbar");
   const NavbarComponent = registry["navbar"] as React.ComponentType<
@@ -90,10 +92,11 @@ export default async function CollectionPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug,
+            shopBase,
           )}
           shopId={shop.id}
           shopSlug={shop.slug}
+          shopBase={shopBase}
           shopName={shop.name}
           transparent={false}
         />
@@ -102,7 +105,7 @@ export default async function CollectionPage({
       <div className="pb-20">
         <nav className="flex items-center gap-2 text-xs text-neutral-400 px-5 md:px-10 pt-8">
           <a
-            href={`/shop/${shop.slug}`}
+            href={shopBase || "/"}
             className="hover:text-neutral-600 transition-colors"
           >
             {shop.name}
@@ -116,6 +119,7 @@ export default async function CollectionPage({
           products={products}
           currency={shop.currency}
           shopSlug={shop.slug}
+          shopBase={shopBase}
         />
 
         <EditorBridge />
@@ -132,6 +136,7 @@ export default async function CollectionPage({
                   {...section.props}
                   shopId={shop.id}
                   shopSlug={shop.slug}
+                  shopBase={shopBase}
                   shopName={shop.name}
                   currency={shop.currency}
                 />

@@ -7,6 +7,7 @@ type Props = {
   products: ProductWithRelations[];
   currency: string;
   shopSlug: string;
+  shopBase?: string;
 };
 
 const CollectionContainer = ({
@@ -14,6 +15,7 @@ const CollectionContainer = ({
   products,
   currency,
   shopSlug,
+  shopBase,
 }: Props) => {
   return (
     <div className="px-5 md:px-10 py-10">
@@ -41,6 +43,7 @@ const CollectionContainer = ({
               product={product}
               currency={currency}
               shopSlug={shopSlug}
+              shopBase={shopBase}
             />
           ))}
         </div>

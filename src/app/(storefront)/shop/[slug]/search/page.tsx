@@ -9,6 +9,7 @@ import Section from "@/components/storefront/layout/Section";
 import CollectionItem from "@/components/storefront/collection/CollectionItem";
 import SearchInput from "./SearchInput";
 import EditorBridge from "@/components/storefront/EditorBridge";
+import { getShopBase } from "@/lib/shop-base";
 
 export async function generateMetadata({
   params,
@@ -49,6 +50,7 @@ export default async function SearchPage({
   const products = productsResult?.ok ? productsResult.data : [];
 
   const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const shopBase = await getShopBase(slug);
 
   const navbarSection = homeSections.find((s) => s.type === "navbar");
   const NavbarComponent = registry["navbar"] as React.ComponentType<
@@ -66,10 +68,11 @@ export default async function SearchPage({
           {...(navbarSection.props as NavbarSectionProps)}
           items={resolveNavItems(
             (navbarSection.props as NavbarSectionProps).items ?? [],
-            shop.slug,
+            shopBase,
           )}
           shopId={shop.id}
           shopSlug={shop.slug}
+          shopBase={shopBase}
           shopName={shop.name}
           transparent={false}
         />
@@ -80,7 +83,7 @@ export default async function SearchPage({
       <div className="pb-20">
         <div className="px-5 md:px-10 pt-10 pb-6 max-w-2xl">
           <h1 className="text-2xl font-semibold tracking-tight mb-4">Search</h1>
-          <SearchInput shopSlug={slug} initialQuery={q} />
+          <SearchInput shopSlug={slug} shopBase={shopBase} initialQuery={q} />
         </div>
 
         {q.trim() && (
@@ -102,6 +105,7 @@ export default async function SearchPage({
                   product={product}
                   currency={shop.currency}
                   shopSlug={shop.slug}
+                  shopBase={shopBase}
                 />
               ))}
             </div>
@@ -120,6 +124,7 @@ export default async function SearchPage({
                   {...section.props}
                   shopId={shop.id}
                   shopSlug={shop.slug}
+                  shopBase={shopBase}
                   shopName={shop.name}
                   currency={shop.currency}
                 />

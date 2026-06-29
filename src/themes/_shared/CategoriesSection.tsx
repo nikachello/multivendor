@@ -7,11 +7,13 @@ import type { CategoriesSectionProps } from "@/lib/types/sections";
 type Props = CategoriesSectionProps & {
   shopId?: string;
   shopSlug?: string;
+  shopBase?: string;
   themeConfig: ThemeConfig;
 };
 
-const CategoriesSection = async ({ categoryIds = [], shopId, shopSlug, themeConfig }: Props) => {
+const CategoriesSection = async ({ categoryIds = [], shopId, shopSlug, shopBase, themeConfig }: Props) => {
   if (!shopId || !shopSlug || !categoryIds.length) return null;
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
   const result = await getCategoriesWithCount(shopId);
   if (!result.ok) return null;
@@ -26,7 +28,7 @@ const CategoriesSection = async ({ categoryIds = [], shopId, shopSlug, themeConf
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/shop/${shopSlug}/collections/${cat.slug}`}
+              href={`${base}/collections/${cat.slug}`}
               className={`group relative overflow-hidden ${themeConfig.components.productImage.bg}`}
               style={{ aspectRatio: themeConfig.sections.categories.aspectRatio }}
             >

@@ -7,12 +7,14 @@ import type { CollectionSectionProps } from "@/lib/types/sections";
 type Props = CollectionSectionProps & {
   shopId?: string;
   shopSlug?: string;
+  shopBase?: string;
   currency?: string;
   themeConfig: ThemeConfig;
 };
 
-const CollectionSection = async ({ categoryId, shopId, shopSlug, currency, themeConfig }: Props) => {
+const CollectionSection = async ({ categoryId, shopId, shopSlug, shopBase, currency, themeConfig }: Props) => {
   if (!shopId || !shopSlug || !currency) return null;
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
   const categoriesResult = await getCategoriesByShop(shopId);
   if (!categoriesResult.ok) return null;
@@ -30,7 +32,7 @@ const CollectionSection = async ({ categoryId, shopId, shopSlug, currency, theme
       <div className={`${themeConfig.layout.contentPx} mb-10 flex items-end justify-between`}>
         <h2 className={themeConfig.type.sectionHeading}>{category.name}</h2>
         <Link
-          href={`/shop/${shopSlug}/collections/${category.slug}`}
+          href={`${base}/collections/${category.slug}`}
           className={`${themeConfig.type.label} hover:opacity-70 transition-opacity border-b border-[var(--subtle)] pb-px`}
         >
           View all
@@ -44,7 +46,7 @@ const CollectionSection = async ({ categoryId, shopId, shopSlug, currency, theme
           return (
             <Link
               key={product.id}
-              href={`/shop/${shopSlug}/product/${product.slug}`}
+              href={`${base}/product/${product.slug}`}
               className="group block"
             >
               <div

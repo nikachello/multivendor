@@ -10,6 +10,7 @@ const NavbarSection = ({
   items = [],
   shopName,
   shopSlug = "",
+  shopBase,
   shopId = "",
 }: NavbarSectionProps) => {
   const [open, setOpen] = useState(false);
@@ -17,7 +18,8 @@ const NavbarSection = ({
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { itemCount } = useCart(shopId);
 
-  const logoHref = shopSlug ? `/shop/${shopSlug}` : "/";
+  const base = shopBase !== undefined ? shopBase : (shopSlug ? `/shop/${shopSlug}` : "");
+  const logoHref = base || "/";
 
   return (
     <header className="relative w-full z-20 bg-[var(--page-bg)]">
@@ -83,7 +85,7 @@ const NavbarSection = ({
         {/* Right: search + pill bag */}
         <div className="flex items-center gap-5 justify-end">
           <Link
-            href={`/shop/${shopSlug}/search`}
+            href={`${base}/search`}
             className="font-jakarta text-[14px] font-medium text-[#2C2530] hover:text-[var(--accent)] transition-colors"
           >
             Search
@@ -115,7 +117,7 @@ const NavbarSection = ({
         </Link>
         <div className="flex items-center gap-4">
           <Link
-            href={`/shop/${shopSlug}/search`}
+            href={`${base}/search`}
             aria-label="Search"
             className="text-[#2C2530] hover:text-[var(--accent)] transition-colors"
           >

@@ -4,13 +4,13 @@ import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 import BannerSplit from "@/components/storefront/sections/banner/BannerSplit";
 
-function resolveHref(href: string, shopSlug: string): string {
+function resolveHref(href: string, base: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) return href;
-  if (href === "/") return `/shop/${shopSlug}`;
-  return `/shop/${shopSlug}${href}`;
+  if (href === "/") return base || "/";
+  return `${base}${href}`;
 }
 
-type Props = BannerSectionProps & { shopSlug?: string; transparent?: boolean };
+type Props = BannerSectionProps & { shopSlug?: string; shopBase?: string; transparent?: boolean };
 
 const BannerSection = ({
   title,
@@ -19,11 +19,13 @@ const BannerSection = ({
   buttonText,
   href = "/",
   shopSlug = "",
+  shopBase,
   transparent = false,
   variant = "cover",
 }: Props) => {
+  const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   if (variant === "split") {
-    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} />;
+    return <BannerSplit title={title} subtitle={subtitle} image={image} buttonText={buttonText} href={href} shopSlug={shopSlug} shopBase={shopBase} />;
   }
 
   if (variant === "compact") {
@@ -43,7 +45,7 @@ const BannerSection = ({
           {subtitle && <p className={`mt-2 text-sm ${image ? "text-white/75" : "text-[#6b5640]"}`}>{subtitle}</p>}
           {buttonText && (
             <Link
-              href={resolveHref(href, shopSlug)}
+              href={resolveHref(href, base)}
               className="mt-5 inline-block text-[#f6ede0] text-sm font-semibold px-6 py-2.5 hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "oklch(0.42 0.07 50)", borderRadius: "8px" }}
             >
@@ -74,7 +76,7 @@ const BannerSection = ({
         <h1 className="font-display max-w-2xl text-4xl font-semibold leading-tight md:text-6xl">{title}</h1>
         {buttonText && (
           <Link
-            href={resolveHref(href, shopSlug)}
+            href={resolveHref(href, base)}
             className="mt-8 inline-block text-[#f6ede0] text-sm font-semibold px-8 py-3.5 hover:opacity-90 transition-opacity"
             style={{ backgroundColor: "oklch(0.42 0.07 50)", borderRadius: "8px" }}
           >
