@@ -7,6 +7,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  trustedOrigins: ["https://multistore.ge", "https://www.multistore.ge"],
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
