@@ -13,6 +13,11 @@ import {
   FaqSectionProps,
   StatsSectionProps,
   DividerSectionProps,
+  BeforeAfterSectionProps,
+  IngredientsSectionProps,
+  ReviewsSectionProps,
+  RoutineBuilderSectionProps,
+  ShadePickerSectionProps,
 } from "./sections";
 
 export type ShopSection =
@@ -29,7 +34,12 @@ export type ShopSection =
   | { id: string; type: "newsletter"; props: NewsletterSectionProps }
   | { id: string; type: "faq"; props: FaqSectionProps }
   | { id: string; type: "stats"; props: StatsSectionProps }
-  | { id: string; type: "divider"; props: DividerSectionProps };
+  | { id: string; type: "divider"; props: DividerSectionProps }
+  | { id: string; type: "before-after"; props: BeforeAfterSectionProps }
+  | { id: string; type: "ingredients"; props: IngredientsSectionProps }
+  | { id: string; type: "reviews"; props: ReviewsSectionProps }
+  | { id: string; type: "routine-builder"; props: RoutineBuilderSectionProps }
+  | { id: string; type: "shade-picker"; props: ShadePickerSectionProps };
 
 export type SectionProps<T extends ShopSection["type"]> = Extract<
   ShopSection,

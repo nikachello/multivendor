@@ -95,5 +95,43 @@ export type DividerSectionProps = {
   spacing?: "sm" | "md" | "lg";
 };
 
+export type BeforeAfterSectionProps = {
+  title?: string;
+  beforeImage?: string;
+  afterImage?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+};
+
+export type IngredientsSectionProps = {
+  title?: string;
+  subtitle?: string;
+  items?: { name: string; description: string }[];
+};
+
+export type ReviewsSectionProps = {
+  title?: string;
+  rating?: string;
+  reviewCount?: string;
+  items?: { quote: string; author: string }[];
+};
+
+export type RoutineBuilderSectionProps = {
+  title?: string;
+  subtitle?: string;
+  discountPercent?: number;
+  minItems?: number;
+  items?: { name: string; step?: string; price: number; image?: string }[];
+};
+
+export type ShadePickerSectionProps = {
+  title?: string;
+  subtitle?: string;
+  body?: string;
+  image?: string;
+  price?: number;
+  shades?: { name: string; color: string }[];
+};
+
 // Legacy alias
 export type ProsSectionProps = HighlightsSectionProps;

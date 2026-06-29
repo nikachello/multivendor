@@ -38,6 +38,11 @@ export const sectionLabels: Record<SectionType, string> = {
   faq: "FAQ",
   stats: "Stats",
   divider: "Divider",
+  "before-after": "Before & After",
+  ingredients: "Ingredients",
+  reviews: "Reviews",
+  "routine-builder": "Routine Builder",
+  "shade-picker": "Shade Picker",
 };
 
 type AddableSection = Exclude<ShopSection, { type: "navbar" }>;
@@ -57,6 +62,11 @@ export const addableSections: { type: AddableSectionType; description: string }[
   { type: "faq", description: "Expandable questions and answers" },
   { type: "stats", description: "Key numbers and highlights" },
   { type: "divider", description: "Vertical spacing between sections" },
+  { type: "before-after", description: "Interactive slider comparing two images — Dew theme" },
+  { type: "ingredients", description: "Ingredient accordion with expand/collapse — Dew theme" },
+  { type: "reviews", description: "Star-rated review cards — Dew theme" },
+  { type: "routine-builder", description: "Bundle picker with live discount — Dew theme" },
+  { type: "shade-picker", description: "Featured product with color swatches — Dew theme" },
 ];
 
 export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]> = {
@@ -96,6 +106,54 @@ export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]
   faq: { title: "Frequently Asked Questions", items: [] },
   stats: { stats: [] },
   divider: { spacing: "md" },
+  "before-after": {
+    title: "Before & After",
+    beforeLabel: "Before",
+    afterLabel: "After",
+  },
+  ingredients: {
+    title: "What's inside",
+    subtitle: "Key ingredients",
+    items: [
+      { name: "Hyaluronic Acid", description: "Draws moisture into the skin for lasting hydration." },
+      { name: "Niacinamide 5%", description: "Visibly minimises pores and evens skin tone over time." },
+    ],
+  },
+  reviews: {
+    title: "Loved by thousands",
+    rating: "4.8",
+    reviewCount: "2,400",
+    items: [
+      { quote: "My skin has never felt this good. I use it every morning.", author: "Sarah M." },
+      { quote: "Gentle enough for sensitive skin. Absolutely love it.", author: "Priya K." },
+      { quote: "The glow is real. I get compliments constantly.", author: "Jamie L." },
+    ],
+  },
+  "routine-builder": {
+    title: "Build your routine",
+    subtitle: "Bundle 3+ and save 15%",
+    discountPercent: 15,
+    minItems: 3,
+    items: [
+      { name: "Gentle Gel Cleanser", step: "Step 1 — Cleanse", price: 24 },
+      { name: "Barrier Serum", step: "Step 2 — Treat", price: 48 },
+      { name: "Daily Glow SPF 50", step: "Step 3 — Protect", price: 32 },
+      { name: "Overnight Mask", step: "Step 4 — Restore", price: 38 },
+    ],
+  },
+  "shade-picker": {
+    title: "Skin Tint SPF 30",
+    subtitle: "bestseller",
+    body: "A buildable, skin-perfecting tint with SPF 30. Lightweight. Breathable. Yours.",
+    price: 36,
+    shades: [
+      { name: "Porcelain", color: "#F5E6D8" },
+      { name: "Ivory", color: "#EEDAD0" },
+      { name: "Sand", color: "#D4B896" },
+      { name: "Caramel", color: "#B8885A" },
+      { name: "Espresso", color: "#6B3E26" },
+    ],
+  },
 };
 
 export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
@@ -296,6 +354,75 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
         { value: "sm", label: "Small" },
         { value: "md", label: "Medium" },
         { value: "lg", label: "Large" },
+      ],
+    },
+  ],
+  "before-after": [
+    { type: "text", key: "title", label: "Title", placeholder: "Before & After" },
+    { type: "text", key: "beforeImage", label: "Before image URL", placeholder: "/before.jpg" },
+    { type: "text", key: "afterImage", label: "After image URL", placeholder: "/after.jpg" },
+    { type: "text", key: "beforeLabel", label: "Before label", placeholder: "Before" },
+    { type: "text", key: "afterLabel", label: "After label", placeholder: "After" },
+  ],
+  ingredients: [
+    { type: "text", key: "title", label: "Title", placeholder: "What's inside" },
+    { type: "text", key: "subtitle", label: "Eyebrow", placeholder: "Key ingredients" },
+    {
+      type: "list",
+      key: "items",
+      label: "Ingredient",
+      itemDefault: { name: "", description: "" },
+      itemFields: [
+        { type: "text", key: "name", label: "Name", placeholder: "Hyaluronic Acid" },
+        { type: "textarea", key: "description", label: "Description", placeholder: "What it does..." },
+      ],
+    },
+  ],
+  reviews: [
+    { type: "text", key: "title", label: "Title", placeholder: "Loved by thousands" },
+    { type: "text", key: "rating", label: "Average rating", placeholder: "4.8" },
+    { type: "text", key: "reviewCount", label: "Review count", placeholder: "2,400" },
+    {
+      type: "list",
+      key: "items",
+      label: "Review",
+      itemDefault: { quote: "", author: "" },
+      itemFields: [
+        { type: "textarea", key: "quote", label: "Quote", placeholder: "This product changed my skin..." },
+        { type: "text", key: "author", label: "Author", placeholder: "Sarah M." },
+      ],
+    },
+  ],
+  "routine-builder": [
+    { type: "text", key: "title", label: "Title", placeholder: "Build your routine" },
+    { type: "text", key: "subtitle", label: "Eyebrow", placeholder: "Bundle 3+ and save 15%" },
+    {
+      type: "list",
+      key: "items",
+      label: "Product",
+      itemDefault: { name: "", step: "", price: 0 },
+      itemFields: [
+        { type: "text", key: "name", label: "Product name", placeholder: "Gentle Gel Cleanser" },
+        { type: "text", key: "step", label: "Step label", placeholder: "Step 1 — Cleanse" },
+        { type: "text", key: "price", label: "Price", placeholder: "24" },
+        { type: "text", key: "image", label: "Image URL", placeholder: "/product.jpg" },
+      ],
+    },
+  ],
+  "shade-picker": [
+    { type: "text", key: "title", label: "Product name", placeholder: "Skin Tint SPF 30" },
+    { type: "text", key: "subtitle", label: "Eyebrow", placeholder: "bestseller" },
+    { type: "textarea", key: "body", label: "Description", placeholder: "A buildable, skin-perfecting tint..." },
+    { type: "text", key: "price", label: "Price", placeholder: "36" },
+    { type: "text", key: "image", label: "Product image URL", placeholder: "/product.jpg" },
+    {
+      type: "list",
+      key: "shades",
+      label: "Shade",
+      itemDefault: { name: "", color: "#F5E6D8" },
+      itemFields: [
+        { type: "text", key: "name", label: "Shade name", placeholder: "Porcelain" },
+        { type: "color", key: "color", label: "Swatch color" },
       ],
     },
   ],

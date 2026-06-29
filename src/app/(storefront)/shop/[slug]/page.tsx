@@ -6,6 +6,7 @@ import { getShopBySlug, getShopSections } from "@/lib/db/queries";
 import { ShopSection } from "@/lib/types/store-section";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import EditorBridge from "@/components/storefront/EditorBridge";
+import { getThemeConfig } from "@/themes";
 
 export async function generateMetadata({
   params,
@@ -64,14 +65,16 @@ export default async function ShopPage({
 
   const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
   const registry = getThemeRegistry(themeId);
-  const isMaison = themeId === "maison";
+  const themeConfig = getThemeConfig(themeId);
 
   return (
-    <div className={`flex flex-col pb-20${isMaison ? " bg-[var(--page-bg)]" : ""}`}>
+    <div className="flex flex-col pb-20 bg-[var(--page-bg)]">
       {sections.map((section) => {
-        const Component = registry[section.type] as React.ComponentType<
-          ShopSection["props"]
-        >;
+        const Component = registry[section.type] as
+          | React.ComponentType<ShopSection["props"]>
+          | undefined;
+
+        if (!Component) return null;
 
         const extraProps = {
           shopId: shop.id,
@@ -79,6 +82,7 @@ export default async function ShopPage({
           shopName: shop.name,
           currency: shop.currency,
           transparent: hasLeadingBanner,
+          themeConfig,
         };
 
         const sectionProps =
@@ -91,18 +95,7 @@ export default async function ShopPage({
 
         return (
           <div key={section.id} data-section-id={section.id}>
-            <Section
-              container={
-                !isMaison &&
-                section.type !== "banner" &&
-                section.type !== "announcement" &&
-                section.type !== "navbar" &&
-                section.type !== "testimonials" &&
-                section.type !== "collection" &&
-                section.type !== "newsletter" &&
-                section.type !== "divider"
-              }
-            >
+            <Section container={false}>
               <Component {...sectionProps} {...extraProps} />
             </Section>
           </div>

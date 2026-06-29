@@ -1,17 +1,17 @@
-import AnnouncementSection from "./AnnouncementSection";
 import NavbarSection from "./NavbarSection";
 import BannerSection from "./BannerSection";
-import CollectionSection from "./CollectionSection";
-import HighlightsSection from "./HighlightsSection";
-import TestimonialsSection from "./TestimonialsSection";
-import CategoriesSection from "./CategoriesSection";
-import RichTextSection from "./RichTextSection";
-import ImageTextSection from "./ImageTextSection";
-import GallerySection from "./GallerySection";
-import NewsletterSection from "./NewsletterSection";
-import FaqSection from "./FaqSection";
-import StatsSection from "./StatsSection";
-import DividerSection from "./DividerSection";
+import AnnouncementSection from "@/themes/_shared/AnnouncementSection";
+import RichTextSection from "@/themes/_shared/RichTextSection";
+import HighlightsSection from "@/themes/_shared/HighlightsSection";
+import CollectionSection from "@/themes/_shared/CollectionSection";
+import CategoriesSection from "@/themes/_shared/CategoriesSection";
+import TestimonialsSection from "@/themes/_shared/TestimonialsSection";
+import ImageTextSection from "@/themes/_shared/ImageTextSection";
+import GallerySection from "@/themes/_shared/GallerySection";
+import NewsletterSection from "@/themes/_shared/NewsletterSection";
+import FaqSection from "@/themes/_shared/FaqSection";
+import StatsSection from "@/themes/_shared/StatsSection";
+import DividerSection from "@/themes/_shared/DividerSection";
 import { ThemeDefinition } from "@/themes/types";
 
 export const maisonTheme: ThemeDefinition = {

@@ -3,6 +3,7 @@
 import prisma from "../db/prisma";
 import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
+import { assertOwnsShop } from "../auth/assert-owns-shop";
 
 export async function createCategory(
   shopId: string,
@@ -14,6 +15,8 @@ export async function createCategory(
 ) {
   if (!shopId || !name || !slug)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
   const category = await prisma.category.create({
     data: { shopId, name, slug, description: description || null, isActive, image: image || null },
@@ -33,6 +36,11 @@ export async function updateCategory(
   if (!id || !name || !slug)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
 
+  const existing = await prisma.category.findUnique({ where: { id }, select: { shopId: true } });
+  if (!existing) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(existing.shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   const category = await prisma.category.update({
     where: { id },
     data: { name, slug, description: description || null, isActive, image: image ?? null },
@@ -42,6 +50,11 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string) {
+  const existing = await prisma.category.findUnique({ where: { id }, select: { shopId: true } });
+  if (!existing) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(existing.shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   await prisma.category.delete({ where: { id } });
   return ok(null);
 }
