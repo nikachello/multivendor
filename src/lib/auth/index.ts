@@ -8,6 +8,11 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   trustedOrigins: ["https://multistore.ge", "https://www.multistore.ge"],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
