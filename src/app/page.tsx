@@ -1,346 +1,258 @@
+"use client";
+
 import Link from "next/link";
-import LandingNav from "@/components/landing/LandingNav";
+import { useState } from "react";
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
-const INK = "#1c1a17";
-const PAPER = "#fcfbf9";
-const ACCENT = "#9a6a3a";
-const MUTED = "#78716c";
-const SURFACE = "#ece8df";
-const SUBTLE = "#f1ede5";
+const ROOT = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+const DEMO_URL = ROOT ? `https://zari.${ROOT}` : "/shop/zari";
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const STEPS = [
-  {
-    n: "01",
-    title: "შექმენი ანგარიში",
-    desc: "დარეგისტრირდი ელ. ფოსტით წუთებში. დაყენება და ინსტალაცია არ სჭირდება.",
-  },
-  {
-    n: "02",
-    title: "მოარგე შენი მაღაზია",
-    desc: "აირჩიე თემა და დაამატე შენი ლოგო, ფერები და პროდუქტები — ერთ ადგილას.",
-  },
-  {
-    n: "03",
-    title: "დაიწყე გაყიდვა",
-    desc: "გამოაქვეყნე მაღაზია და მიიღე შეკვეთები. გადახდა — მიწოდებისას.",
-  },
-];
-
-const FEATURES = [
-  {
-    title: "გვერდის რედაქტორი",
-    desc: "მოაწყე მთავარი გვერდი drag & drop-ით, კოდის გარეშე.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
-      </svg>
-    ),
-  },
-  {
-    title: "შეკვეთების მართვა",
-    desc: "მართე შეკვეთები, პროდუქტები და კატეგორიები ერთი პანელიდან.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
-      </svg>
-    ),
-  },
-  {
-    title: "მიწოდების ზონები",
-    desc: "განსაზღვრე მიწოდების ფასი თბილისსა და სხვა რეგიონების მიხედვით.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-      </svg>
-    ),
-  },
-  {
-    title: "პროფესიონალური თემები",
-    desc: "აირჩიე დიზაინი, რომელიც შენს ბრენდს უხდება. ახალი თემები რეგულარულად.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
-      </svg>
-    ),
-  },
-  {
-    title: "საკუთარი დომენი",
-    desc: "დაუკავშირე შენი დომენი — ბრენდი გამოიყურება პროფესიონალურად.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-      </svg>
-    ),
-  },
-  {
-    title: "გადახდა მიწოდებისას",
-    desc: "ავტომატური COD სისტემა. საბანკო ტერმინალი ან ინტეგრაცია არ გჭირდება.",
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-      </svg>
-    ),
-  },
-];
-
-const FREE_FEATURES = [
-  "10 პროდუქტამდე",
-  "ბაზისური თემა",
-  "შეკვეთების მართვა",
-  "COD გადახდა",
-  "მიწოდების ზონები",
-];
-
-const PRO_FEATURES = [
-  "ულიმიტო პროდუქტი",
-  "ყველა პროფესიონალური თემა",
-  "გვერდის სრული რედაქტორი",
-  "საკუთარი დომენი",
-  "პრიორიტეტული მხარდაჭერა",
-];
-
-const TESTIMONIALS = [
-  {
-    name: "ნინო ბერიძე",
-    shop: "Nino Studio",
-    text: "MultiStore-მა ჩემი ხელნაკეთი ნაწარმი ოფლაინიდან ონლაინ გადაიყვანა. ახლა თბილისიდანაც ვიღებ შეკვეთებს.",
-    product: "სელის კაბა",
-    price: "₾240",
-  },
-  {
-    name: "გიორგი მაისურაძე",
-    shop: "Leather Works",
-    text: "10 წუთში გავუშვი მაღაზია. პირველი შეკვეთა იმავე დღეს მივიღე. ძალიან მარტივი პლატფორმაა.",
-    product: "ტყავის ჩანთა",
-    price: "₾320",
-  },
-  {
-    name: "თამარ ქავთარაძე",
-    shop: "TK Atelier",
-    text: "თემები მაოცებს — ჩემი ბრენდი ახლა ნამდვილ მაღაზიას ჰგავს. მომხმარებლები გაოცებული არიან.",
-    product: "შალის ჟაკეტი",
-    price: "₾180",
-  },
-];
-
-// ── Storefront mockup ─────────────────────────────────────────────────────────
-function StorefrontMockup() {
+// ── Nav ───────────────────────────────────────────────────────────────────────
+function Nav() {
+  const [open, setOpen] = useState(false);
   return (
     <div
-      className="w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-2xl"
-      style={{ background: "#fff", border: "1px solid #e5e7eb" }}
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        background: "rgba(255,255,255,0.72)",
+        backdropFilter: "saturate(180%) blur(20px)",
+        WebkitBackdropFilter: "saturate(180%) blur(20px)",
+        borderBottom: "1px solid rgba(0,0,0,0.08)",
+      }}
     >
-      {/* Browser chrome */}
       <div
-        className="flex items-center gap-2 px-4 py-3"
-        style={{ background: "#f3f4f6", borderBottom: "1px solid #e5e7eb" }}
+        style={{
+          maxWidth: 1120,
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: 54,
+          padding: "0 28px",
+        }}
       >
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ background: "#fc5f57" }} />
-          <div className="w-3 h-3 rounded-full" style={{ background: "#fdbc2e" }} />
-          <div className="w-3 h-3 rounded-full" style={{ background: "#34c749" }} />
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          <div
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 6,
+              background: "#1d1d1f",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: "#fff" }} />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.02em" }}>MultiStore</span>
         </div>
-        <div
-          className="flex-1 h-5 rounded text-[10px] flex items-center justify-center"
-          style={{ background: "#e5e7eb", color: "#6b7280" }}
+
+        {/* Desktop links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 30 }} className="hidden md:flex">
+          <a href="#features" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფუნქციები</a>
+          <a href="#pricing" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფასები</a>
+          <Link href="/login" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
+          <Link
+            href="/register"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: "#fff",
+              background: "#1d1d1f",
+              padding: "7px 15px",
+              borderRadius: 980,
+              textDecoration: "none",
+            }}
+          >
+            დაიწყე უფასოდ
+          </Link>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden"
+          onClick={() => setOpen(!open)}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+          aria-label="Menu"
         >
-          zari.multistore.ge
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#1d1d1f" strokeWidth={2}>
+            {open
+              ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            }
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div
+          style={{ background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)", padding: "16px 28px 20px" }}
+          className="md:hidden flex flex-col gap-4"
+        >
+          <a href="#features" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>ფუნქციები</a>
+          <a href="#pricing" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>ფასები</a>
+          <Link href="/login" style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
+          <Link
+            href="/register"
+            style={{
+              display: "inline-flex",
+              justifyContent: "center",
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#fff",
+              background: "#1d1d1f",
+              padding: "11px 15px",
+              borderRadius: 980,
+              textDecoration: "none",
+            }}
+          >
+            დაიწყე უფასოდ
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Browser mockup ────────────────────────────────────────────────────────────
+function BrowserMockup() {
+  return (
+    <div
+      style={{
+        border: "1px solid #e3e3e6",
+        borderRadius: 18,
+        overflow: "hidden",
+        boxShadow: "0 40px 80px -40px rgba(0,0,0,.28)",
+        background: "#fff",
+      }}
+    >
+      {/* Chrome bar */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "12px 18px",
+          background: "#f5f5f7",
+          borderBottom: "1px solid #e8e8eb",
+        }}
+      >
+        <div style={{ display: "flex", gap: 7 }}>
+          {["#dededf", "#dededf", "#dededf"].map((c, i) => (
+            <span key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: c, display: "block" }} />
+          ))}
+        </div>
+        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <div
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: 12,
+              color: "#86868b",
+              background: "#fff",
+              border: "1px solid #e3e3e6",
+              padding: "5px 18px",
+              borderRadius: 7,
+            }}
+          >
+            zari.multistore.ge
+          </div>
         </div>
       </div>
 
-      {/* Storefront preview — Maison style */}
-      <div style={{ background: "#fbf7f0" }}>
-        {/* Announcement bar */}
-        <div
-          className="text-center text-[9px] py-1.5 tracking-widest"
-          style={{ background: "#1f1b16", color: "#c9b99a" }}
-        >
-          უფასო მიწოდება ₾200-დან · თბილისი
-        </div>
-
+      {/* Storefront */}
+      <div style={{ background: "#fff" }}>
         {/* Navbar */}
         <div
-          className="flex items-center justify-between px-4 py-3"
-          style={{ borderBottom: "1px solid #e0d8c8" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "20px 36px",
+            borderBottom: "1px solid #f0f0f2",
+          }}
         >
-          <div className="flex gap-3">
-            {["ახალი", "კატეგორიები", "ყველა"].map((item) => (
-              <div key={item} className="text-[8px]" style={{ color: "#6b5b45" }}>
-                {item}
-              </div>
-            ))}
-          </div>
-          <div className="font-display text-sm font-semibold tracking-wider" style={{ color: "#1f1b16" }}>
-            ZARI
-          </div>
-          <div className="flex gap-3">
-            <div className="text-[8px]" style={{ color: "#6b5b45" }}>ძიება</div>
-            <div className="text-[8px]" style={{ color: "#6b5b45" }}>კალათა · 2</div>
+          <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "0.16em" }}>ZARI</span>
+          <div style={{ display: "flex", gap: 26, alignItems: "center", fontSize: 13, color: "#6e6e73" }}>
+            <span>მაღაზია</span>
+            <span>კოლექციები</span>
+            <span>ჩვენ შესახებ</span>
+            <span style={{ color: "#1d1d1f" }}>კალათა · 2</span>
           </div>
         </div>
 
-        {/* Hero banner */}
-        <div
-          className="relative flex items-end px-5 pb-5"
-          style={{ background: "#e8e0d2", minHeight: "100px" }}
-        >
+        {/* Banner */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.25fr 1fr", borderBottom: "1px solid #f0f0f2" }}>
           <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(to top, rgba(31,27,22,.55), transparent)" }}
-          />
-          <div className="relative z-10">
-            <div className="text-[8px] mb-1 tracking-widest uppercase" style={{ color: "#c9b99a" }}>
+            style={{
+              aspectRatio: "16/10",
+              background: "#f5f5f7",
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "center",
+              paddingBottom: 14,
+            }}
+          >
+            <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, color: "#b0b0b5" }}>სარეკლამო ფოტო</span>
+          </div>
+          <div style={{ padding: "44px 38px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: "#1f7a52", marginBottom: 13 }}>
               ახალი კოლექცია
             </div>
-            <div className="font-display text-base font-semibold leading-tight" style={{ color: "#fbf7f0" }}>
-              ზაფხული
-              <br />
-              2026
+            <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 14 }}>
+              ზაფხული 2026
             </div>
-            <div
-              className="inline-block mt-2 text-[8px] px-3 py-1 tracking-wider"
-              style={{ background: "#9a6a3a", color: "#fbf7f0" }}
-            >
-              ნახე კოლექცია
+            <div style={{ fontSize: 14, color: "#6e6e73", lineHeight: 1.6, marginBottom: 22 }}>
+              ხელნაკეთი ნაწარმი ქართველი დიზაინერისგან.
+            </div>
+            <div>
+              <span
+                style={{
+                  display: "inline-flex",
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "#1d1d1f",
+                  padding: "11px 24px",
+                  borderRadius: 980,
+                }}
+              >
+                ნახე კოლექცია
+              </span>
             </div>
           </div>
         </div>
 
         {/* Product grid */}
-        <div className="p-4">
-          <div
-            className="text-[9px] text-center tracking-widest uppercase mb-3"
-            style={{ color: "#6b5b45" }}
-          >
-            პოპულარული
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { name: "სელის კაბა", price: "₾240" },
-              { name: "ტყავის ჩანთა", price: "₾320" },
-              { name: "შალის ჟაკეტი", price: "₾180" },
-            ].map((p) => (
-              <div key={p.name}>
-                <div
-                  className="w-full rounded-sm"
-                  style={{ background: "#f3ece0", aspectRatio: "3/4" }}
-                />
-                <div className="mt-1.5">
-                  <div className="text-[8px] truncate" style={{ color: "#1f1b16" }}>
-                    {p.name}
-                  </div>
-                  <div className="text-[8px]" style={{ color: "#9a6a3a" }}>
-                    {p.price}
-                  </div>
-                </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 24, padding: "32px 36px" }}>
+          {[
+            { name: "სელის კაბა", price: "₾240" },
+            { name: "შალის ჟაკეტი", price: "₾320" },
+            { name: "ტყავის ჩანთა", price: "₾180" },
+            { name: "აბრეშუმის შარფი", price: "₾95" },
+          ].map((p) => (
+            <div key={p.name}>
+              <div
+                style={{
+                  aspectRatio: "4/5",
+                  borderRadius: 10,
+                  background: "#f5f5f7",
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "center",
+                  paddingBottom: 11,
+                }}
+              >
+                <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 10, color: "#b0b0b5" }}>ფოტო</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Theme previews ────────────────────────────────────────────────────────────
-function MaisonPreview() {
-  return (
-    <div className="w-full h-full flex flex-col" style={{ background: "#fbf7f0" }}>
-      <div className="w-full h-[8px]" style={{ background: "#1f1b16" }} />
-      <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "1px solid #e0d8c8" }}>
-        <div className="flex gap-2">
-          {[1, 2, 3].map((i) => <div key={i} className="h-px w-4" style={{ background: "#8c7a65" }} />)}
-        </div>
-        <div className="font-display text-xs font-semibold" style={{ color: "#1f1b16" }}>ZARI</div>
-        <div className="h-px w-8" style={{ background: "#c0a882" }} />
-      </div>
-      <div className="flex items-end p-3" style={{ background: "#e8e0d2", minHeight: "56px" }}>
-        <div>
-          <div className="h-1.5 w-10 mb-1" style={{ background: "#c0a882" }} />
-          <div className="h-3 w-20 font-display" style={{ background: "#1f1b16" }} />
-        </div>
-      </div>
-      <div className="p-3">
-        <div className="grid grid-cols-3 gap-1.5">
-          {[1, 2, 3].map((i) => (
-            <div key={i} style={{ background: "#f3ece0", aspectRatio: "3/4" }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EcruPreview() {
-  return (
-    <div className="w-full h-full flex flex-col" style={{ background: "#EFE8DA" }}>
-      <div className="w-full h-[8px]" style={{ background: "#D8432B" }} />
-      <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "1px solid #D7CDB9" }}>
-        <div className="flex gap-2">
-          {[1, 2, 3].map((i) => <div key={i} className="h-px w-4" style={{ background: "#1B1714" }} />)}
-        </div>
-        <div className="font-display text-xs font-semibold tracking-widest" style={{ color: "#1B1714" }}>NOIR</div>
-        <div className="h-px w-8" style={{ background: "#D7CDB9" }} />
-      </div>
-      <div className="flex items-end p-3" style={{ background: "#C8BDA8", minHeight: "56px" }}>
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to top, rgba(20,17,14,.6), transparent)" }}
-        />
-        <div className="relative">
-          <div className="h-px w-8 mb-1" style={{ background: "#D8432B" }} />
-          <div className="h-3 w-20" style={{ background: "#EFE8DA" }} />
-        </div>
-      </div>
-      <div className="p-3">
-        <div className="grid grid-cols-4 gap-1">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ background: "#F6F1E7", aspectRatio: "4/5" }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DewPreview() {
-  return (
-    <div className="w-full h-full flex flex-col" style={{ background: "#F4ECE6" }}>
-      <div className="w-full h-[8px]" style={{ background: "#6C63E8" }} />
-      <div
-        className="flex items-center px-3 py-2"
-        style={{ borderBottom: "1px solid #E7DBD2", display: "grid", gridTemplateColumns: "1fr auto 1fr" }}
-      >
-        <div className="flex gap-1.5">
-          {[14, 10, 16].map((w, i) => (
-            <div key={i} style={{ height: "5px", width: w, background: "#2C2530", borderRadius: "2px" }} />
-          ))}
-        </div>
-        <div style={{ height: "7px", width: "22px", background: "#2C2530", borderRadius: "2px" }} />
-        <div className="flex items-center gap-1.5 justify-end">
-          <div style={{ height: "11px", width: "20px", background: "#6C63E8", borderRadius: "999px" }} />
-        </div>
-      </div>
-      <div
-        className="flex items-center p-3"
-        style={{
-          background: "radial-gradient(ellipse 130% 120% at 80% 60%, #D9D2F2, #E7DCEF 40%, #F4ECE6)",
-          minHeight: "48px",
-        }}
-      >
-        <div className="flex flex-col gap-1">
-          <div style={{ height: "4px", width: "24px", background: "#6C63E8", borderRadius: "2px" }} />
-          <div style={{ height: "8px", width: "48px", background: "#2C2530", borderRadius: "2px" }} />
-          <div style={{ height: "11px", width: "28px", background: "#6C63E8", borderRadius: "999px", marginTop: "2px" }} />
-        </div>
-      </div>
-      <div className="p-3">
-        <div className="grid grid-cols-3 gap-1.5">
-          {[1, 2, 3].map((i) => (
-            <div key={i} style={{ background: "#FCF8F3", aspectRatio: "1/1", borderRadius: "6px" }} />
+              <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 12 }}>{p.name}</div>
+              <div style={{ fontSize: 13.5, color: "#6e6e73" }}>{p.price}</div>
+            </div>
           ))}
         </div>
       </div>
@@ -351,380 +263,443 @@ function DewPreview() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
   return (
-    <div style={{ background: PAPER, color: INK, fontFamily: "inherit" }}>
-      <LandingNav />
+    <div style={{ fontFamily: "var(--font-georgian), sans-serif", color: "#1d1d1f", background: "#ffffff" }}>
+      <Nav />
 
-      {/* ── Hero ── */}
-      <section className="max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <div
-            className="inline-block text-xs font-medium px-3 py-1.5 mb-6 tracking-wide"
-            style={{ background: SUBTLE, color: ACCENT }}
-          >
-            ონლაინ მაღაზია — კოდის გარეშე
+      {/* Hero */}
+      <div style={{ textAlign: "center", padding: "96px 28px 0" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 22 }}>
+            ონლაინ მაღაზია კოდის გარეშე
           </div>
           <h1
-            className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight mb-6"
-            style={{ color: INK }}
+            style={{
+              fontSize: "clamp(44px, 7vw, 80px)",
+              lineHeight: 1.04,
+              fontWeight: 700,
+              letterSpacing: "-0.035em",
+              margin: "0 0 26px",
+            }}
           >
-            შენი ონლაინ
-            <br />
-            მაღაზია —
-            <br />
-            <span style={{ color: ACCENT }}>10 წუთში</span>
+            ააწყვე შენი მაღაზია.<br />გაყიდე პირველივე დღეს.
           </h1>
-          <p className="text-base md:text-lg mb-8 leading-relaxed max-w-md" style={{ color: MUTED }}>
-            შექმენი ლამაზი ონლაინ მაღაზია კოდის გარეშე. აირჩიე თემა, დაამატე
-            პროდუქტები და დაიწყე გაყიდვა დღესვე.
+          <p style={{ fontSize: 22, lineHeight: 1.5, color: "#6e6e73", margin: "0 auto 36px", maxWidth: 620 }}>
+            MultiStore გაძლევს ყველა ხელსაწყოს ონლაინ მაღაზიის გასახსნელად. აირჩიე თემა, დაამატე პროდუქტები და მიიღე შეკვეთები. პროგრამირება არ დაგჭირდება.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div style={{ display: "flex", gap: 22, alignItems: "center", justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
             <Link
               href="/register"
-              className="px-6 py-3 text-sm font-medium text-center"
-              style={{ background: INK, color: PAPER }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: 16,
+                fontWeight: 600,
+                color: "#fff",
+                background: "#1d1d1f",
+                padding: "13px 30px",
+                borderRadius: 980,
+                textDecoration: "none",
+              }}
             >
               დაიწყე უფასოდ
             </Link>
             <a
-              href="#how"
-              className="px-6 py-3 text-sm font-medium text-center border"
-              style={{ borderColor: SURFACE, color: INK }}
+              href={DEMO_URL}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 16,
+                fontWeight: 600,
+                color: "#1f7a52",
+                textDecoration: "none",
+              }}
             >
-              როგორ მუშაობს →
+              ნახე დემო მაღაზია <span style={{ fontSize: 18 }}>›</span>
             </a>
           </div>
-          <p className="text-xs" style={{ color: "#a8a29e" }}>
-            უფასო ვერსია სამუდამოდ · საკრედიტო ბარათი არ არის საჭირო
-          </p>
+          <div style={{ fontSize: 13, color: "#86868b" }}>უფასო ვერსია სამუდამოდ. ბარათი საჭირო არ არის.</div>
         </div>
+      </div>
 
-        <div className="hidden md:block">
-          <StorefrontMockup />
+      {/* Browser mockup */}
+      <div style={{ maxWidth: 1120, margin: "60px auto 0", padding: "0 28px" }}>
+        <BrowserMockup />
+      </div>
+
+      {/* Trust strip */}
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 28px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, textAlign: "center" }}>
+          {[
+            { value: "2,400+", label: "აქტიური მაღაზია" },
+            { value: "10 წუთი", label: "საშუალო გასაშვები დრო" },
+            { value: "₾0", label: "დასაწყებად" },
+          ].map((s) => (
+            <div key={s.label}>
+              <div style={{ fontSize: 46, fontWeight: 700, letterSpacing: "-0.03em" }}>{s.value}</div>
+              <div style={{ fontSize: 14, color: "#6e6e73", marginTop: 4 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* ── How it works ── */}
-      <section id="how" style={{ background: SUBTLE }}>
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs tracking-widest uppercase mb-3" style={{ color: ACCENT }}>
-              პროცესი
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold" style={{ color: INK }}>
-              სამი ნაბიჯი მაღაზიის გასაშვებად
-            </h2>
+      {/* How it works */}
+      <div style={{ marginTop: 96, background: "#f5f5f7", padding: "100px 28px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>როგორ მუშაობს</div>
+            <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: 0 }}>სამი ნაბიჯი გაყიდვამდე</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {STEPS.map((step) => (
-              <div key={step.n} className="flex flex-col gap-4">
-                <div
-                  className="font-display text-4xl font-semibold"
-                  style={{ color: SURFACE }}
-                >
-                  {step.n}
-                </div>
-                <div
-                  className="w-10 h-px"
-                  style={{ background: ACCENT }}
-                />
-                <h3 className="text-lg font-semibold" style={{ color: INK }}>
-                  {step.title}
-                </h3>
-                <p className="text-sm leading-relaxed" style={{ color: MUTED }}>
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section id="features">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs tracking-widest uppercase mb-3" style={{ color: ACCENT }}>
-              ფუნქციები
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4" style={{ color: INK }}>
-              ყველაფერი, რაც გჭირდება გასაყიდად
-            </h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: MUTED }}>
-              პროფესიონალური ხელსაწყოები მცირე ბიზნესისთვის — ერთ პლატფორმაზე
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                className="p-6 rounded-sm"
-                style={{ background: SUBTLE }}
-              >
-                <div className="mb-4" style={{ color: ACCENT }}>
-                  {f.icon}
-                </div>
-                <h3 className="font-semibold mb-2" style={{ color: INK }}>
-                  {f.title}
-                </h3>
-                <p className="text-sm leading-relaxed" style={{ color: MUTED }}>
-                  {f.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Themes ── */}
-      <section style={{ background: SUBTLE }}>
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs tracking-widest uppercase mb-3" style={{ color: ACCENT }}>
-              თემები
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4" style={{ color: INK }}>
-              მოარგე შენი სტილი
-            </h2>
-            <p className="text-base max-w-lg mx-auto" style={{ color: MUTED }}>
-              პროფესიონალური თემები ყველა სახის ბიზნესისთვის. ახალი დიზაინები
-              რეგულარულად ემატება.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
             {[
-              { id: "maison", label: "Maison", sub: "თბილი · სერიფი · ელეგანტური", Preview: MaisonPreview },
-              { id: "ecru", label: "Écru", sub: "ედიტორიალი · კონტრასტი · მოდა", Preview: EcruPreview },
-              { id: "dew", label: "Dew", sub: "სილამაზე · პასტელი · მოდერნი", Preview: DewPreview },
-            ].map(({ id, label, sub, Preview }) => (
-              <div key={id} className="rounded-sm overflow-hidden" style={{ border: `1px solid ${SURFACE}` }}>
-                <div className="aspect-video overflow-hidden relative">
-                  <Preview />
-                </div>
-                <div className="px-4 py-3" style={{ background: PAPER }}>
-                  <p className="text-sm font-semibold" style={{ color: INK }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: MUTED }}>{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-sm mt-8" style={{ color: MUTED }}>
-            + კიდევ 5 თემა — Minimal, Solo, Market, Forma, Roaster
-          </p>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="pricing">
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs tracking-widest uppercase mb-3" style={{ color: ACCENT }}>
-              ფასები
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4" style={{ color: INK }}>
-              მარტივი, გამჭვირვალე ფასი
-            </h2>
-            <p className="text-base" style={{ color: MUTED }}>
-              დაიწყე უფასოდ. გადახვიდე Pro-ზე, როდესაც ბიზნესი გაიზრდება.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Free */}
-            <div className="p-8 rounded-sm" style={{ border: `1px solid ${SURFACE}` }}>
-              <p className="text-xs tracking-widest uppercase mb-4" style={{ color: MUTED }}>
-                უფასო
-              </p>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-4xl font-semibold" style={{ color: INK }}>
-                  ₾0
-                </span>
-                <span className="text-sm" style={{ color: MUTED }}>/სამუდამოდ</span>
-              </div>
-              <p className="text-sm mb-8" style={{ color: MUTED }}>
-                მცირე ბიზნესის დასაწყებად
-              </p>
-              <ul className="flex flex-col gap-3 mb-8">
-                {FREE_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: INK }}>
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: ACCENT, flexShrink: 0 }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="block w-full py-3 text-sm font-medium text-center border"
-                style={{ borderColor: INK, color: INK }}
-              >
-                დაიწყე უფასოდ
-              </Link>
-            </div>
-
-            {/* Pro */}
-            <div
-              className="p-8 rounded-sm relative overflow-hidden"
-              style={{ background: INK }}
-            >
-              <div
-                className="absolute top-4 right-4 text-[10px] font-medium px-2.5 py-1 tracking-wide"
-                style={{ background: ACCENT, color: PAPER }}
-              >
-                პოპულარული
-              </div>
-              <p className="text-xs tracking-widest uppercase mb-4" style={{ color: "#78716c" }}>
-                პრო
-              </p>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-4xl font-semibold" style={{ color: PAPER }}>
-                  ₾29
-                </span>
-                <span className="text-sm" style={{ color: "#78716c" }}>/თვეში</span>
-              </div>
-              <p className="text-sm mb-8" style={{ color: "#78716c" }}>
-                მზარდი ბიზნესისთვის
-              </p>
-              <ul className="flex flex-col gap-3 mb-8">
-                {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: PAPER }}>
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ color: ACCENT, flexShrink: 0 }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="block w-full py-3 text-sm font-medium text-center"
-                style={{ background: ACCENT, color: PAPER }}
-              >
-                დაიწყე Pro
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section style={{ background: SUBTLE }}>
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs tracking-widest uppercase mb-3" style={{ color: ACCENT }}>
-              მომხმარებლები
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-semibold" style={{ color: INK }}>
-              ვინ ყიდის MultiStore-ზე
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t) => (
-              <div
-                key={t.name}
-                className="p-6 rounded-sm flex flex-col gap-4"
-                style={{ background: PAPER }}
-              >
-                {/* Product card mini */}
-                <div className="flex gap-3 items-center pb-4" style={{ borderBottom: `1px solid ${SURFACE}` }}>
-                  <div
-                    className="w-12 h-16 rounded-sm flex-shrink-0"
-                    style={{ background: SURFACE }}
-                  />
-                  <div>
-                    <p className="text-xs font-medium" style={{ color: INK }}>{t.product}</p>
-                    <p className="text-xs" style={{ color: ACCENT }}>{t.price}</p>
-                    <p className="text-[10px] mt-1" style={{ color: MUTED }}>{t.shop}</p>
-                  </div>
-                </div>
-                <p className="text-sm leading-relaxed flex-1" style={{ color: MUTED }}>
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <p className="text-sm font-semibold" style={{ color: INK }}>
-                  {t.name}
-                </p>
+              { n: "01", title: "შექმენი ანგარიში", desc: "დარეგისტრირდი ელ. ფოსტით წამებში. ინსტალაცია არ სჭირდება." },
+              { n: "02", title: "მოარგე მაღაზია", desc: "აირჩიე თემა, დაამატე ლოგო, ფერები და პროდუქტები ერთ ადგილას." },
+              { n: "03", title: "დაიწყე გაყიდვა", desc: "გამოაქვეყნე მაღაზია და მიიღე შეკვეთები. გადახდა მიწოდებისას." },
+            ].map((s) => (
+              <div key={s.n} style={{ background: "#fff", borderRadius: 20, padding: 40 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#1f7a52", marginBottom: 24 }}>{s.n}</div>
+                <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em", marginBottom: 11 }}>{s.title}</div>
+                <div style={{ fontSize: 15, lineHeight: 1.6, color: "#6e6e73" }}>{s.desc}</div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── Final CTA ── */}
-      <section>
-        <div className="max-w-3xl mx-auto px-6 py-24 text-center">
-          <h2 className="font-display text-3xl md:text-5xl font-semibold mb-6 leading-tight" style={{ color: INK }}>
-            გაუშვი შენი ონლაინ
-            <br />
-            მაღაზია დღესვე
-          </h2>
-          <p className="text-base mb-10 max-w-md mx-auto" style={{ color: MUTED }}>
-            შექმენი ანგარიში წუთებში. პირველი გაყიდვა — ბევრად უფრო ახლოს,
-            ვიდრე ფიქრობ.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/register"
-              className="px-8 py-3.5 text-sm font-medium"
-              style={{ background: INK, color: PAPER }}
-            >
-              დაიწყე უფასოდ
-            </Link>
-            <a
-              href={process.env.NEXT_PUBLIC_ROOT_DOMAIN ? `https://zari.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : "/shop/zari"}
-              className="px-8 py-3.5 text-sm font-medium border"
-              style={{ borderColor: SURFACE, color: INK }}
-            >
-              ნახე დემო მაღაზია →
-            </a>
+      {/* Features header */}
+      <div id="features" style={{ maxWidth: 1120, margin: "0 auto", padding: "100px 28px 0", textAlign: "center" }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>ფუნქციები</div>
+        <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px" }}>ყველაფერი გასაყიდად, ერთ ადგილას</h2>
+        <p style={{ fontSize: 19, lineHeight: 1.5, color: "#6e6e73", margin: "0 auto", maxWidth: 560 }}>
+          პროფესიონალური ხელსაწყოები მცირე ბიზნესისთვის. მარტივი იმდენად, რომ დღესვე დაიწყო.
+        </p>
+      </div>
+
+      {/* Feature 1: Themes */}
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "56px 28px 0" }}>
+        <div style={{ background: "#f5f5f7", borderRadius: 24, padding: "52px 56px 0", overflow: "hidden" }}>
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 9 }}>პროფესიონალური თემები</div>
+            <div style={{ fontSize: 15, color: "#6e6e73", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
+              აირჩიე Maison ან Minimal. შეცვალე ფერები და ლოგო წამებში, შენი ბრენდის სტილში.
+            </div>
           </div>
-          <p className="text-xs mt-6" style={{ color: "#a8a29e" }}>
-            უფასო ვერსია სამუდამოდ · საკრედიტო ბარათი არ არის საჭირო
-          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            {/* Maison */}
+            <div style={{ background: "#fff", borderRadius: "14px 14px 0 0", padding: 30, boxShadow: "0 20px 40px -28px rgba(0,0,0,.3)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>Maison</span>
+                <span style={{ fontSize: 12, color: "#86868b" }}>ლუქს ედიტორიალი</span>
+              </div>
+              <div style={{ background: "#faf6ef", borderRadius: 9, padding: "26px 22px", textAlign: "center" }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "#9a6a3a", marginBottom: 8 }}>ZARI</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 14 }}>ზაფხული 2026</div>
+                <div style={{ display: "flex", gap: 9, justifyContent: "center" }}>
+                  {[1, 2, 3].map((i) => (
+                    <span key={i} style={{ width: 44, height: 56, borderRadius: 3, background: "#ece4d6", display: "block" }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Minimal */}
+            <div style={{ background: "#fff", borderRadius: "14px 14px 0 0", padding: 30, boxShadow: "0 20px 40px -28px rgba(0,0,0,.3)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>Minimal</span>
+                <span style={{ fontSize: 12, color: "#86868b" }}>სუფთა თანამედროვე</span>
+              </div>
+              <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: 9, padding: "26px 22px", textAlign: "center" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 8 }}>ლელა</div>
+                <div style={{ width: 46, height: 3, background: "#1f7a52", borderRadius: 2, margin: "0 auto 16px" }} />
+                <div style={{ display: "flex", gap: 9, justifyContent: "center" }}>
+                  {[1, 2, 3].map((i) => (
+                    <span key={i} style={{ width: 44, height: 56, borderRadius: 7, background: "#f1f1f3", display: "block" }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── Footer ── */}
-      <footer style={{ borderTop: `1px solid ${SURFACE}` }}>
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <div className="flex flex-col md:flex-row justify-between gap-6">
+      {/* Feature 2: Orders dashboard */}
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 28px 0" }}>
+        <div style={{ background: "#1d1d1f", borderRadius: 24, padding: "52px 56px", color: "#f5f5f7" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: 48, alignItems: "center" }}>
             <div>
-              <p className="font-display text-lg font-semibold mb-1" style={{ color: INK }}>
-                MultiStore
-              </p>
-              <p className="text-sm" style={{ color: MUTED }}>
-                ონლაინ მაღაზია კოდის გარეშე
-              </p>
+              <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 12 }}>შეკვეთების მართვა</div>
+              <div style={{ fontSize: 16, lineHeight: 1.6, color: "#a1a1a6", marginBottom: 24 }}>
+                ნახე ახალი შეკვეთები, განაახლე სტატუსები და მართე პროდუქტები ერთი გასაგები პანელიდან.
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 13, fontSize: 14.5 }}>
+                {["შეკვეთები რეალურ დროში", "პროდუქტები და კატეგორიები", "გაყიდვების მიმოხილვა"].map((f) => (
+                  <div key={f} style={{ display: "flex", gap: 11, alignItems: "center" }}>
+                    <span style={{ color: "#4ade80", fontSize: 15 }}>✓</span>{f}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-x-8 gap-y-3">
+            <div style={{ background: "#fff", borderRadius: 14, overflow: "hidden", color: "#1d1d1f" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #f0f0f2" }}>
+                <span style={{ fontSize: 15, fontWeight: 600 }}>შეკვეთები</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#1f7a52", background: "#e7f3ec", padding: "4px 11px", borderRadius: 980 }}>12 ახალი</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "64px 1fr 64px 96px", padding: "10px 20px", background: "#fafafa", fontSize: 11, color: "#86868b", fontWeight: 500 }}>
+                <span>#</span><span>მომხმარებელი</span><span>თანხა</span><span>სტატუსი</span>
+              </div>
               {[
-                { href: "#features", label: "ფუნქციები" },
-                { href: "#how", label: "როგორ მუშაობს" },
-                { href: "#pricing", label: "ფასები" },
-                { href: "/login", label: "შესვლა" },
-                { href: "/register", label: "რეგისტრაცია" },
-              ].map(({ href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="text-sm"
-                  style={{ color: MUTED }}
-                >
-                  {label}
-                </a>
+                { id: "1042", name: "ნინო ბერიძე", amount: "₾125", status: "ახალი", statusBg: "#e7f3ec", statusColor: "#1f7a52" },
+                { id: "1041", name: "გიორგი მაისურაძე", amount: "₾80", status: "გაგზავნილი", statusBg: "#f1f1f3", statusColor: "#6e6e73" },
+                { id: "1040", name: "თამარ ქავთარაძე", amount: "₾240", status: "დასრულდა", statusBg: "#eef2f8", statusColor: "#3a6ea5" },
+              ].map((o) => (
+                <div key={o.id} style={{ display: "grid", gridTemplateColumns: "64px 1fr 64px 96px", padding: "13px 20px", borderTop: "1px solid #f4f4f5", fontSize: 13, alignItems: "center" }}>
+                  <span style={{ fontFamily: "'Geist Mono', monospace", color: "#86868b" }}>{o.id}</span>
+                  <span>{o.name}</span>
+                  <span>{o.amount}</span>
+                  <span>
+                    <span style={{ background: o.statusBg, color: o.statusColor, fontSize: 10.5, padding: "3px 9px", borderRadius: 980, fontWeight: 600 }}>
+                      {o.status}
+                    </span>
+                  </span>
+                </div>
               ))}
             </div>
           </div>
-          <div
-            className="flex flex-col md:flex-row justify-between gap-3 mt-8 pt-6 text-xs"
-            style={{ borderTop: `1px solid ${SURFACE}`, color: "#a8a29e" }}
-          >
-            <p>© 2026 MultiStore · multistore.ge</p>
-            <div className="flex gap-6">
-              <a href="/privacy" style={{ color: "#a8a29e" }}>კონფიდენციალურობა</a>
-              <a href="/terms" style={{ color: "#a8a29e" }}>წესები და პირობები</a>
+        </div>
+      </div>
+
+      {/* Feature 3+4: Editor + Shipping */}
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 28px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+          {/* Editor */}
+          <div style={{ background: "#f5f5f7", borderRadius: 24, padding: "44px 40px" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 11 }}>გვერდის რედაქტორი</div>
+            <div style={{ fontSize: 15, lineHeight: 1.6, color: "#6e6e73", marginBottom: 28 }}>
+              მოაწყე მთავარი გვერდი ნაწილებად. გადაათრიე, შეცვალე, გამოაქვეყნე. კოდი არ არის საჭირო.
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {[
+                { label: "სარეკლამო ბანერი", active: false },
+                { label: "პროდუქტების ბადე", active: true },
+                { label: "გამოწერის ფორმა", active: false },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  style={{
+                    background: "#fff",
+                    border: `1px solid ${item.active ? "#1f7a52" : "#e8e8eb"}`,
+                    borderRadius: 9,
+                    padding: "12px 15px",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span style={{ fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
+                  <span style={{ color: item.active ? "#1f7a52" : "#b0b0b5" }}>⋮⋮</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Shipping */}
+          <div style={{ background: "#f5f5f7", borderRadius: 24, padding: "44px 40px" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 11 }}>მიწოდების ზონები</div>
+            <div style={{ fontSize: 15, lineHeight: 1.6, color: "#6e6e73", marginBottom: 28 }}>
+              განსაზღვრე მიწოდების ფასი ქალაქისა და რეგიონის მიხედვით. დაამატე უფასო მიწოდების ზღვარი.
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {[
+                { zone: "თბილისი", price: "₾5" },
+                { zone: "ბათუმი, ქუთაისი", price: "₾8" },
+                { zone: "დანარჩენი რეგიონები", price: "₾12" },
+              ].map((z) => (
+                <div
+                  key={z.zone}
+                  style={{
+                    background: "#fff",
+                    border: "1px solid #e8e8eb",
+                    borderRadius: 9,
+                    padding: "13px 15px",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span>{z.zone}</span>
+                  <span style={{ fontWeight: 600 }}>{z.price}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </footer>
+      </div>
+
+      {/* Pricing */}
+      <div id="pricing" style={{ marginTop: 100, background: "#f5f5f7", padding: "100px 28px" }}>
+        <div style={{ maxWidth: 920, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>ფასები</div>
+            <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 16px" }}>მარტივი და გამჭვირვალე</h2>
+            <p style={{ fontSize: 19, color: "#6e6e73", margin: 0 }}>დაიწყე უფასოდ. გადადი Pro-ზე, როცა მზად იქნები.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+            {/* Free */}
+            <div style={{ background: "#fff", borderRadius: 22, padding: 40 }}>
+              <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>უფასო</div>
+              <div style={{ fontSize: 14, color: "#86868b", marginBottom: 24 }}>დასაწყებად</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginBottom: 28 }}>
+                <span style={{ fontSize: 52, fontWeight: 700, letterSpacing: "-0.03em" }}>₾0</span>
+                <span style={{ fontSize: 15, color: "#86868b" }}>სამუდამოდ</span>
+              </div>
+              <Link
+                href="/register"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: "#1d1d1f",
+                  background: "#fff",
+                  border: "1px solid #d2d2d7",
+                  padding: 13,
+                  borderRadius: 980,
+                  marginBottom: 30,
+                  textDecoration: "none",
+                }}
+              >
+                დაიწყე უფასოდ
+              </Link>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 14.5 }}>
+                {["10 პროდუქტამდე", "1 თემა", "შეკვეთების მართვა", "გადახდა მიწოდებისას"].map((f) => (
+                  <div key={f} style={{ display: "flex", gap: 11 }}>
+                    <span style={{ color: "#1f7a52" }}>✓</span>{f}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pro */}
+            <div style={{ background: "#fff", borderRadius: 22, padding: 40, position: "relative", boxShadow: "0 0 0 2px #1d1d1f" }}>
+              <span
+                style={{
+                  position: "absolute",
+                  top: -13,
+                  left: 40,
+                  background: "#1d1d1f",
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "5px 13px",
+                  borderRadius: 980,
+                }}
+              >
+                პოპულარული
+              </span>
+              <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>Pro</div>
+              <div style={{ fontSize: 14, color: "#86868b", marginBottom: 24 }}>მზარდი ბიზნესისთვის</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginBottom: 28 }}>
+                <span style={{ fontSize: 52, fontWeight: 700, letterSpacing: "-0.03em" }}>₾29</span>
+                <span style={{ fontSize: 15, color: "#86868b" }}>თვეში</span>
+              </div>
+              <Link
+                href="/register"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "#1d1d1f",
+                  padding: 13,
+                  borderRadius: 980,
+                  marginBottom: 30,
+                  textDecoration: "none",
+                }}
+              >
+                აირჩიე Pro
+              </Link>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 14.5 }}>
+                {["ულიმიტო პროდუქტი", "ყველა თემა", "მიწოდების ზონები", "საკუთარი დომენი", "პრიორიტეტული მხარდაჭერა"].map((f) => (
+                  <div key={f} style={{ display: "flex", gap: 11 }}>
+                    <span style={{ color: "#1f7a52" }}>✓</span>{f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Final CTA */}
+      <div style={{ textAlign: "center", padding: "110px 28px" }}>
+        <h2 style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 700, letterSpacing: "-0.035em", margin: "0 0 22px" }}>
+          მზად ხარ გასაყიდად?
+        </h2>
+        <p style={{ fontSize: 20, color: "#6e6e73", margin: "0 auto 34px", maxWidth: 480 }}>
+          გახსენი შენი მაღაზია დღესვე. პირველი პროდუქტი 10 წუთში ონლაინ იქნება.
+        </p>
+        <Link
+          href="/register"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            fontSize: 17,
+            fontWeight: 600,
+            color: "#fff",
+            background: "#1d1d1f",
+            padding: "15px 36px",
+            borderRadius: 980,
+            textDecoration: "none",
+          }}
+        >
+          დაიწყე უფასოდ
+        </Link>
+      </div>
+
+      {/* Footer */}
+      <div style={{ borderTop: "1px solid #e3e3e6", padding: "56px 28px 44px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 32, marginBottom: 44 }} className="footer-grid">
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 6, background: "#1d1d1f", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: "#fff" }} />
+                </div>
+                <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.02em" }}>MultiStore</span>
+              </div>
+              <div style={{ fontSize: 14, color: "#86868b", lineHeight: 1.6, maxWidth: 240 }}>
+                ონლაინ მაღაზია ქართული მცირე ბიზნესისთვის. კოდის გარეშე.
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 15 }}>პროდუქტი</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14, color: "#6e6e73" }}>
+                <a href="#features" style={{ color: "#6e6e73", textDecoration: "none" }}>ფუნქციები</a>
+                <a href="#pricing" style={{ color: "#6e6e73", textDecoration: "none" }}>ფასები</a>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 15 }}>ანგარიში</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14 }}>
+                <Link href="/login" style={{ color: "#6e6e73", textDecoration: "none" }}>შესვლა</Link>
+                <Link href="/register" style={{ color: "#6e6e73", textDecoration: "none" }}>რეგისტრაცია</Link>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 15 }}>სამართლებრივი</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11, fontSize: 14 }}>
+                <Link href="/terms" style={{ color: "#6e6e73", textDecoration: "none" }}>წესები და პირობები</Link>
+                <Link href="/privacy" style={{ color: "#6e6e73", textDecoration: "none" }}>კონფიდენციალურობა</Link>
+              </div>
+            </div>
+          </div>
+          <div style={{ borderTop: "1px solid #e3e3e6", paddingTop: 24, fontSize: 13, color: "#86868b" }}>
+            © 2026 MultiStore. multistore.ge
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

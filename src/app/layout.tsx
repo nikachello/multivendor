@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Geist, Playfair_Display, Bodoni_Moda, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Geist, Playfair_Display, Bodoni_Moda, Plus_Jakarta_Sans, Noto_Sans_Georgian } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -23,6 +23,11 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   weight: ["400", "500", "600", "700", "800"],
 });
+const notoGeorgian = Noto_Sans_Georgian({
+  subsets: ["georgian"],
+  variable: "--font-georgian",
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: "MultiStore — Build your online store",
@@ -39,7 +44,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", geist.variable, playfair.variable, bodoni.variable, jakarta.variable)}
+      className={cn("font-sans", geist.variable, playfair.variable, bodoni.variable, jakarta.variable, notoGeorgian.variable)}
     >
       <body className={inter.className}>
         {children}
