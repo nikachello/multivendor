@@ -67,7 +67,7 @@ export default function ProductDetail({
 
   const images = product.images.length > 0 ? product.images : [];
   const mainImageSrc =
-    selectedVariant?.image ?? images[activeImage].url ?? null;
+    selectedVariant?.image ?? images[activeImage]?.url ?? null;
 
   function selectOption(key: string, value: string) {
     setSelectedOptions((prev) => ({ ...prev, [key]: value }));

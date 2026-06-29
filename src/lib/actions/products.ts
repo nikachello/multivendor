@@ -3,8 +3,27 @@
 import prisma from "../db/prisma";
 import { ErrorCode } from "../errors";
 import { err, ok } from "../result";
+import { assertOwnsShop } from "../auth/assert-owns-shop";
+
+async function shopIdForProduct(productId: string) {
+  const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
+  return p?.shopId ?? null;
+}
+
+async function shopIdForImage(imageId: string) {
+  const img = await prisma.productImage.findUnique({
+    where: { id: imageId },
+    select: { product: { select: { shopId: true } } },
+  });
+  return img?.product.shopId ?? null;
+}
 
 export async function addProductImages(productId: string, urls: string[]) {
+  const shopId = await shopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   const agg = await prisma.productImage.aggregate({
     where: { productId },
     _max: { sortOrder: true },
@@ -18,11 +37,21 @@ export async function addProductImages(productId: string, urls: string[]) {
 }
 
 export async function deleteProductImage(imageId: string) {
+  const shopId = await shopIdForImage(imageId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   await prisma.productImage.delete({ where: { id: imageId } });
   return ok(null);
 }
 
 export async function reorderProductImages(productId: string, orderedIds: string[]) {
+  const shopId = await shopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   await prisma.$transaction(
     orderedIds.map((id, i) =>
       prisma.productImage.update({ where: { id }, data: { sortOrder: i } }),
@@ -32,6 +61,11 @@ export async function reorderProductImages(productId: string, orderedIds: string
 }
 
 export async function setMainProductImage(imageId: string, productId: string) {
+  const shopId = await shopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   await prisma.$transaction([
     prisma.productImage.updateMany({ where: { productId }, data: { isMain: false } }),
     prisma.productImage.update({ where: { id: imageId }, data: { isMain: true } }),
@@ -47,12 +81,14 @@ export const createProduct = async (
   price: number,
   categoryIds: string[],
 ) => {
-  if (!shopId || !name || !slug || !description || !price)
+  if (!shopId || !name || !slug || !price)
     return err({
       code: ErrorCode.GENERAL_ERROR,
       message: "Some parameters are missing",
       status: 400,
     });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
   const product = await prisma.product.create({
     data: {
@@ -82,6 +118,11 @@ export const updateProduct = async (
       message: "Some parameters are missing",
       status: 400,
     });
+
+  const shopId = await shopIdForProduct(id);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
   const product = await prisma.product.update({
     where: { id },

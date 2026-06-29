@@ -3,6 +3,7 @@
 import prisma from "../db/prisma";
 import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
+import { assertOwnsShop } from "../auth/assert-owns-shop";
 
 function cartesian(arrays: { id: string; value: string }[][]): { id: string; value: string }[][] {
   return arrays.reduce<{ id: string; value: string }[][]>(
@@ -11,7 +12,25 @@ function cartesian(arrays: { id: string; value: string }[][]): { id: string; val
   );
 }
 
+async function shopIdForProduct(productId: string) {
+  const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
+  return p?.shopId ?? null;
+}
+
+async function shopIdForVariant(variantId: string) {
+  const v = await prisma.variant.findUnique({
+    where: { id: variantId },
+    select: { product: { select: { shopId: true } } },
+  });
+  return v?.product.shopId ?? null;
+}
+
 export async function generateVariants(productId: string, priceFrom: number) {
+  const shopId = await shopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   const optionTypes = await prisma.productOptionType.findMany({
     where: { productId },
     include: { optionType: { include: { values: true } } },
@@ -77,6 +96,11 @@ export async function updateVariant(
   sku: string,
   trackInventory: boolean,
 ) {
+  const shopId = await shopIdForVariant(variantId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   const variant = await prisma.variant.update({
     where: { id: variantId },
     data: { price, stock, sku, trackInventory },
@@ -85,6 +109,11 @@ export async function updateVariant(
 }
 
 export async function deleteVariant(variantId: string) {
+  const shopId = await shopIdForVariant(variantId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   await prisma.variant.delete({ where: { id: variantId } });
   return ok(null);
 }

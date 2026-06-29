@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;-webkit-font-smoothing:antialiased;}
+  ::selection{background:#D8432B;color:#EFE8DA;}
+</style>
+</helmet>
+
+<div ref="{{ setRoot }}" style="--accent:#D8432B;--ink:#1B1714;--page-bg:#EFE8DA;--surface:#F6F1E7;--muted:#6A5F51;--subtle:#D7CDB9;--radius:0px;--px:clamp(22px,6vw,80px);--py:clamp(64px,8vw,112px);--serif:'Bodoni Moda',Didot,'Bodoni MT',Georgia,'Times New Roman',serif;--sans:'Helvetica Neue',Helvetica,Arial,system-ui,sans-serif;--mono:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;background:var(--page-bg);color:var(--ink);font-family:var(--sans);min-height:100vh;overflow-x:hidden;">
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">
+    <span style="color:var(--accent);">00</span>
+    <span style="color:var(--ink);">Announcement &amp; Navbar</span>
+    <span style="margin-left:auto;opacity:.65;">announcement.wrapper · nav</span>
+  </div>
+
+  <!-- ANNOUNCEMENT BAR -->
+  <div style="background:var(--accent);color:var(--page-bg);text-align:center;padding:11px 16px;font-family:var(--sans);font-size:11px;letter-spacing:.22em;text-transform:uppercase;">
+    Complimentary shipping over &pound;150 &nbsp;·&nbsp; Spring/Summer 26 now in
+  </div>
+
+  <!-- NAVBAR -->
+  <nav style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px var(--px);border-bottom:1px solid var(--subtle);">
+    <div style="display:flex;gap:30px;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);">
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">New</a>
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">Women</a>
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">Men</a>
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">Objects</a>
+    </div>
+    <a href="#" style="text-decoration:none;color:var(--ink);font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.16em;line-height:1;">&Eacute;CRU</a>
+    <div style="display:flex;gap:26px;justify-content:flex-end;align-items:center;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);">
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">Search</a>
+      <a href="#" style="text-decoration:none;color:inherit;" style-hover="color:var(--accent)">Account</a>
+      <a href="#" style="text-decoration:none;color:inherit;display:flex;gap:7px;align-items:baseline;" style-hover="color:var(--accent)">
+        Cart <span style="font-family:var(--mono);font-size:11px;border:1px solid currentColor;border-radius:999px;padding:1px 7px;letter-spacing:0;">{{ cart }}</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">01</span>
+    <span style="color:var(--ink);">Banner — Cover</span>
+    <span style="margin-left:auto;opacity:.65;">full-bleed image · overlaid text · CTA</span>
+  </div>
+
+  <!-- BANNER: COVER -->
+  <section style="position:relative;min-height:clamp(460px,74vh,780px);display:flex;align-items:flex-end;background:repeating-linear-gradient(135deg,#2b2620 0 2px,#34302a 2px 17px);overflow:hidden;">
+    <span style="position:absolute;top:18px;left:18px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#9b9082;text-transform:uppercase;">[ cover image — 16:9 lifestyle shot ]</span>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(20,17,14,.66),rgba(20,17,14,.04) 56%,rgba(20,17,14,.18));"></div>
+    <div style="position:relative;padding:0 var(--px) clamp(40px,5vw,72px);max-width:680px;">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;">Spring / Summer 26</div>
+      <h1 style="font-family:var(--serif);font-weight:500;font-size:clamp(44px,7vw,86px);line-height:.98;letter-spacing:-.01em;color:#EFE8DA;margin:0 0 22px;">The Linen Edit</h1>
+      <p style="font-size:16px;line-height:1.55;color:#D9D0BE;max-width:420px;margin:0 0 34px;">Breathable layers cut for warm days and slow evenings — made in small batches, worn for years.</p>
+      <a href="#" style="display:inline-block;background:var(--accent);color:var(--page-bg);text-decoration:none;padding:16px 34px;border-radius:var(--radius);font-size:12px;letter-spacing:.2em;text-transform:uppercase;" style-hover="background:#EFE8DA;color:var(--ink)">Shop the collection</a>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">01b</span>
+    <span style="color:var(--ink);">Banner — Compact</span>
+    <span style="margin-left:auto;opacity:.65;">text-only statement</span>
+  </div>
+
+  <!-- BANNER: COMPACT -->
+  <section style="padding:clamp(56px,7vw,92px) var(--px);text-align:center;background:var(--surface);border-bottom:1px solid var(--subtle);">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:22px;">Our promise</div>
+    <h2 style="font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.5vw,56px);line-height:1.04;letter-spacing:-.01em;margin:0 auto;max-width:14ch;">Made in small batches. Worn for years.</h2>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">
+    <span style="color:var(--accent);">01c</span>
+    <span style="color:var(--ink);">Banner — Split</span>
+    <span style="margin-left:auto;opacity:.65;">50 / 50 image + text</span>
+  </div>
+
+  <!-- BANNER: SPLIT -->
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));border-top:1px solid var(--subtle);border-bottom:1px solid var(--subtle);">
+    <div style="position:relative;min-height:clamp(380px,46vw,560px);background:repeating-linear-gradient(135deg,#E3D9C4 0 2px,#EDE4D1 2px 16px);">
+      <span style="position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#A99B84;text-transform:uppercase;">[ atelier shot — 4:5 ]</span>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center;padding:clamp(44px,6vw,84px);background:var(--page-bg);">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;">The Atelier</div>
+      <h2 style="font-family:var(--serif);font-weight:500;font-size:clamp(30px,3.6vw,50px);line-height:1.04;letter-spacing:-.01em;margin:0 0 22px;">Quietly made, in&nbsp;Porto</h2>
+      <p style="font-size:16px;line-height:1.6;color:var(--muted);max-width:42ch;margin:0 0 32px;">Every piece is cut and sewn by a workshop of eleven people we know by name. No middle season, no markdown rails — only what we&rsquo;d wear ourselves.</p>
+      <a href="#" style="align-self:flex-start;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:5px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;" style-hover="color:var(--accent);border-color:var(--accent)">Read the story</a>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">02</span>
+    <span style="color:var(--ink);">Collection section</span>
+    <span style="margin-left:auto;opacity:.65;">product grid · image · name · price</span>
+  </div>
+
+  <!-- COLLECTION -->
+  <section style="padding:var(--py) var(--px);">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:clamp(34px,4vw,54px);flex-wrap:wrap;">
+      <div>
+        <div style="font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Just landed</div>
+        <h2 style="font-family:var(--serif);font-weight:500;font-size:clamp(32px,4.5vw,58px);line-height:1;letter-spacing:-.01em;margin:0;">New Arrivals</h2>
+      </div>
+      <a href="#" style="text-decoration:none;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:4px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;" style-hover="color:var(--accent);border-color:var(--accent)">View all</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:clamp(18px,2vw,30px) clamp(16px,1.6vw,24px);">
+      <sc-for list="{{ products }}" as="p" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="position:relative;aspect-ratio:4/5;background:repeating-linear-gradient(135deg,#E6DCC8 0 2px,#EFE7D4 2px 15px);overflow:hidden;">
+            <span style="position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#A99B84;">{{ p.code }}</span>
+            <button onClick="{{ addToCart }}" style="position:absolute;bottom:0;right:0;background:var(--ink);color:var(--page-bg);border:none;cursor:pointer;padding:11px 16px;font-family:var(--sans);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;" style-hover="background:var(--accent)">+ Add</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
+            <div>
+              <div style="font-size:14px;letter-spacing:.01em;color:var(--ink);">{{ p.name }}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px;">{{ p.tag }}</div>
+            </div>
+            <div style="font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums;">{{ p.price }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">03</span>
+    <span style="color:var(--ink);">Categories section</span>
+    <span style="margin-left:auto;opacity:.65;">image grid · name overlay</span>
+  </div>
+
+  <!-- CATEGORIES -->
+  <section style="padding:var(--py) var(--px);background:var(--surface);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(14px,1.6vw,22px);">
+      <sc-for list="{{ cats }}" as="c" hint-placeholder-count="3">
+        <a href="#" style="position:relative;display:block;aspect-ratio:3/4;background:repeating-linear-gradient(135deg,#DBD0BA 0 2px,#E6DCC7 2px 16px);overflow:hidden;text-decoration:none;">
+          <span style="position:absolute;top:13px;left:13px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#9A8E78;">{{ c.code }}</span>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(20,17,14,.58),transparent 52%);"></div>
+          <div style="position:absolute;left:22px;bottom:22px;color:#EFE8DA;">
+            <div style="font-family:var(--serif);font-weight:500;font-size:clamp(24px,2.4vw,32px);line-height:1;">{{ c.name }}</div>
+            <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-top:8px;opacity:.85;">{{ c.count }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">04</span>
+    <span style="color:var(--ink);">Highlights section</span>
+    <span style="margin-left:auto;opacity:.65;">variant: divided · 3 numbered blocks</span>
+  </div>
+
+  <!-- HIGHLIGHTS -->
+  <section style="padding:var(--py) var(--px);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));">
+      <div style="padding:8px clamp(26px,2.5vw,40px) 8px 0;">
+        <div style="font-family:var(--serif);font-weight:500;font-size:clamp(42px,5vw,72px);line-height:1;color:var(--accent);margin-bottom:22px;">01</div>
+        <h3 style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 14px;">Natural fibres only</h3>
+        <p style="font-size:15px;line-height:1.65;color:var(--muted);margin:0;">Linen, organic cotton and responsible wool — fabrics that breathe, soften, and age into something better.</p>
+      </div>
+      <div style="padding:8px clamp(26px,2.5vw,40px);border-left:1px solid var(--subtle);">
+        <div style="font-family:var(--serif);font-weight:500;font-size:clamp(42px,5vw,72px);line-height:1;color:var(--accent);margin-bottom:22px;">02</div>
+        <h3 style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 14px;">Made to be repaired</h3>
+        <p style="font-size:15px;line-height:1.65;color:var(--muted);margin:0;">Felled seams, spare buttons and a free mending service. We&rsquo;d rather fix a garment than sell you a new one.</p>
+      </div>
+      <div style="padding:8px 0 8px clamp(26px,2.5vw,40px);border-left:1px solid var(--subtle);">
+        <div style="font-family:var(--serif);font-weight:500;font-size:clamp(42px,5vw,72px);line-height:1;color:var(--accent);margin-bottom:22px;">03</div>
+        <h3 style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 14px;">Fairly paid workshops</h3>
+        <p style="font-size:15px;line-height:1.65;color:var(--muted);margin:0;">One workshop, eleven makers, a living wage. We publish what each piece costs to produce, down to the thread.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">05</span>
+    <span style="color:var(--ink);">Image + Text section</span>
+    <span style="margin-left:auto;opacity:.65;">editorial · image one side, copy other</span>
+  </div>
+
+  <!-- IMAGE + TEXT -->
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:stretch;background:var(--ink);color:var(--page-bg);">
+    <div style="position:relative;min-height:clamp(380px,44vw,580px);background:repeating-linear-gradient(135deg,#322d27 0 2px,#3b362f 2px 16px);">
+      <span style="position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#9b9082;text-transform:uppercase;">[ fabric detail — 4:5 ]</span>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center;padding:clamp(46px,6vw,88px);">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:22px;">Material study</div>
+      <h2 style="font-family:var(--serif);font-weight:500;font-size:clamp(30px,3.6vw,52px);line-height:1.04;letter-spacing:-.01em;margin:0 0 24px;color:#EFE8DA;">Why we keep coming back to linen</h2>
+      <p style="font-size:16px;line-height:1.7;color:#CFC6B5;max-width:46ch;margin:0 0 18px;">Spun from flax that needs little water and no irrigation, linen gets cooler as the day gets hotter and softer with every wash. It creases — and we think that&rsquo;s the point.</p>
+      <p style="font-size:16px;line-height:1.7;color:#CFC6B5;max-width:46ch;margin:0 0 34px;">Our European flax is woven at a mill running on renewable power, then finished without optical brighteners.</p>
+      <a href="#" style="align-self:flex-start;text-decoration:none;color:#EFE8DA;border-bottom:1px solid #EFE8DA;padding-bottom:5px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;" style-hover="color:var(--accent);border-color:var(--accent)">Explore our fabrics</a>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">06</span>
+    <span style="color:var(--ink);">Testimonials section</span>
+    <span style="margin-left:auto;opacity:.65;">3 customer quotes</span>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section style="padding:var(--py) var(--px);background:var(--surface);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));">
+      <sc-for list="{{ quotes }}" as="q" hint-placeholder-count="3">
+        <figure style="margin:0;padding:0 clamp(26px,2.6vw,42px);border-left:1px solid var(--subtle);">
+          <div style="font-family:var(--serif);font-size:34px;line-height:1;color:var(--accent);margin-bottom:18px;">&ldquo;</div>
+          <blockquote style="font-family:var(--serif);font-weight:500;font-size:clamp(21px,1.9vw,26px);line-height:1.34;letter-spacing:-.005em;margin:0 0 26px;color:var(--ink);">{{ q.text }}</blockquote>
+          <figcaption style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);">{{ q.name }} &nbsp;·&nbsp; {{ q.place }}</figcaption>
+        </figure>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== SECTION LABEL ===== -->
+  <div style="padding:13px var(--px) 12px;display:flex;gap:16px;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--subtle);">
+    <span style="color:var(--accent);">07</span>
+    <span style="color:var(--ink);">Newsletter section</span>
+    <span style="margin-left:auto;opacity:.65;">email input · submit</span>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <section style="padding:var(--py) var(--px);background:var(--accent);color:var(--page-bg);text-align:center;">
+    <div style="max-width:640px;margin:0 auto;">
+      <h2 style="font-family:var(--serif);font-weight:500;font-size:clamp(32px,4.5vw,58px);line-height:1.02;letter-spacing:-.01em;margin:0 0 16px;">Join the list</h2>
+      <p style="font-size:16px;line-height:1.6;color:#F4E2DC;margin:0 0 36px;">Early access to drops, restocks, and the occasional letter from the workshop. No noise.</p>
+      <sc-if value="{{ subscribed }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;padding:18px;border:1px solid rgba(239,232,218,.5);">You&rsquo;re on the list — welcome.</div>
+      </sc-if>
+      <sc-if value="{{ notSubscribed }}" hint-placeholder-val="{{ true }}">
+        <form onSubmit="{{ subscribe }}" style="display:flex;gap:0;max-width:480px;margin:0 auto;border-bottom:1px solid var(--page-bg);">
+          <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="Email address" style="flex:1;background:transparent;border:none;outline:none;color:var(--page-bg);font-family:var(--sans);font-size:15px;padding:14px 4px;" />
+          <button type="submit" style="background:var(--ink);color:var(--page-bg);border:none;cursor:pointer;padding:14px 28px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;" style-hover="background:var(--page-bg);color:var(--ink)">Subscribe</button>
+        </form>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding:clamp(54px,6vw,80px) var(--px) 40px;border-top:1px solid var(--subtle);">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px 24px;margin-bottom:54px;">
+      <div>
+        <div style="font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.16em;margin-bottom:14px;">&Eacute;CRU</div>
+        <p style="font-size:13px;line-height:1.6;color:var(--muted);margin:0;max-width:30ch;">Considered clothing for everyday life. Cut and sewn in Porto.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;">Shop</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:13px;">
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">New arrivals</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Linen</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Knitwear</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Objects</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;">Company</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:13px;">
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">The atelier</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Materials</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Journal</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Stockists</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;">Care</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:13px;">
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Shipping</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Returns</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Free mending</a>
+          <a href="#" style="text-decoration:none;color:var(--ink);" style-hover="color:var(--accent)">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--subtle);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">
+      <span>&copy; 2026 &Eacute;cru Studio</span>
+      <span>Porto · Worldwide shipping</span>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1400},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D8432B&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pageBg&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#EFE8DA&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;radius&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;min&quot;:0,&quot;max&quot;:24,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = { cart: 2, email: '', subscribed: false };
+
+  componentDidMount() { this.applyTheme(); }
+  componentDidUpdate() { this.applyTheme(); }
+  applyTheme() {
+    const el = this.rootEl; if (!el) return;
+    const p = this.props || {};
+    if (p.accentColor) el.style.setProperty('--accent', p.accentColor);
+    if (p.pageBg) el.style.setProperty('--page-bg', p.pageBg);
+    if (p.radius != null) el.style.setProperty('--radius', p.radius + 'px');
+  }
+
+  renderVals() {
+    const products = [
+      { name: 'The Linen Shirt', tag: 'Oat · 4 colours', price: '£120', code: 'ECRU-01' },
+      { name: 'Wide-Leg Trouser', tag: 'Clay · 3 colours', price: '£165', code: 'ECRU-02' },
+      { name: 'Boxy Pocket Tee', tag: 'Bone · 5 colours', price: '£55', code: 'ECRU-03' },
+      { name: 'Cropped Overshirt', tag: 'Olive · 2 colours', price: '£190', code: 'ECRU-04' },
+    ];
+    const cats = [
+      { name: 'Linen', count: '38 pieces', code: 'CAT-LN' },
+      { name: 'Knitwear', count: '24 pieces', code: 'CAT-KW' },
+      { name: 'Objects', count: '17 pieces', code: 'CAT-OB' },
+    ];
+    const quotes = [
+      { text: 'Three summers in and my linen shirt looks better than the day it arrived.', name: 'Marem A.', place: 'Lisbon' },
+      { text: 'You can feel where the money went — the seams, the buttons, the weight of the cloth.', name: 'Jonah R.', place: 'Berlin' },
+      { text: 'They re-stitched a torn pocket for free and sent it back pressed. I won\u2019t shop anywhere else.', name: 'Priya N.', place: 'London' },
+    ];
+    return {
+      products, cats, quotes,
+      cart: this.state.cart,
+      addToCart: () => this.setState(s => ({ cart: s.cart + 1 })),
+      email: this.state.email,
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      subscribed: this.state.subscribed,
+      notSubscribed: !this.state.subscribed,
+      subscribe: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ subscribed: true }); },
+      setRoot: (el) => { this.rootEl = el; this.applyTheme(); },
+    };
+  }
+}
+</script>
+</body>
+</html>

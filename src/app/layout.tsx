@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Geist, Playfair_Display } from "next/font/google";
+import { Inter, Geist, Playfair_Display, Bodoni_Moda, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -11,6 +11,17 @@ const playfair = Playfair_Display({
   variable: "--font-display",
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
+});
+const bodoni = Bodoni_Moda({
+  subsets: ["latin"],
+  variable: "--font-bodoni",
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+});
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +39,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", geist.variable, playfair.variable)}
+      className={cn("font-sans", geist.variable, playfair.variable, bodoni.variable, jakarta.variable)}
     >
       <body className={inter.className}>
         {children}

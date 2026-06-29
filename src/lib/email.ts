@@ -56,6 +56,20 @@ const STATUS_SUBJECT_LABELS: Record<string, string> = {
   delivered: "Delivered", cancelled: "Cancelled", refunded: "Refunded",
 };
 
+export const sendPasswordResetEmail = async ({ to, url }: { to: string; url: string }) => {
+  await resend.emails.send({
+    from: "orders@resend.dev",
+    to,
+    subject: "Reset your password",
+    html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 24px">
+      <h2 style="font-size:18px;font-weight:600;color:#111;margin-bottom:8px">Reset your password</h2>
+      <p style="font-size:14px;color:#555;margin-bottom:24px">Click the button below to reset your password. This link expires in 1 hour.</p>
+      <a href="${url}" style="display:inline-block;background:#111;color:#fff;font-size:13px;padding:12px 24px;text-decoration:none">Reset password</a>
+      <p style="font-size:12px;color:#999;margin-top:24px">If you didn't request this, you can ignore this email.</p>
+    </div>`,
+  });
+};
+
 export const sendOrderStatusUpdate = async (props: OrderStatusUpdateProps) => {
   const html = await render(React.createElement(OrderStatusUpdate, props));
   const label = STATUS_SUBJECT_LABELS[props.status] ?? props.status;

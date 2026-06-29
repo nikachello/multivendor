@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
+import { getThemeConfig } from "@/themes";
 
 // This layout wraps every page under /shop/[slug]/ (main, product, collection,
 // checkout). Rendering CartDrawer here means one instance per shop visit,
@@ -17,10 +18,13 @@ export default async function ShopSlugLayout({
   if (!result.ok) notFound();
   const shop = result.data;
 
+  const themeConfig = getThemeConfig((shop as { themeId?: string }).themeId ?? "minimal");
+
   const fontMap: Record<string, string> = {
     sans: "system-ui, sans-serif",
     serif: "Georgia, serif",
     mono: "ui-monospace, monospace",
+    jakarta: "var(--font-jakarta), system-ui, sans-serif",
   };
   const radiusMap: Record<string, string> = {
     none: "0px",
@@ -39,6 +43,11 @@ export default async function ShopSlugLayout({
           "--page-bg": shop.pageBackground,
           "--font": fontMap[shop.fontFamily] ?? fontMap.sans,
           "--radius": radiusMap[shop.borderRadius] ?? "0px",
+          "--accent": themeConfig.palette.accent,
+          "--muted": themeConfig.palette.muted,
+          "--subtle": themeConfig.palette.subtle,
+          "--surface": themeConfig.palette.surface,
+          ...themeConfig.extras,
           fontFamily: "var(--font)",
           backgroundColor: "var(--page-bg)",
         } as React.CSSProperties

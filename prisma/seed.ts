@@ -380,6 +380,426 @@ async function main() {
   console.log(`✓ Variants: 9 total`);
   console.log(`✓ Sections: 8`);
   console.log(`✓ Testimonials: 5`);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DEMO SHOP — Anano Atelier (Georgian fashion, Maison theme)
+  // Linked from the landing page "ნახე დემო მაღაზია" button
+  // ══════════════════════════════════════════════════════════════════════════
+
+  const ananoOwner = await prisma.user.create({
+    data: {
+      email: "anano@atelier.ge",
+      name: "Anano",
+      role: "seller",
+      emailVerified: true,
+    },
+  });
+
+  const anano = await prisma.shop.create({
+    data: {
+      ownerId: ananoOwner.id,
+      name: "Anano Atelier",
+      slug: "anano-atelier",
+      description: "ხელნაკეთი ქართული ფეშენ-ბრენდი. ლინენი, ტყავი, ბუნებრივი ქსოვილები.",
+      currency: "GEL",
+      isActive: true,
+      themeId: "maison",
+      shippingRate: 8,
+      freeThreshold: 200,
+    },
+  });
+
+  // ── Option types ──────────────────────────────────────────────────────────
+  const aSizeType = await prisma.optionType.create({
+    data: { shopId: anano.id, name: "ზომა" },
+  });
+  const aColorType = await prisma.optionType.create({
+    data: { shopId: anano.id, name: "ფერი" },
+  });
+
+  const [aXS, aS, aM, aL, aXL] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "XS" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "S" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "M" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "L" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "XL" } }),
+  ]);
+
+  const [aNatural, aBlack, aCamel, aIvory] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "ნატურალური" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "შავი" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "კამელი" } }),
+    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "ივორი" } }),
+  ]);
+
+  // ── Categories ────────────────────────────────────────────────────────────
+  const aNewCat = await prisma.category.create({
+    data: {
+      shopId: anano.id,
+      name: "ახალი კოლექცია",
+      slug: "axali-kolekcia",
+      image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600",
+      isActive: true,
+    },
+  });
+  const aDressCat = await prisma.category.create({
+    data: {
+      shopId: anano.id,
+      name: "კაბები",
+      slug: "kabebi",
+      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600",
+      isActive: true,
+    },
+  });
+  const aBagCat = await prisma.category.create({
+    data: {
+      shopId: anano.id,
+      name: "ჩანთები",
+      slug: "chantebi",
+      image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600",
+      isActive: true,
+    },
+  });
+  const aJacketCat = await prisma.category.create({
+    data: {
+      shopId: anano.id,
+      name: "ჟაკეტები",
+      slug: "zhaketebi",
+      image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
+      isActive: true,
+    },
+  });
+
+  // ── Products ──────────────────────────────────────────────────────────────
+
+  // P1: სელის კაბა (Linen Dress)
+  const ap1 = await prisma.product.create({
+    data: {
+      shopId: anano.id,
+      categories: { connect: [{ id: aDressCat.id }, { id: aNewCat.id }] },
+      name: "სელის კაბა",
+      slug: "selis-kaba",
+      description: "ზაფხულის კოლექციის სელის კაბა, კომფორტული ჭრით. ბუნებრივი ქსოვილი, ადვილი მოვლა. ხელმისაწვდომია სამ ფერში.",
+      priceFrom: 240,
+      isActive: true,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600", sortOrder: 0, isMain: true },
+          { url: "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600", sortOrder: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.productOptionType.createMany({
+    data: [
+      { productId: ap1.id, optionTypeId: aSizeType.id, position: 0 },
+      { productId: ap1.id, optionTypeId: aColorType.id, position: 1 },
+    ],
+  });
+
+  const [av1, av2, av3, av4, av5, av6] = await Promise.all([
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-NAT-S", price: 240, stock: 4 } }),
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-NAT-M", price: 240, stock: 6 } }),
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-NAT-L", price: 240, stock: 3 } }),
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-BLK-S", price: 240, stock: 5 } }),
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-BLK-M", price: 240, stock: 4 } }),
+    prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-IVO-M", price: 255, stock: 2 } }),
+  ]);
+
+  await prisma.variantOptionValue.createMany({
+    data: [
+      { variantId: av1.id, optionValueId: aNatural.id }, { variantId: av1.id, optionValueId: aS.id },
+      { variantId: av2.id, optionValueId: aNatural.id }, { variantId: av2.id, optionValueId: aM.id },
+      { variantId: av3.id, optionValueId: aNatural.id }, { variantId: av3.id, optionValueId: aL.id },
+      { variantId: av4.id, optionValueId: aBlack.id },   { variantId: av4.id, optionValueId: aS.id },
+      { variantId: av5.id, optionValueId: aBlack.id },   { variantId: av5.id, optionValueId: aM.id },
+      { variantId: av6.id, optionValueId: aIvory.id },   { variantId: av6.id, optionValueId: aM.id },
+    ],
+  });
+
+  // P2: ტყავის ჩანთა (Leather Bag)
+  const ap2 = await prisma.product.create({
+    data: {
+      shopId: anano.id,
+      categories: { connect: [{ id: aBagCat.id }, { id: aNewCat.id }] },
+      name: "ტყავის ჩანთა",
+      slug: "tyavis-chanta",
+      description: "ხელით ნაკეთი ნატურალური ტყავის ჩანთა. გამძლე, სტილური, შესაფერისი ყოველდღიური გამოყენებისთვის. ქარგვა — ქართული ტრადიციული ნიმუშებით.",
+      priceFrom: 320,
+      isActive: true,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600", sortOrder: 0, isMain: true },
+          { url: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=600", sortOrder: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.productOptionType.create({
+    data: { productId: ap2.id, optionTypeId: aColorType.id, position: 0 },
+  });
+
+  const [av7, av8, av9] = await Promise.all([
+    prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-NAT", price: 320, stock: 5 } }),
+    prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-BLK", price: 320, stock: 4 } }),
+    prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-CAM", price: 340, stock: 3 } }),
+  ]);
+
+  await prisma.variantOptionValue.createMany({
+    data: [
+      { variantId: av7.id, optionValueId: aNatural.id },
+      { variantId: av8.id, optionValueId: aBlack.id },
+      { variantId: av9.id, optionValueId: aCamel.id },
+    ],
+  });
+
+  // P3: შალის ჟაკეტი (Wool Jacket)
+  const ap3 = await prisma.product.create({
+    data: {
+      shopId: anano.id,
+      categories: { connect: [{ id: aJacketCat.id }] },
+      name: "შალის ჟაკეტი",
+      slug: "shalis-zhaketi",
+      description: "შემოდგომა-ზამთრის კოლექციის ჟაკეტი ბუნებრივი შალისგან. თბილი, მსუბუქი, კლასიკური ჭრა. იდეალური სამუშაო და გასვლის სტილისთვის.",
+      priceFrom: 180,
+      isActive: true,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600", sortOrder: 0, isMain: true },
+          { url: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600", sortOrder: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.productOptionType.createMany({
+    data: [
+      { productId: ap3.id, optionTypeId: aSizeType.id, position: 0 },
+      { productId: ap3.id, optionTypeId: aColorType.id, position: 1 },
+    ],
+  });
+
+  const [av10, av11, av12, av13] = await Promise.all([
+    prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-CAM-S", price: 180, stock: 3 } }),
+    prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-CAM-M", price: 180, stock: 5 } }),
+    prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-BLK-M", price: 180, stock: 4 } }),
+    prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-BLK-L", price: 180, stock: 3 } }),
+  ]);
+
+  await prisma.variantOptionValue.createMany({
+    data: [
+      { variantId: av10.id, optionValueId: aCamel.id }, { variantId: av10.id, optionValueId: aS.id },
+      { variantId: av11.id, optionValueId: aCamel.id }, { variantId: av11.id, optionValueId: aM.id },
+      { variantId: av12.id, optionValueId: aBlack.id }, { variantId: av12.id, optionValueId: aM.id },
+      { variantId: av13.id, optionValueId: aBlack.id }, { variantId: av13.id, optionValueId: aL.id },
+    ],
+  });
+
+  // P4: ლინენის სათამაშო (Linen Set)
+  const ap4 = await prisma.product.create({
+    data: {
+      shopId: anano.id,
+      categories: { connect: [{ id: aDressCat.id }] },
+      name: "ლინენის კოსტუმი",
+      slug: "linenis-kostumi",
+      description: "ბრიუკი + პიჯაკი ბუნებრივი ლინენისგან. ზაფხულის ოფისული და თავისუფალი სტილი ერთში.",
+      priceFrom: 310,
+      isActive: true,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600", sortOrder: 0, isMain: true },
+        ],
+      },
+    },
+  });
+
+  await prisma.productOptionType.create({
+    data: { productId: ap4.id, optionTypeId: aSizeType.id, position: 0 },
+  });
+
+  const [av14, av15, av16] = await Promise.all([
+    prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-S", price: 310, stock: 3 } }),
+    prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-M", price: 310, stock: 4 } }),
+    prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-L", price: 310, stock: 2 } }),
+  ]);
+
+  await prisma.variantOptionValue.createMany({
+    data: [
+      { variantId: av14.id, optionValueId: aS.id },
+      { variantId: av15.id, optionValueId: aM.id },
+      { variantId: av16.id, optionValueId: aL.id },
+    ],
+  });
+
+  // ── Sections ──────────────────────────────────────────────────────────────
+  await prisma.shopSection.createMany({
+    data: [
+      {
+        shopId: anano.id,
+        type: "announcement",
+        pageType: "home",
+        order: 0,
+        props: {
+          text: "უფასო მიწოდება ₾200-დან · თბილისი · 1–2 სამუშაო დღე",
+          bgColor: "#1f1b16",
+          textColor: "#c9b99a",
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "navbar",
+        pageType: "home",
+        order: 1,
+        props: {
+          items: [
+            {
+              id: "an1", type: "group", label: "კოლექცია",
+              children: [
+                { id: "an2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" },
+                { id: "an3", type: "link", label: "კაბები", href: "/collections/kabebi" },
+                { id: "an4", type: "link", label: "ჩანთები", href: "/collections/chantebi" },
+                { id: "an5", type: "link", label: "ჟაკეტები", href: "/collections/zhaketebi" },
+              ],
+            },
+            { id: "an6", type: "link", label: "ბრენდის შესახებ", href: "/about" },
+          ],
+          transparent: false,
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "banner",
+        pageType: "home",
+        order: 2,
+        props: {
+          variant: "cover",
+          title: "ახალი კოლექცია",
+          subtitle: "ზაფხული 2026 — ბუნებრივი ქსოვილები, ხელნაკეთი ესთეტიკა",
+          image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600",
+          buttonText: "ნახე კოლექცია",
+          href: "/collections/axali-kolekcia",
+          overlay: true,
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "categories",
+        pageType: "home",
+        order: 3,
+        props: {
+          title: "კატეგორიები",
+          categoryIds: [],
+          columns: 4,
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "collection",
+        pageType: "home",
+        order: 4,
+        props: {
+          title: "პოპულარული",
+          categoryId: null,
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "highlights",
+        pageType: "home",
+        order: 5,
+        props: {
+          items: [
+            {
+              type: "text",
+              title: "ხელნაკეთი ნაწარმი",
+              description: "თითოეული ნაწარმი შეიქმნება ხელით, ქართული ტრადიციის გათვალისწინებით.",
+            },
+            {
+              type: "image",
+              imageUrl: "https://images.unsplash.com/photo-1605289982774-9a6fef564df8?w=800",
+            },
+            {
+              type: "text",
+              title: "უფასო დაბრუნება",
+              description: "14 დღის განმავლობაში შეგიძლია პროდუქტის დაბრუნება — სრული თანხის დაბრუნებით.",
+              buttonText: "გაიგე მეტი",
+              buttonUrl: "/returns",
+            },
+          ],
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "testimonials",
+        pageType: "home",
+        order: 6,
+        props: {
+          testimonials: [
+            { name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ. კმაყოფილი ვარ!" },
+            { name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
+            { name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Anano Atelier-ის ნაწარმი ყველაზე ლამაზი ჩუქრია." },
+          ],
+        },
+      },
+    ],
+  });
+
+  // Add sections to other pages too
+  await prisma.shopSection.createMany({
+    data: [
+      {
+        shopId: anano.id,
+        type: "navbar",
+        pageType: "collection",
+        order: 0,
+        props: {
+          items: [
+            {
+              id: "ac1", type: "group", label: "კოლექცია",
+              children: [
+                { id: "ac2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" },
+                { id: "ac3", type: "link", label: "კაბები", href: "/collections/kabebi" },
+                { id: "ac4", type: "link", label: "ჩანთები", href: "/collections/chantebi" },
+              ],
+            },
+          ],
+          transparent: false,
+        },
+      },
+      {
+        shopId: anano.id,
+        type: "navbar",
+        pageType: "product",
+        order: 0,
+        props: {
+          items: [
+            {
+              id: "ap1", type: "group", label: "კოლექცია",
+              children: [
+                { id: "ap2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" },
+                { id: "ap3", type: "link", label: "კაბები", href: "/collections/kabebi" },
+              ],
+            },
+          ],
+          transparent: false,
+        },
+      },
+    ],
+  });
+
+  await prisma.testimonial.createMany({
+    data: [
+      { shopId: anano.id, name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ." },
+      { shopId: anano.id, name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
+      { shopId: anano.id, name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Anano Atelier-ის ნაწარმი ყველაზე ლამაზი ჩუქრია." },
+    ],
+  });
+
+  console.log(`✓ Demo shop: ${anano.name} (${anano.slug})`);
+  console.log(`✓ Categories: ახალი კოლექცია, კაბები, ჩანთები, ჟაკეტები`);
+  console.log(`✓ Products: სელის კაბა, ტყავის ჩანთა, შალის ჟაკეტი, ლინენის კოსტუმი`);
   console.log("Seed complete!");
 }
 

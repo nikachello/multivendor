@@ -6,6 +6,8 @@ import { err, ok } from "../result";
 import { ErrorCode } from "../errors";
 import prisma from "../db/prisma";
 import { redirect } from "next/navigation";
+import { getThemeConfig } from "@/themes";
+import { assertOwnsShop } from "../auth/assert-owns-shop";
 
 export type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
@@ -13,34 +15,15 @@ export async function updateShipping(
   shopId: string,
   data: { shippingRate: number; freeThreshold: number; shippingZones: ShippingZone[] },
 ) {
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
   await prisma.shop.update({ where: { id: shopId }, data });
 }
 
-const THEME_DEFAULTS: Record<string, {
-  primaryColor: string;
-  secondaryColor: string;
-  pageBackground: string;
-  borderRadius: string;
-  fontFamily: string;
-}> = {
-  maison: {
-    primaryColor: "#1C1C1C",
-    secondaryColor: "#F8F6F1",
-    pageBackground: "#F8F6F1",
-    borderRadius: "none",
-    fontFamily: "sans",
-  },
-  minimal: {
-    primaryColor: "#000000",
-    secondaryColor: "#ffffff",
-    pageBackground: "#ffffff",
-    borderRadius: "none",
-    fontFamily: "sans",
-  },
-};
-
 export async function updateShopTheme(shopId: string, themeId: string) {
-  const defaults = THEME_DEFAULTS[themeId] ?? {};
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  const { defaults } = getThemeConfig(themeId);
   await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
 }
 
@@ -50,6 +33,8 @@ export async function updateShop(
 ) {
   if (!shopId || !data.name || !data.currency)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
   const shop = await prisma.shop.update({
     where: { id: shopId },

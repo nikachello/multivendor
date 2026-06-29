@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif+Georgian:wght@500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ece5d8; }
+</style>
+</helmet>
+
+<div style="max-width:1100px; margin:0 auto; background:#fbf7f0; color:#1f1b16; font-family:'Noto Sans Georgian',sans-serif; box-shadow:0 0 1px rgba(0,0,0,.2);">
+
+  <!-- ===== AnnouncementSection ===== -->
+  <div style="position:relative; background:#1f1b16; color:#f3ece0; text-align:center; padding:11px 16px; font-size:13px; letter-spacing:.01em;">
+    <div style="position:absolute; top:11px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#8c8170; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">AnnouncementSection</div>
+    უფასო მიწოდება ₾100-დან · გადახდა მიწოდებისას მთელ საქართველოში
+  </div>
+
+  <!-- ===== Header (nav) ===== -->
+  <div style="position:relative; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; padding:22px 48px; border-bottom:1px solid #e8e0d2;">
+    <div style="position:absolute; top:22px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">Header</div>
+    <div style="font-size:12px; color:#6b6358; display:flex; gap:22px;"><span>მაღაზია</span><span>კოლექციები</span><span>ჟურნალი</span></div>
+    <div style="font-family:'Noto Serif Georgian',serif; font-weight:600; font-size:22px; letter-spacing:.22em;">ANANO</div>
+    <div style="font-size:12px; color:#6b6358; display:flex; gap:22px; justify-content:flex-end;"><span>ძებნა</span><span>ანგარიში</span><span style="color:#1f1b16;">კალათა (1)</span></div>
+  </div>
+
+  <!-- ===== ImageTextSection (hero) ===== -->
+  <div style="position:relative; display:grid; grid-template-columns:1fr 1fr; align-items:stretch;">
+    <div style="position:absolute; top:18px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">ImageTextSection</div>
+    <div style="padding:88px 56px; display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:oklch(0.47 0.1 42); margin-bottom:20px;">ახალი კოლექცია</div>
+      <h1 style="font-family:'Noto Serif Georgian',serif; font-size:50px; line-height:1.08; font-weight:600; margin:0 0 22px;">ზაფხული, ხელით შექმნილი</h1>
+      <p style="font-size:17px; line-height:1.6; color:#6b6358; margin:0 0 30px; max-width:380px;">ბუნებრივი ქსოვილები, ქართველი დიზაინერის ხელნაკეთი ნაწარმი — შეზღუდული რაოდენობით.</p>
+      <div><span style="display:inline-flex; font-size:14px; font-weight:600; color:#fbf7f0; background:#1f1b16; padding:14px 32px;">კოლექციის ნახვა</span></div>
+    </div>
+    <div style="min-height:480px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 16px,#e3dbcb 16px 32px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:18px;"><span style="font:11px 'Geist Mono',monospace; color:#a8a29e;">სარეკლამო ფოტო</span></div>
+  </div>
+
+  <!-- ===== CategoriesSection ===== -->
+  <div style="position:relative; padding:74px 48px 30px;">
+    <div style="position:absolute; top:74px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">CategoriesSection</div>
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px;">
+      <h2 style="font-family:'Noto Serif Georgian',serif; font-size:30px; font-weight:600; margin:0;">დაათვალიერე კატეგორიები</h2>
+      <span style="font-size:13px; color:oklch(0.47 0.1 42); font-weight:600;">ყველა →</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 12px,#e3dbcb 12px 24px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="text-align:center; font-family:'Noto Serif Georgian',serif; font-size:16px; margin-top:12px;">კაბები</div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 12px,#e3dbcb 12px 24px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="text-align:center; font-family:'Noto Serif Georgian',serif; font-size:16px; margin-top:12px;">ზედები</div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 12px,#e3dbcb 12px 24px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="text-align:center; font-family:'Noto Serif Georgian',serif; font-size:16px; margin-top:12px;">აქსესუარები</div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 12px,#e3dbcb 12px 24px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="text-align:center; font-family:'Noto Serif Georgian',serif; font-size:16px; margin-top:12px;">ფეხსაცმელი</div></div>
+    </div>
+  </div>
+
+  <!-- ===== CollectionSection ===== -->
+  <div style="position:relative; padding:44px 48px 30px;">
+    <div style="position:absolute; top:44px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">CollectionSection</div>
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px;">
+      <h2 style="font-family:'Noto Serif Georgian',serif; font-size:30px; font-weight:600; margin:0;">ბესტსელერები</h2>
+      <span style="font-size:13px; color:oklch(0.47 0.1 42); font-weight:600;">სრული კოლექცია →</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:22px;">
+      <div><div style="position:relative; aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#f1ece2 0 11px,#e8e0d2 11px 22px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;"><span style="position:absolute; top:10px; left:10px; font-size:10px; font-weight:600; background:oklch(0.47 0.1 42); color:#fff; padding:3px 9px; border-radius:999px;">ფასდაკლება</span><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="font-family:'Noto Serif Georgian',serif; font-size:15px; margin-top:11px;">სელის კაბა</div><div style="font-size:13px;"><span style="color:#a8a29e; text-decoration:line-through; margin-right:5px;">₾290</span><span style="color:oklch(0.47 0.1 42); font-weight:600;">₾240</span></div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#f1ece2 0 11px,#e8e0d2 11px 22px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="font-family:'Noto Serif Georgian',serif; font-size:15px; margin-top:11px;">შალის ჟაკეტი</div><div style="font-size:13px; color:#6b6358;">₾320</div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#f1ece2 0 11px,#e8e0d2 11px 22px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="font-family:'Noto Serif Georgian',serif; font-size:15px; margin-top:11px;">ტყავის ჩანთა</div><div style="font-size:13px; color:#6b6358;">₾180</div></div>
+      <div><div style="aspect-ratio:3/4; border-radius:4px; background-image:repeating-linear-gradient(45deg,#f1ece2 0 11px,#e8e0d2 11px 22px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div><div style="font-family:'Noto Serif Georgian',serif; font-size:15px; margin-top:11px;">აბრეშუმის შარფი</div><div style="font-size:13px; color:#6b6358;">₾95</div></div>
+    </div>
+  </div>
+
+  <!-- ===== DividerSection ===== -->
+  <div style="position:relative; padding:40px 48px; display:flex; align-items:center; justify-content:center; gap:16px;">
+    <div style="position:absolute; top:40px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">DividerSection</div>
+    <span style="height:1px; flex:1; background:#e3dbcb;"></span>
+    <span style="width:7px; height:7px; background:oklch(0.47 0.1 42); transform:rotate(45deg);"></span>
+    <span style="height:1px; flex:1; background:#e3dbcb;"></span>
+  </div>
+
+  <!-- ===== HighlightsSection ===== -->
+  <div style="position:relative; padding:20px 48px 56px;">
+    <div style="position:absolute; top:20px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">HighlightsSection</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px;">
+      <div style="background:#f3ece0; border-radius:10px; padding:26px;"><div style="width:38px; height:38px; border-radius:10px; background:oklch(0.47 0.1 42); display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><span style="width:14px; height:14px; border-radius:3px; background:#fff;"></span></div><div style="font-weight:600; font-size:15px; margin-bottom:6px;">უფასო მიწოდება</div><div style="font-size:13px; color:#6b6358; line-height:1.55;">₾100-დან, მთელ საქართველოში.</div></div>
+      <div style="background:#f3ece0; border-radius:10px; padding:26px;"><div style="width:38px; height:38px; border-radius:10px; background:oklch(0.47 0.1 42); display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><span style="width:14px; height:14px; border-radius:50%; background:#fff;"></span></div><div style="font-weight:600; font-size:15px; margin-bottom:6px;">გადახდა მიწოდებისას</div><div style="font-size:13px; color:#6b6358; line-height:1.55;">გადაიხადე ნაღდი ანგარიშსწორებით.</div></div>
+      <div style="background:#f3ece0; border-radius:10px; padding:26px;"><div style="width:38px; height:38px; border-radius:10px; background:oklch(0.47 0.1 42); display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><span style="width:16px; height:16px; background:#fff; transform:rotate(45deg);"></span></div><div style="font-weight:600; font-size:15px; margin-bottom:6px;">ხელნაკეთი</div><div style="font-size:13px; color:#6b6358; line-height:1.55;">თითოეული ნაწარმი უნიკალურია.</div></div>
+      <div style="background:#f3ece0; border-radius:10px; padding:26px;"><div style="width:38px; height:38px; border-radius:10px; background:oklch(0.47 0.1 42); display:flex; align-items:center; justify-content:center; margin-bottom:16px;"><span style="width:18px; height:5px; border-radius:3px; background:#fff;"></span></div><div style="font-weight:600; font-size:15px; margin-bottom:6px;">დაბრუნება 14 დღე</div><div style="font-size:13px; color:#6b6358; line-height:1.55;">მარტივი დაბრუნება, კითხვების გარეშე.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== RichTextSection ===== -->
+  <div style="position:relative; padding:72px 48px; background:#f3ece0; text-align:center;">
+    <div style="position:absolute; top:72px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">RichTextSection</div>
+    <div style="max-width:620px; margin:0 auto;">
+      <div style="font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:oklch(0.47 0.1 42); margin-bottom:18px;">ჩვენი ამბავი</div>
+      <h2 style="font-family:'Noto Serif Georgian',serif; font-size:34px; font-weight:600; line-height:1.2; margin:0 0 20px;">ხელით შექმნილი, გულით შერჩეული</h2>
+      <p style="font-size:17px; line-height:1.7; color:#5c5448; margin:0;">ANANO დაიბადა პატარა სახელოსნოში თბილისში. ჩვენ ვქმნით ტანსაცმელს ბუნებრივი ქსოვილებისგან, მცირე პარტიებად — რომ ყველა ნივთს ჰქონდეს თავისი ხასიათი და ისტორია.</p>
+    </div>
+  </div>
+
+  <!-- ===== GallerySection ===== -->
+  <div style="position:relative; padding:72px 48px 30px;">
+    <div style="position:absolute; top:72px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">GallerySection</div>
+    <div style="text-align:center; margin-bottom:28px;"><h2 style="font-family:'Noto Serif Georgian',serif; font-size:30px; font-weight:600; margin:0 0 6px;">ინსტაგრამზე</h2><span style="font-size:14px; color:oklch(0.47 0.1 42);">@anano.atelier</span></div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(2,1fr); gap:12px; height:440px;">
+      <div style="grid-column:span 2; grid-row:span 2; border-radius:6px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 13px,#e3dbcb 13px 26px); display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;"><span style="font:10px 'Geist Mono',monospace; color:#a8a29e;">ფოტო</span></div>
+      <div style="border-radius:6px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 13px,#e3dbcb 13px 26px);"></div>
+      <div style="border-radius:6px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 13px,#e3dbcb 13px 26px);"></div>
+      <div style="border-radius:6px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 13px,#e3dbcb 13px 26px);"></div>
+      <div style="border-radius:6px; background-image:repeating-linear-gradient(45deg,#ece5d8 0 13px,#e3dbcb 13px 26px);"></div>
+    </div>
+  </div>
+
+  <!-- ===== StatsSection ===== -->
+  <div style="position:relative; margin:56px 0 0; padding:56px 48px; background:#1f1b16; color:#f3ece0;">
+    <div style="position:absolute; top:56px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#8c8170; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">StatsSection</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px; text-align:center;">
+      <div><div style="font-family:'Noto Serif Georgian',serif; font-size:42px; font-weight:600;">2,000+</div><div style="font-size:13px; color:#b3a994; margin-top:6px;">დასრულებული შეკვეთა</div></div>
+      <div><div style="font-family:'Noto Serif Georgian',serif; font-size:42px; font-weight:600;">4.9★</div><div style="font-size:13px; color:#b3a994; margin-top:6px;">საშუალო შეფასება</div></div>
+      <div><div style="font-family:'Noto Serif Georgian',serif; font-size:42px; font-weight:600;">5 წელი</div><div style="font-size:13px; color:#b3a994; margin-top:6px;">ხელნაკეთი ნაწარმი</div></div>
+      <div><div style="font-family:'Noto Serif Georgian',serif; font-size:42px; font-weight:600;">12</div><div style="font-size:13px; color:#b3a994; margin-top:6px;">ქალაქი მიწოდებით</div></div>
+    </div>
+  </div>
+
+  <!-- ===== TestimonialsSection ===== -->
+  <div style="position:relative; padding:74px 48px 60px;">
+    <div style="position:absolute; top:74px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">TestimonialsSection</div>
+    <div style="text-align:center; margin-bottom:36px;"><h2 style="font-family:'Noto Serif Georgian',serif; font-size:30px; font-weight:600; margin:0;">რას ამბობენ მომხმარებლები</h2></div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+      <div style="border:1px solid #e8e0d2; border-radius:12px; padding:28px;"><div style="color:oklch(0.47 0.1 42); margin-bottom:14px; font-size:15px;">★★★★★</div><div style="font-size:15px; line-height:1.6; color:#3f382f; margin-bottom:20px;">„ხარისხი ყველა მოლოდინს გადააჭარბა. კაბა ზუსტად ისეთია, როგორც ფოტოზე.“</div><div style="display:flex; align-items:center; gap:11px;"><span style="width:36px; height:36px; border-radius:50%; background:#ece5d8;"></span><div><div style="font-size:13px; font-weight:600;">ნინო ბ.</div><div style="font-size:12px; color:#8c8170;">თბილისი</div></div></div></div>
+      <div style="border:1px solid #e8e0d2; border-radius:12px; padding:28px;"><div style="color:oklch(0.47 0.1 42); margin-bottom:14px; font-size:15px;">★★★★★</div><div style="font-size:15px; line-height:1.6; color:#3f382f; margin-bottom:20px;">„მიწოდება სწრაფი იყო და შეფუთვა — ულამაზესი. აუცილებლად დავბრუნდები.“</div><div style="display:flex; align-items:center; gap:11px;"><span style="width:36px; height:36px; border-radius:50%; background:#ece5d8;"></span><div><div style="font-size:13px; font-weight:600;">თამარ ქ.</div><div style="font-size:12px; color:#8c8170;">ბათუმი</div></div></div></div>
+      <div style="border:1px solid #e8e0d2; border-radius:12px; padding:28px;"><div style="color:oklch(0.47 0.1 42); margin-bottom:14px; font-size:15px;">★★★★★</div><div style="font-size:15px; line-height:1.6; color:#3f382f; margin-bottom:20px;">„ხელნაკეთობა იგრძნობა დეტალებში. ნამდვილად ღირს ფასად.“</div><div style="display:flex; align-items:center; gap:11px;"><span style="width:36px; height:36px; border-radius:50%; background:#ece5d8;"></span><div><div style="font-size:13px; font-weight:600;">მარიამ ლ.</div><div style="font-size:12px; color:#8c8170;">ქუთაისი</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- ===== FaqSection ===== -->
+  <div style="position:relative; padding:20px 48px 64px;">
+    <div style="position:absolute; top:20px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">FaqSection</div>
+    <div style="text-align:center; margin-bottom:32px;"><h2 style="font-family:'Noto Serif Georgian',serif; font-size:30px; font-weight:600; margin:0;">ხშირად დასმული კითხვები</h2></div>
+    <div style="max-width:720px; margin:0 auto; border-top:1px solid #e8e0d2;">
+      <div style="border-bottom:1px solid #e8e0d2;">
+        <div onClick="{{ toggle0 }}" style="display:flex; align-items:center; justify-content:space-between; padding:20px 4px; cursor:pointer;">
+          <span style="font-size:16px; font-weight:600;">როდის მივიღებ ჩემს შეკვეთას?</span>
+          <span style="font-size:20px; color:oklch(0.47 0.1 42); transform:rotate({{ rot0 }}); transition:transform .2s;">+</span>
+        </div>
+        <div style="display:{{ ans0 }}; padding:0 4px 20px; font-size:15px; line-height:1.65; color:#6b6358;">თბილისში მიწოდება ხდება 1–2 სამუშაო დღეში, რეგიონებში — 2–4 დღეში.</div>
+      </div>
+      <div style="border-bottom:1px solid #e8e0d2;">
+        <div onClick="{{ toggle1 }}" style="display:flex; align-items:center; justify-content:space-between; padding:20px 4px; cursor:pointer;">
+          <span style="font-size:16px; font-weight:600;">როგორ ხდება გადახდა?</span>
+          <span style="font-size:20px; color:oklch(0.47 0.1 42); transform:rotate({{ rot1 }}); transition:transform .2s;">+</span>
+        </div>
+        <div style="display:{{ ans1 }}; padding:0 4px 20px; font-size:15px; line-height:1.65; color:#6b6358;">გადახდა შესაძლებელია მიწოდებისას, ნაღდი ანგარიშსწორებით კურიერთან.</div>
+      </div>
+      <div style="border-bottom:1px solid #e8e0d2;">
+        <div onClick="{{ toggle2 }}" style="display:flex; align-items:center; justify-content:space-between; padding:20px 4px; cursor:pointer;">
+          <span style="font-size:16px; font-weight:600;">შემიძლია თუ არა ნივთის დაბრუნება?</span>
+          <span style="font-size:20px; color:oklch(0.47 0.1 42); transform:rotate({{ rot2 }}); transition:transform .2s;">+</span>
+        </div>
+        <div style="display:{{ ans2 }}; padding:0 4px 20px; font-size:15px; line-height:1.65; color:#6b6358;">დიახ, ნივთის დაბრუნება შესაძლებელია მიღებიდან 14 დღის განმავლობაში.</div>
+      </div>
+      <div style="border-bottom:1px solid #e8e0d2;">
+        <div onClick="{{ toggle3 }}" style="display:flex; align-items:center; justify-content:space-between; padding:20px 4px; cursor:pointer;">
+          <span style="font-size:16px; font-weight:600;">აქვს თუ არა თითოეულ ნივთს გარანტია?</span>
+          <span style="font-size:20px; color:oklch(0.47 0.1 42); transform:rotate({{ rot3 }}); transition:transform .2s;">+</span>
+        </div>
+        <div style="display:{{ ans3 }}; padding:0 4px 20px; font-size:15px; line-height:1.65; color:#6b6358;">ყველა ნაწარმი ხელნაკეთია და გადის ხარისხის შემოწმებას გაგზავნამდე.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NewsletterSection ===== -->
+  <div style="position:relative; margin:0 48px 64px; background:oklch(0.47 0.1 42); border-radius:16px; padding:54px 48px; text-align:center; color:#fbf7f0;">
+    <div style="position:absolute; top:0; left:-66px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#a89c86; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">NewsletterSection</div>
+    <h2 style="font-family:'Noto Serif Georgian',serif; font-size:32px; font-weight:600; margin:0 0 12px;">შემოგვიერთდი</h2>
+    <p style="font-size:16px; line-height:1.6; color:#f0e3d4; margin:0 0 28px; max-width:440px; margin-left:auto; margin-right:auto;">მიიღე ახალი კოლექციები და სპეციალური შეთავაზებები პირველმა.</p>
+    <div style="display:flex; gap:10px; max-width:440px; margin:0 auto;">
+      <span style="flex:1; background:#fbf7f0; border-radius:8px; padding:13px 16px; font-size:14px; color:#9c907e; text-align:left;">შენი ელ. ფოსტა</span>
+      <span style="display:inline-flex; align-items:center; font-size:14px; font-weight:600; color:oklch(0.47 0.1 42); background:#fbf7f0; padding:13px 24px; border-radius:8px;">გამოწერა</span>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <div style="position:relative; padding:56px 48px 40px; background:#1f1b16; color:#cfc5b4;">
+    <div style="position:absolute; top:56px; left:-18px; transform:translateX(-100%); font:500 11px 'Geist Mono',monospace; color:#8c8170; background:#fff; border:1px solid #e8e0d2; padding:4px 9px; border-radius:6px; white-space:nowrap;">Footer</div>
+    <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px; margin-bottom:40px;">
+      <div>
+        <div style="font-family:'Noto Serif Georgian',serif; font-weight:600; font-size:20px; letter-spacing:.18em; color:#fbf7f0; margin-bottom:14px;">ANANO</div>
+        <div style="font-size:14px; line-height:1.6; max-width:240px; color:#9c9384;">ხელნაკეთი ტანსაცმელი, შექმნილი თბილისში.</div>
+      </div>
+      <div><div style="font-size:13px; font-weight:600; color:#fbf7f0; margin-bottom:14px;">მაღაზია</div><div style="display:flex; flex-direction:column; gap:10px; font-size:14px;"><span>ახალი</span><span>კოლექციები</span><span>ფასდაკლება</span></div></div>
+      <div><div style="font-size:13px; font-weight:600; color:#fbf7f0; margin-bottom:14px;">დახმარება</div><div style="display:flex; flex-direction:column; gap:10px; font-size:14px;"><span>მიწოდება</span><span>დაბრუნება</span><span>კონტაქტი</span></div></div>
+      <div><div style="font-size:13px; font-weight:600; color:#fbf7f0; margin-bottom:14px;">გამოგვყევი</div><div style="display:flex; flex-direction:column; gap:10px; font-size:14px;"><span>Instagram</span><span>Facebook</span></div></div>
+    </div>
+    <div style="border-top:1px solid #3a352c; padding-top:24px; font-size:13px; color:#8c8170;">© 2026 ANANO · powered by MultiStore</div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { open: 0 };
+  renderVals() {
+    const open = this.state.open;
+    const toggle = (i) => () => this.setState({ open: this.state.open === i ? -1 : i });
+    const vals = { toggle0: toggle(0), toggle1: toggle(1), toggle2: toggle(2), toggle3: toggle(3) };
+    for (let i = 0; i < 4; i++) {
+      vals['ans' + i] = open === i ? 'block' : 'none';
+      vals['rot' + i] = open === i ? '45deg' : '0deg';
+    }
+    return vals;
+  }
+}
+</script>
+</body>
+</html>
