@@ -9,6 +9,7 @@ if (!process.env.RESEND_API_KEY) {
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.EMAIL_FROM ?? "orders@resend.dev";
 
 type OrderConfirmationProps = {
   to: string;
@@ -34,7 +35,7 @@ type OrderConfirmationProps = {
 export const sendOrderConfirmation = async (props: OrderConfirmationProps) => {
   const html = await render(React.createElement(OrderConfirmation, props));
   await resend.emails.send({
-    from: "orders@resend.dev",
+    from: EMAIL_FROM,
     to: props.to,
     subject: `Order confirmed — ${props.shopName}`,
     html,
@@ -58,7 +59,7 @@ const STATUS_SUBJECT_LABELS: Record<string, string> = {
 
 export const sendPasswordResetEmail = async ({ to, url }: { to: string; url: string }) => {
   await resend.emails.send({
-    from: "orders@resend.dev",
+    from: EMAIL_FROM,
     to,
     subject: "Reset your password",
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 24px">
@@ -74,7 +75,7 @@ export const sendOrderStatusUpdate = async (props: OrderStatusUpdateProps) => {
   const html = await render(React.createElement(OrderStatusUpdate, props));
   const label = STATUS_SUBJECT_LABELS[props.status] ?? props.status;
   await resend.emails.send({
-    from: "orders@resend.dev",
+    from: EMAIL_FROM,
     to: props.to,
     subject: `Order #${props.orderId.slice(-8).toUpperCase()} ${label} — ${props.shopName}`,
     html,
