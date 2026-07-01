@@ -10,8 +10,9 @@ export function proxy(req: NextRequest) {
 
   // www → non-www canonical redirect
   if (host === `www.${ROOT_DOMAIN}`) {
-    const url = req.nextUrl.clone();
+    const url = new URL(req.url);
     url.host = ROOT_DOMAIN;
+    url.protocol = "https:";
     return NextResponse.redirect(url, 301);
   }
 
