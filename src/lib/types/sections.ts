@@ -35,6 +35,7 @@ export type BannerSectionProps = {
   buttonText?: string;
   href?: string;
   variant?: "cover" | "split" | "compact";
+  imagePosition?: "top" | "center" | "bottom";
 };
 
 export type HighlightsSectionProps = {

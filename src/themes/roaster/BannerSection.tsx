@@ -22,6 +22,7 @@ const BannerSection = ({
   shopBase,
   transparent = false,
   variant = "cover",
+  imagePosition = "center",
 }: Props) => {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   if (variant === "split") {
@@ -35,7 +36,7 @@ const BannerSection = ({
         style={{
           backgroundImage: image ? `url(${image})` : undefined,
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: imagePosition,
           backgroundColor: image ? undefined : "#ecdfc9",
         }}
       >
@@ -64,7 +65,7 @@ const BannerSection = ({
       style={{
         backgroundImage: image ? `url(${image})` : undefined,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: imagePosition,
         backgroundColor: image ? undefined : "#ecdfc9",
       }}
     >

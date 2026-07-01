@@ -177,6 +177,16 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
     { type: "text", key: "title", label: "Title", placeholder: "New arrivals" },
     { type: "text", key: "subtitle", label: "Subtitle", placeholder: "Discover our latest collection" },
     { type: "image-upload", key: "image", label: "Image" },
+    {
+      type: "select",
+      key: "imagePosition",
+      label: "Image position",
+      options: [
+        { value: "center", label: "Center" },
+        { value: "top", label: "Top" },
+        { value: "bottom", label: "Bottom" },
+      ],
+    },
     { type: "text", key: "buttonText", label: "Button text", placeholder: "Shop now" },
     { type: "text", key: "href", label: "Button link", placeholder: "/" },
   ],

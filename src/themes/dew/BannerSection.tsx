@@ -21,6 +21,7 @@ const BannerSection = ({
   shopSlug = "",
   shopBase,
   variant = "cover",
+  imagePosition = "center",
 }: Props) => {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
@@ -61,8 +62,8 @@ const BannerSection = ({
               alt={title ?? ""}
               fill
               className="object-cover"
+              style={{ objectPosition: imagePosition, borderRadius: "0" }}
               unoptimized
-              style={{ borderRadius: "0" }}
             />
           ) : null}
         </div>
@@ -107,7 +108,7 @@ const BannerSection = ({
       }}
     >
       {image && (
-        <Image src={image} alt={title ?? ""} fill className="object-cover" unoptimized priority />
+        <Image src={image} alt={title ?? ""} fill className="object-cover" style={{ objectPosition: imagePosition }} unoptimized priority />
       )}
       <div
         className="relative z-10"

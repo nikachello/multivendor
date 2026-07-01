@@ -18,6 +18,7 @@ export default function BannerSplit({
   href = "/",
   shopSlug = "",
   shopBase,
+  imagePosition = "center",
 }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   return (
@@ -29,6 +30,7 @@ export default function BannerSplit({
             alt={title}
             fill
             className="object-cover"
+            style={{ objectPosition: imagePosition }}
             unoptimized
           />
         )}

@@ -22,6 +22,7 @@ const BannerSection = ({
   shopBase,
   transparent = false,
   variant = "cover",
+  imagePosition = "center",
 }: Props) => {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
@@ -30,7 +31,7 @@ const BannerSection = ({
       <section className="grid md:grid-cols-2 border-t border-b border-[var(--subtle)]">
         <div className="relative bg-[var(--surface)]" style={{ minHeight: "clamp(360px, 46vw, 580px)" }}>
           {image && (
-            <Image src={image} alt={title} fill className="object-cover" unoptimized />
+            <Image src={image} alt={title} fill className="object-cover" style={{ objectPosition: imagePosition }} unoptimized />
           )}
         </div>
         <div className="flex flex-col justify-center bg-[var(--page-bg)]" style={{ padding: "clamp(48px, 7vw, 96px)" }}>
@@ -60,7 +61,7 @@ const BannerSection = ({
         style={{
           backgroundImage: image ? `url(${image})` : undefined,
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: imagePosition,
           backgroundColor: image ? undefined : "var(--primary)",
         }}
       >
@@ -84,7 +85,7 @@ const BannerSection = ({
       style={{
         backgroundImage: image ? `url(${image})` : undefined,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: imagePosition,
         backgroundColor: image ? undefined : "var(--primary)",
       }}
     >
