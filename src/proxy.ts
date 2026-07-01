@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_COOKIE = "better-auth.session_token";
+// Better Auth prepends __Secure- when BETTER_AUTH_URL uses https://
+const SESSION_COOKIE = "__Secure-better-auth.session_token";
+const SESSION_COOKIE_PLAIN = "better-auth.session_token";
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "multistore.ge";
 
 export function proxy(req: NextRequest) {
@@ -8,7 +10,7 @@ export function proxy(req: NextRequest) {
 
   const host = (req.headers.get("host") ?? "").split(":")[0];
   const pathname = url.pathname;
-  const hasSession = req.cookies.has(SESSION_COOKIE);
+  const hasSession = req.cookies.has(SESSION_COOKIE) || req.cookies.has(SESSION_COOKIE_PLAIN);
 
   const isWWW = host === `www.${ROOT_DOMAIN}`;
   const isSubdomain =
