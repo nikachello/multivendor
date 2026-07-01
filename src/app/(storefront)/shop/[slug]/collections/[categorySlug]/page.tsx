@@ -132,18 +132,18 @@ export default async function CollectionPage({
             ShopSection["props"]
           >;
           if (!Component) return null;
+          const extraProps = {
+            shopId: shop.id,
+            shopSlug: shop.slug,
+            shopBase,
+            shopName: shop.name,
+            currency: shop.currency,
+            themeConfig,
+          };
           return (
             <div key={section.id} data-section-id={section.id}>
               <Section container={!noContainerTypes.has(section.type)}>
-                <Component
-                  {...section.props}
-                  shopId={shop.id}
-                  shopSlug={shop.slug}
-                  shopBase={shopBase}
-                  shopName={shop.name}
-                  currency={shop.currency}
-                  themeConfig={themeConfig}
-                />
+                <Component {...section.props} {...extraProps} />
               </Section>
             </div>
           );
