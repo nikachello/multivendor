@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createShop } from "@/lib/actions/shop";
+import { getStorefrontUrl } from "@/lib/storefront-url";
 
 function toSlug(value: string) {
   return value
@@ -114,7 +115,7 @@ export default function OnboardingPage() {
               </label>
               <div className="flex items-stretch border border-zinc-200 focus-within:border-zinc-900 transition-colors rounded-sm overflow-hidden">
                 <span className="flex items-center px-3 bg-zinc-50 text-zinc-400 text-sm border-r border-zinc-200 whitespace-nowrap">
-                  multistore.ge/shop/
+                  slug.
                 </span>
                 <input
                   type="text"
@@ -128,7 +129,7 @@ export default function OnboardingPage() {
               {slug && (
                 <p className="text-[10px] text-zinc-400">
                   Your store will be at{" "}
-                  <span className="text-zinc-700 font-mono">multistore.ge/shop/{slug}</span>
+                  <span className="text-zinc-700 font-mono">{getStorefrontUrl(slug)}</span>
                 </p>
               )}
             </div>
