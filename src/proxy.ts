@@ -8,6 +8,13 @@ export function proxy(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").split(":")[0];
   const hasSession = req.cookies.has(SESSION_COOKIE);
 
+  // www → non-www canonical redirect
+  if (host === `www.${ROOT_DOMAIN}`) {
+    const url = req.nextUrl.clone();
+    url.host = ROOT_DOMAIN;
+    return NextResponse.redirect(url, 301);
+  }
+
   // Subdomain routing: slug.multistore.ge → /shop/slug/...
   if (
     host !== ROOT_DOMAIN &&
