@@ -58,7 +58,7 @@ export default function CheckoutForm({
 }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const router = useRouter();
-  const { cart, clear } = useCart(shopId);
+  const { cart } = useCart(shopId);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
@@ -126,7 +126,6 @@ export default function CheckoutForm({
     }
 
     setSubmitted(true);
-    clear();
     router.push(`${base}/order/${result.data.id}`);
   }
 

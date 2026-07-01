@@ -12,6 +12,11 @@ import NewsletterSection from "@/themes/_shared/NewsletterSection";
 import FaqSection from "@/themes/_shared/FaqSection";
 import StatsSection from "@/themes/_shared/StatsSection";
 import DividerSection from "@/themes/_shared/DividerSection";
+import BeforeAfterSection from "@/themes/dew/BeforeAfterSection";
+import IngredientsSection from "@/themes/dew/IngredientsSection";
+import ReviewsSection from "@/themes/dew/ReviewsSection";
+import RoutineBuilderSection from "@/themes/dew/RoutineBuilderSection";
+import ShadePickerSection from "@/themes/dew/ShadePickerSection";
 import { ThemeDefinition } from "@/themes/types";
 
 export const ecruTheme: ThemeDefinition = {
@@ -34,5 +39,10 @@ export const ecruTheme: ThemeDefinition = {
     faq: FaqSection,
     stats: StatsSection,
     divider: DividerSection,
+    "before-after": BeforeAfterSection,
+    ingredients: IngredientsSection,
+    reviews: ReviewsSection,
+    "routine-builder": RoutineBuilderSection,
+    "shade-picker": ShadePickerSection,
   },
 };

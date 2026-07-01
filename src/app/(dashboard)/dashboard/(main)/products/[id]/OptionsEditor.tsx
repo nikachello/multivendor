@@ -19,13 +19,13 @@ type Props = {
 
 export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate }: Props) {
   const [newTypeName, setNewTypeName] = useState("");
-  // raw input text per option type
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  // values pending save (not yet in DB) per option type
   const [pending, setPending] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [addingType, setAddingType] = useState(false);
+  const [removingTypeId, setRemovingTypeId] = useState<string | null>(null);
+  const [deletingValueId, setDeletingValueId] = useState<string | null>(null);
 
-  // Processes the raw input for an option type: splits by comma, adds novel values to pending
   function flushInput(optionTypeId: string, raw: string) {
     const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
     if (parts.length === 0) return;
@@ -44,7 +44,6 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
   }
 
   function handleInputChange(optionTypeId: string, value: string) {
-    // If user typed a comma, immediately flush
     if (value.endsWith(",")) {
       flushInput(optionTypeId, value);
     } else {
@@ -81,31 +80,43 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
   }
 
   async function handleAddType() {
-    if (!newTypeName.trim()) return;
+    if (!newTypeName.trim() || addingType) return;
+    setAddingType(true);
     const result = await addOptionType(productId, shopId, newTypeName.trim());
+    setAddingType(false);
     if (!result.ok) { toast.error("Failed to add option"); return; }
     setNewTypeName("");
     onUpdate();
   }
 
   async function handleRemoveType(optionTypeId: string) {
+    if (removingTypeId) return;
+    setRemovingTypeId(optionTypeId);
     const result = await removeOptionTypeFromProduct(productId, optionTypeId);
+    setRemovingTypeId(null);
     if (!result.ok) { toast.error("Failed to remove option"); return; }
     onUpdate();
   }
 
   async function handleRemoveValue(optionValueId: string) {
+    if (deletingValueId) return;
+    setDeletingValueId(optionValueId);
     const result = await removeOptionValue(optionValueId);
+    setDeletingValueId(null);
     if (!result.ok) { toast.error("Failed to remove value"); return; }
     onUpdate();
   }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Existing option types */}
+      <p className="text-xs text-neutral-400 bg-neutral-50 border border-neutral-100 rounded px-3 py-2">
+        Option types (Size, Color, etc.) are shared across your shop. Adding a value here makes it available to all products using that option.
+      </p>
+
       {optionTypes.map((ot) => {
         const pendingValues = pending[ot.optionTypeId] ?? [];
         const hasPending = pendingValues.length > 0;
+        const isRemovingThisType = removingTypeId === ot.optionTypeId;
 
         return (
           <div key={ot.optionTypeId} className="border border-gray-200 rounded p-4 flex flex-col gap-3">
@@ -113,29 +124,32 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
               <span className="text-sm font-semibold text-gray-800">{ot.name}</span>
               <button
                 onClick={() => handleRemoveType(ot.optionTypeId)}
-                className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                disabled={isRemovingThisType}
+                className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
               >
-                Remove
+                {isRemovingThisType ? "Removing…" : "Remove"}
               </button>
             </div>
 
-            {/* Saved + pending values as pills */}
             <div className="flex flex-wrap gap-2">
-              {ot.values.map((v) => (
-                <span
-                  key={v.id}
-                  className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded text-sm text-gray-700"
-                >
-                  {v.value}
-                  <button
-                    onClick={() => handleRemoveValue(v.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
+              {ot.values.map((v) => {
+                const isDeleting = deletingValueId === v.id;
+                return (
+                  <span
+                    key={v.id}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded text-sm text-gray-700 transition-opacity ${isDeleting ? "opacity-40" : ""}`}
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {/* Pending (unsaved) pills */}
+                    {v.value}
+                    <button
+                      onClick={() => handleRemoveValue(v.id)}
+                      disabled={isDeleting || !!deletingValueId}
+                      className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                    >
+                      ×
+                    </button>
+                  </span>
+                );
+              })}
               {pendingValues.map((v) => (
                 <span
                   key={v}
@@ -152,13 +166,12 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
               ))}
             </div>
 
-            {/* Input */}
             <div className="flex gap-2">
               <input
                 value={inputs[ot.optionTypeId] ?? ""}
                 onChange={(e) => handleInputChange(ot.optionTypeId, e.target.value)}
                 onKeyDown={(e) => handleInputKeyDown(ot.optionTypeId, e)}
-                placeholder={`Type values, separate by comma (e.g. S, M, L)`}
+                placeholder="Type values, separate by comma (e.g. S, M, L)"
                 className="flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm outline-none focus:border-gray-400 transition-colors"
               />
               {hasPending && (
@@ -167,7 +180,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
                   disabled={saving[ot.optionTypeId]}
                   className="px-3 py-1.5 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
-                  {saving[ot.optionTypeId] ? "Saving..." : "Save"}
+                  {saving[ot.optionTypeId] ? "Saving…" : "Save"}
                 </button>
               )}
             </div>
@@ -180,7 +193,6 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
         );
       })}
 
-      {/* Add new option type */}
       <div className="flex gap-2">
         <input
           value={newTypeName}
@@ -191,9 +203,10 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
         />
         <button
           onClick={handleAddType}
-          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+          disabled={addingType}
+          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
         >
-          Add Option
+          {addingType ? "Adding…" : "Add Option"}
         </button>
       </div>
     </div>

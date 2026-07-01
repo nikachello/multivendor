@@ -8,6 +8,7 @@ import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { getShopBase } from "@/lib/shop-base";
+import CartCleaner from "@/components/storefront/cart/CartCleaner";
 
 export async function generateMetadata({
   params,
@@ -65,6 +66,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <>
+      <CartCleaner shopId={shop.id} />
       {navbarSection && NavbarComponent && (
         <NavbarComponent
           {...(navbarSection.props as NavbarSectionProps)}

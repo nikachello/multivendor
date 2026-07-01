@@ -10,6 +10,7 @@ const NewsletterSection = ({
   title = "Stay in the know",
   subtitle,
   buttonText = "Subscribe",
+  variant = "banner",
   themeConfig,
 }: Props) => {
   const [email, setEmail] = useState("");
@@ -21,21 +22,38 @@ const NewsletterSection = ({
     setSubmitted(true);
   }
 
-  const { wrapper, inputStyle, buttonStyle } = themeConfig.sections.newsletter;
+  const isMinimal = variant === "minimal";
+
+  const wrapperCls = isMinimal
+    ? `${themeConfig.layout.sectionPy} ${themeConfig.layout.contentPx} bg-[var(--page-bg)]`
+    : themeConfig.sections.newsletter.wrapper;
+
+  const inputCls = isMinimal
+    ? `flex-1 ${themeConfig.components.input}`
+    : `flex-1 ${themeConfig.components.input}`;
+
+  const inputStyle = isMinimal ? undefined : themeConfig.sections.newsletter.inputStyle;
+
+  const buttonStyle = isMinimal
+    ? { backgroundColor: "var(--primary)", color: "var(--secondary)", ...themeConfig.components.button.style }
+    : themeConfig.sections.newsletter.buttonStyle;
+
+  const headingStyle = isMinimal ? undefined : { color: "var(--secondary)" };
+  const subtitleStyle = isMinimal ? undefined : { color: "var(--secondary)" };
 
   return (
-    <section className={wrapper}>
+    <section className={wrapperCls}>
       <div className={`${themeConfig.layout.contentPx} max-w-2xl mx-auto text-center`}>
         <h2
           className={themeConfig.type.sectionHeading}
-          style={{ color: "var(--secondary)" }}
+          style={headingStyle}
         >
           {title}
         </h2>
         {subtitle && (
           <p
             className={`mt-4 ${themeConfig.type.body} opacity-70`}
-            style={{ color: "var(--secondary)" }}
+            style={subtitleStyle}
           >
             {subtitle}
           </p>
@@ -55,7 +73,7 @@ const NewsletterSection = ({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
-              className={`flex-1 ${themeConfig.components.input}`}
+              className={inputCls}
               style={inputStyle}
             />
             <button

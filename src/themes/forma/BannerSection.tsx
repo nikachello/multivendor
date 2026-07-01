@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { BannerSectionProps } from "@/lib/types/sections";
 
@@ -23,6 +24,42 @@ const BannerSection = ({
   variant = "cover",
 }: Props) => {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
+
+  if (variant === "split") {
+    return (
+      <section className="grid md:grid-cols-2">
+        <div className="relative bg-neutral-900" style={{ minHeight: "clamp(340px, 46vw, 560px)" }}>
+          {image && (
+            <Image src={image} alt={title} fill className="object-cover" unoptimized />
+          )}
+          {image && <div className="absolute inset-0 bg-black/20" />}
+        </div>
+        <div
+          className="flex flex-col justify-center px-10 py-16 md:px-16"
+          style={{ backgroundColor: "#1c1916" }}
+        >
+          {subtitle && (
+            <p className="text-xs font-bold uppercase tracking-[0.18em] mb-5" style={{ color: "oklch(0.68 0.2 38)" }}>
+              {subtitle}
+            </p>
+          )}
+          <h2 className="font-black text-[#f5f1ea] leading-none tracking-[-0.02em] text-3xl md:text-5xl">
+            {title}
+          </h2>
+          {buttonText && (
+            <Link
+              href={resolveHref(href, base)}
+              className="mt-10 self-start inline-flex items-center text-[#141210] text-sm font-bold px-8 py-4 uppercase tracking-[0.06em] hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "oklch(0.68 0.2 38)" }}
+            >
+              {buttonText}
+            </Link>
+          )}
+        </div>
+      </section>
+    );
+  }
+
   const isCompact = variant === "compact";
 
   return (

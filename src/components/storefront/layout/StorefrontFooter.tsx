@@ -1,4 +1,11 @@
-const StorefrontFooter = () => {
+import Link from "next/link";
+
+type Props = {
+  shopName: string;
+  shopBase: string;
+};
+
+const StorefrontFooter = ({ shopName, shopBase }: Props) => {
   return (
     <footer className="bg-neutral-900 text-neutral-400">
       <div className="max-w-6xl mx-auto px-5 md:px-10 py-16">
@@ -6,7 +13,7 @@ const StorefrontFooter = () => {
           {/* Brand */}
           <div>
             <p className="text-white text-sm font-semibold tracking-widest uppercase mb-3">
-              Your Store
+              {shopName}
             </p>
             <p className="text-xs leading-relaxed">
               Curated products for the modern lifestyle.
@@ -19,36 +26,40 @@ const StorefrontFooter = () => {
               Shop
             </p>
             <ul className="space-y-2 text-xs">
-              {["New Arrivals", "Best Sellers", "Collections", "Sale"].map(
-                (label) => (
-                  <li key={label}>
-                    <span className="hover:text-white transition-colors cursor-pointer">
-                      {label}
-                    </span>
-                  </li>
-                )
-              )}
+              <li>
+                <Link href={shopBase || "/"} className="hover:text-white transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href={`${shopBase}/collections`} className="hover:text-white transition-colors">
+                  Collections
+                </Link>
+              </li>
+              <li>
+                <Link href={`${shopBase}/search`} className="hover:text-white transition-colors">
+                  Search
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Legal links */}
+          {/* Info links */}
           <div>
             <p className="text-white text-xs font-semibold tracking-widest uppercase mb-4">
               Info
             </p>
             <ul className="space-y-2 text-xs">
-              {[
-                "About",
-                "Privacy Policy",
-                "Terms of Service",
-                "Contact",
-              ].map((label) => (
-                <li key={label}>
-                  <span className="hover:text-white transition-colors cursor-pointer">
-                    {label}
-                  </span>
-                </li>
-              ))}
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -57,8 +68,8 @@ const StorefrontFooter = () => {
       {/* Bottom bar */}
       <div className="border-t border-neutral-800">
         <div className="max-w-6xl mx-auto px-5 md:px-10 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
-          <p>© {new Date().getFullYear()} Your Store. All rights reserved.</p>
-          <p className="text-neutral-600">Powered by Multivendor</p>
+          <p>© {new Date().getFullYear()} {shopName}. All rights reserved.</p>
+          <p className="text-neutral-600">Powered by MultiStore</p>
         </div>
       </div>
     </footer>

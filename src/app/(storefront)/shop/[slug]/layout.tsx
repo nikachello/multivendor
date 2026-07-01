@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
+import StorefrontFooter from "@/components/storefront/layout/StorefrontFooter";
 import { getThemeConfig } from "@/themes";
 import { getShopBase } from "@/lib/shop-base";
 
-// This layout wraps every page under /shop/[slug]/ (main, product, collection,
-// checkout). Rendering CartDrawer here means one instance per shop visit,
-// always available wherever the navbar cart icon is visible.
 export default async function ShopSlugLayout({
   children,
   params,
@@ -56,6 +54,7 @@ export default async function ShopSlugLayout({
       }
     >
       {children}
+      <StorefrontFooter shopName={shop.name} shopBase={shopBase} />
       <CartDrawer
         shopId={shop.id}
         shopSlug={shop.slug}
