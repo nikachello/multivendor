@@ -2,6 +2,41 @@
 
 import { ShopSection } from "@/lib/types/store-section";
 import { FieldDef, FlatFieldDef, sectionFieldSchema, sectionLabels } from "@/lib/editor-schema";
+import { useUploadThing } from "@/lib/uploadthing-client";
+import { useRef } from "react";
+
+function ImageUploadField({ label, value, onChange }: { label: string; value: unknown; onChange: (val: unknown) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const current = typeof value === "string" ? value : "";
+
+  const { startUpload, isUploading } = useUploadThing("sectionImage", {
+    onClientUploadComplete: (res) => {
+      if (res[0]) onChange(res[0].ufsUrl);
+    },
+  });
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-neutral-600 mb-1.5">{label}</label>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) startUpload([file]);
+        e.target.value = "";
+      }} />
+      {current && (
+        <img src={current} alt="" className="w-full h-32 object-cover mb-2 border border-neutral-200" />
+      )}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={isUploading}
+        className="w-full border border-neutral-200 hover:border-neutral-500 py-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-50"
+      >
+        {isUploading ? "Uploading…" : current ? "Replace image" : "Upload image"}
+      </button>
+    </div>
+  );
+}
 
 type ShopCategory = { id: string; name: string };
 
@@ -25,6 +60,10 @@ function FlatField({
 }) {
   const labelCls = "block text-xs font-medium text-neutral-600 mb-1.5";
   const inputCls = "w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors";
+
+  if (field.type === "image-upload") {
+    return <ImageUploadField label={field.label} value={value} onChange={onChange} />;
+  }
 
   if (field.type === "text") {
     return (
@@ -118,7 +157,8 @@ function Field({
     field.type === "text" ||
     field.type === "textarea" ||
     field.type === "color" ||
-    field.type === "select"
+    field.type === "select" ||
+    field.type === "image-upload"
   ) {
     return <FlatField field={field} value={value} onChange={onChange} />;
   }

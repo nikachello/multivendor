@@ -4,6 +4,7 @@ export type FlatFieldDef =
   | { type: "text"; key: string; label: string; placeholder?: string }
   | { type: "textarea"; key: string; label: string; placeholder?: string }
   | { type: "color"; key: string; label: string }
+  | { type: "image-upload"; key: string; label: string }
   | {
       type: "select";
       key: string;
@@ -175,7 +176,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
     },
     { type: "text", key: "title", label: "Title", placeholder: "New arrivals" },
     { type: "text", key: "subtitle", label: "Subtitle", placeholder: "Discover our latest collection" },
-    { type: "text", key: "image", label: "Image URL", placeholder: "/banner.jpg" },
+    { type: "image-upload", key: "image", label: "Image" },
     { type: "text", key: "buttonText", label: "Button text", placeholder: "Shop now" },
     { type: "text", key: "href", label: "Button link", placeholder: "/" },
   ],
@@ -240,7 +241,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
         },
         { type: "text", key: "title", label: "Title", placeholder: "Free shipping" },
         { type: "textarea", key: "description", label: "Description", placeholder: "On all orders over $50" },
-        { type: "text", key: "imageUrl", label: "Image URL", placeholder: "/feature.jpg" },
+        { type: "image-upload", key: "imageUrl", label: "Image" },
         { type: "text", key: "buttonText", label: "Button text", placeholder: "Learn more" },
         { type: "text", key: "buttonUrl", label: "Button URL", placeholder: "/policies/shipping" },
       ],
@@ -282,7 +283,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
         { value: "right", label: "Right" },
       ],
     },
-    { type: "text", key: "image", label: "Image URL", placeholder: "/image.jpg" },
+    { type: "image-upload", key: "image", label: "Image" },
     { type: "text", key: "title", label: "Title", placeholder: "Built with purpose" },
     { type: "textarea", key: "body", label: "Body", placeholder: "Tell your story..." },
     { type: "text", key: "buttonText", label: "Button text", placeholder: "Learn more" },
@@ -301,7 +302,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
       label: "Image",
       itemDefault: { url: "", alt: "" },
       itemFields: [
-        { type: "text", key: "url", label: "Image URL", placeholder: "https://..." },
+        { type: "image-upload", key: "url", label: "Image" },
         { type: "text", key: "alt", label: "Alt text", placeholder: "Description" },
       ],
     },
@@ -359,8 +360,8 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
   ],
   "before-after": [
     { type: "text", key: "title", label: "Title", placeholder: "Before & After" },
-    { type: "text", key: "beforeImage", label: "Before image URL", placeholder: "/before.jpg" },
-    { type: "text", key: "afterImage", label: "After image URL", placeholder: "/after.jpg" },
+    { type: "image-upload", key: "beforeImage", label: "Before image" },
+    { type: "image-upload", key: "afterImage", label: "After image" },
     { type: "text", key: "beforeLabel", label: "Before label", placeholder: "Before" },
     { type: "text", key: "afterLabel", label: "After label", placeholder: "After" },
   ],
@@ -405,7 +406,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
         { type: "text", key: "name", label: "Product name", placeholder: "Gentle Gel Cleanser" },
         { type: "text", key: "step", label: "Step label", placeholder: "Step 1 — Cleanse" },
         { type: "text", key: "price", label: "Price", placeholder: "24" },
-        { type: "text", key: "image", label: "Image URL", placeholder: "/product.jpg" },
+        { type: "image-upload", key: "image", label: "Image" },
       ],
     },
   ],
@@ -414,7 +415,7 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
     { type: "text", key: "subtitle", label: "Eyebrow", placeholder: "bestseller" },
     { type: "textarea", key: "body", label: "Description", placeholder: "A buildable, skin-perfecting tint..." },
     { type: "text", key: "price", label: "Price", placeholder: "36" },
-    { type: "text", key: "image", label: "Product image URL", placeholder: "/product.jpg" },
+    { type: "image-upload", key: "image", label: "Product image" },
     {
       type: "list",
       key: "shades",
