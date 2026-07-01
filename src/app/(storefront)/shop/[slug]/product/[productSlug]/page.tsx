@@ -6,6 +6,7 @@ import {
   getShopSections,
 } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
+import { getThemeConfig } from "@/themes";
 import ProductDetail from "@/components/storefront/product/ProductDetail";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
@@ -73,7 +74,9 @@ export default async function ProductPage({
   const homeSections = homeSectionsResult.ok ? homeSectionsResult.data : [];
   const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
 
-  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
+  const themeConfig = getThemeConfig(themeId);
   const shopBase = await getShopBase(slug);
 
   const navbarSection = homeSections.find((s) => s.type === "navbar");
@@ -82,7 +85,7 @@ export default async function ProductPage({
   >;
 
   const noContainerTypes = new Set([
-    "banner", "announcement", "navbar", "testimonials", "collection", "newsletter", "divider",
+    "banner", "announcement", "navbar", "testimonials", "product-testimonials", "collection", "newsletter", "divider",
   ]);
 
   const jsonLd = {
@@ -136,19 +139,21 @@ export default async function ProductPage({
       {pageSections.map((section) => {
         const Component = registry[section.type] as React.ComponentType<
           ShopSection["props"]
-        >;
+        > | undefined;
         if (!Component) return null;
+        const extraProps = {
+          shopId: shop.id,
+          shopSlug: shop.slug,
+          shopBase,
+          shopName: shop.name,
+          currency: shop.currency,
+          productId: product.id,
+          themeConfig,
+        };
         return (
           <div key={section.id} data-section-id={section.id}>
             <Section container={!noContainerTypes.has(section.type)}>
-              <Component
-                {...section.props}
-                shopId={shop.id}
-                shopSlug={shop.slug}
-                shopBase={shopBase}
-                shopName={shop.name}
-                currency={shop.currency}
-              />
+              <Component {...section.props} {...extraProps} />
             </Section>
           </div>
         );

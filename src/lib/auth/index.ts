@@ -8,6 +8,14 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   trustedOrigins: ["https://multistore.ge", "https://www.multistore.ge"],
+  session: {
+    expiresIn: 60 * 60 * 24 * 30,    // 30 days
+    updateAge: 60 * 60 * 24,          // rotate token at most once per day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5,                 // serve cached session for 5 min before re-validating
+    },
+  },
   advanced: {
     crossSubDomainCookies: {
       enabled: true,

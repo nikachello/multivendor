@@ -19,6 +19,10 @@ export default async function SettingsPage() {
           description: shop.description ?? "",
           currency: shop.currency,
           logo: shop.logo ?? "",
+          metaPixelId: shop.metaPixelId ?? "",
+          ga4MeasurementId: shop.ga4MeasurementId ?? "",
+          googleAdsId: shop.googleAdsId ?? "",
+          googleAdsConversionLabel: shop.googleAdsConversionLabel ?? "",
         }}
       />
     </div>

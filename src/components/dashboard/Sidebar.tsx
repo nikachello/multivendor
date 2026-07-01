@@ -12,8 +12,9 @@ import {
   ShoppingBag,
   Settings,
   Paintbrush,
-  icons,
   Earth,
+  BarChart2,
+  MessageSquare,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,8 @@ const NAV_ITEMS = [
   { label: "Products", href: "/dashboard/products", icon: Package },
   { label: "Categories", href: "/dashboard/categories", icon: Tag },
   { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+  { label: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
+  { label: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquare },
   { label: "Navigation", href: "/dashboard/navigation", icon: Navigation },
   { label: "Themes", href: "/dashboard/themes", icon: Paintbrush },
   { label: "Editor", href: "/dashboard/editor", icon: Layout },

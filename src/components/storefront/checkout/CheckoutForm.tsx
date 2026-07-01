@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import { createOrder } from "@/lib/actions/order";
+import { trackInitiateCheckout } from "@/lib/tracking";
+import { recordEvent } from "@/lib/actions/analytics";
+import { useAnalyticsSession } from "@/hooks/useAnalyticsSession";
 import { orderSchema } from "@/lib/validations/order";
 import { GEORGIA_CITIES } from "@/lib/constants/georgia-cities";
 
@@ -59,6 +62,7 @@ export default function CheckoutForm({
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const router = useRouter();
   const { cart } = useCart(shopId);
+  const sessionId = useAnalyticsSession();
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
@@ -67,6 +71,14 @@ export default function CheckoutForm({
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
+
+  useEffect(() => {
+    if (items.length > 0) {
+      trackInitiateCheckout(subtotal, currency, items.reduce((s, i) => s + i.quantity, 0));
+      if (sessionId) recordEvent(shopId, "checkout", sessionId, undefined, subtotal);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const shippingCost = useMemo(() => {
     if (freeThreshold > 0 && subtotal >= freeThreshold) return 0;
@@ -125,6 +137,7 @@ export default function CheckoutForm({
       return;
     }
 
+    if (sessionId) recordEvent(shopId, "purchase", sessionId, undefined, total);
     setSubmitted(true);
     router.push(`${base}/order/${result.data.id}`);
   }

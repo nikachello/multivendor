@@ -44,6 +44,7 @@ export default async function EditorPage() {
       shopName={shop.name}
       currency={shop.currency}
       categories={categoriesResult.ok ? categoriesResult.data : []}
+      themeId={(shop as { themeId?: string }).themeId ?? "minimal"}
       initialTheme={{
         primaryColor: shop.primaryColor,
         secondaryColor: shop.secondaryColor,

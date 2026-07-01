@@ -402,7 +402,7 @@ export async function getProductsByShop(
 
 export async function getTestimonialsByShop(
   shopId: string,
-): Promise<Result<Testimonial[]>> {
+): Promise<Result<any[]>> {
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,
@@ -412,20 +412,21 @@ export async function getTestimonialsByShop(
   }
 
   const testimonials = await prisma.testimonial.findMany({
-    where: {
-      shopId,
-    },
+    where: { shopId },
+    orderBy: { createdAt: "desc" },
   });
 
-  if (!testimonials) {
-    return err({
-      code: ErrorCode.TESTIMONIALS_NOT_FOUND,
-      message: "áƒ¨áƒ”áƒ¤áƒáƒ¡áƒ”áƒ‘áƒ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
-      status: 404,
-    });
-  }
-
   return ok(testimonials);
+}
+
+export async function getProductTestimonials(
+  shopId: string,
+  productId: string,
+) {
+  return prisma.testimonial.findMany({
+    where: { shopId, productId, isActive: true },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function getOrderById(id: string) {
@@ -462,6 +463,76 @@ export async function getDashboardStats(shopId: string) {
     orderCount,
     revenue: Number(revenueAgg._sum.total ?? 0),
     recentOrders,
+  };
+}
+
+export async function getAnalyticsData(shopId: string) {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const [events, orders] = await Promise.all([
+    prisma.analyticsEvent.findMany({
+      where: { shopId, createdAt: { gte: thirtyDaysAgo } },
+      select: { type: true, sessionId: true, value: true, createdAt: true, productId: true },
+    }),
+    prisma.order.findMany({
+      where: { shopId, createdAt: { gte: thirtyDaysAgo }, status: { notIn: ["cancelled", "refunded"] } },
+      select: { total: true, createdAt: true, items: { select: { productId: true, productName: true, price: true, quantity: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
+  // Funnel sets
+  const sessions     = new Set(events.map((e) => e.sessionId));
+  const atcSessions  = new Set(events.filter((e) => e.type === "add_to_cart").map((e) => e.sessionId));
+  const coSessions   = new Set(events.filter((e) => e.type === "checkout").map((e) => e.sessionId));
+  const purSessions  = new Set(events.filter((e) => e.type === "purchase").map((e) => e.sessionId));
+
+  const sessionCount    = sessions.size;
+  const atcRate         = sessionCount > 0 ? atcSessions.size / sessionCount : 0;
+  const checkoutRate    = atcSessions.size > 0 ? coSessions.size / atcSessions.size : 0;
+  const conversionRate  = sessionCount > 0 ? purSessions.size / sessionCount : 0;
+
+  // Revenue metrics
+  const revenue = orders.reduce((s, o) => s + Number(o.total), 0);
+  const orderCount = orders.length;
+  const aov = orderCount > 0 ? revenue / orderCount : 0;
+
+  // Daily revenue — last 30 days, fill missing days with 0
+  const dailyMap = new Map<string, number>();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    dailyMap.set(d.toISOString().slice(0, 10), 0);
+  }
+  for (const o of orders) {
+    const day = new Date(o.createdAt).toISOString().slice(0, 10);
+    if (dailyMap.has(day)) dailyMap.set(day, (dailyMap.get(day) ?? 0) + Number(o.total));
+  }
+  const dailyRevenue = Array.from(dailyMap.entries()).map(([date, value]) => ({ date, value }));
+
+  // Top products by revenue
+  const productMap = new Map<string, { name: string; revenue: number; orders: number }>();
+  for (const o of orders) {
+    for (const item of o.items) {
+      const existing = productMap.get(item.productId) ?? { name: item.productName, revenue: 0, orders: 0 };
+      existing.revenue += Number(item.price) * item.quantity;
+      existing.orders += 1;
+      productMap.set(item.productId, existing);
+    }
+  }
+  const topProducts = Array.from(productMap.values())
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
+
+  return {
+    sessionCount,
+    atcRate,
+    checkoutRate,
+    conversionRate,
+    revenue,
+    orderCount,
+    aov,
+    dailyRevenue,
+    topProducts,
   };
 }
 

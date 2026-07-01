@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
 import StorefrontFooter from "@/components/storefront/layout/StorefrontFooter";
+import StorefrontPixel from "@/components/storefront/tracking/StorefrontPixel";
+import StorefrontGA4 from "@/components/storefront/tracking/StorefrontGA4";
+import StorefrontGoogleAds from "@/components/storefront/tracking/StorefrontGoogleAds";
 import { getThemeConfig } from "@/themes";
 import { getShopBase } from "@/lib/shop-base";
 
@@ -53,6 +56,9 @@ export default async function ShopSlugLayout({
         } as React.CSSProperties
       }
     >
+      <StorefrontPixel pixelId={shop.metaPixelId ?? ""} />
+      <StorefrontGA4 measurementId={shop.ga4MeasurementId ?? ""} />
+      <StorefrontGoogleAds googleAdsId={shop.googleAdsId ?? ""} />
       {children}
       <StorefrontFooter shopName={shop.name} shopBase={shopBase} />
       <CartDrawer

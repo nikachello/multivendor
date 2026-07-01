@@ -6,6 +6,7 @@ import {
   NavbarSectionProps,
   HighlightsSectionProps,
   TestimonialsSectionProps,
+  ProductTestimonialsSectionProps,
   RichTextSectionProps,
   ImageTextSectionProps,
   GallerySectionProps,
@@ -39,7 +40,8 @@ export type ShopSection =
   | { id: string; type: "ingredients"; props: IngredientsSectionProps }
   | { id: string; type: "reviews"; props: ReviewsSectionProps }
   | { id: string; type: "routine-builder"; props: RoutineBuilderSectionProps }
-  | { id: string; type: "shade-picker"; props: ShadePickerSectionProps };
+  | { id: string; type: "shade-picker"; props: ShadePickerSectionProps }
+  | { id: string; type: "product-testimonials"; props: ProductTestimonialsSectionProps };
 
 export type SectionProps<T extends ShopSection["type"]> = Extract<
   ShopSection,

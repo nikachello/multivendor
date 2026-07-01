@@ -6,6 +6,7 @@ export type SectionContext = {
   shopBase?: string;
   shopName?: string;
   currency?: string;
+  productId?: string;
 };
 
 export type AnnouncementSectionProps = SectionContext & {
@@ -133,6 +134,10 @@ export type ShadePickerSectionProps = {
   image?: string;
   price?: number;
   shades?: { name: string; color: string }[];
+};
+
+export type ProductTestimonialsSectionProps = SectionContext & {
+  title?: string;
 };
 
 // Legacy alias

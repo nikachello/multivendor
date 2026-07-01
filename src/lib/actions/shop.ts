@@ -29,7 +29,7 @@ export async function updateShopTheme(shopId: string, themeId: string) {
 
 export async function updateShop(
   shopId: string,
-  data: { name: string; description?: string; currency: string; logo?: string },
+  data: { name: string; description?: string; currency: string; logo?: string; metaPixelId?: string; ga4MeasurementId?: string; googleAdsId?: string; googleAdsConversionLabel?: string },
 ) {
   if (!shopId || !data.name || !data.currency)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
@@ -43,6 +43,10 @@ export async function updateShop(
       description: data.description || null,
       currency: data.currency,
       logo: data.logo || null,
+      metaPixelId: data.metaPixelId || null,
+      ga4MeasurementId: data.ga4MeasurementId || null,
+      googleAdsId: data.googleAdsId || null,
+      googleAdsConversionLabel: data.googleAdsConversionLabel || null,
     },
   });
 

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getShopBySlug, searchProducts, getShopSections } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
+import { getThemeConfig } from "@/themes";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { ShopSection } from "@/lib/types/store-section";
@@ -49,7 +50,9 @@ export default async function SearchPage({
   const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
   const products = productsResult?.ok ? productsResult.data : [];
 
-  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
+  const themeConfig = getThemeConfig(themeId);
   const shopBase = await getShopBase(slug);
 
   const navbarSection = homeSections.find((s) => s.type === "navbar");
@@ -127,6 +130,7 @@ export default async function SearchPage({
                   shopBase={shopBase}
                   shopName={shop.name}
                   currency={shop.currency}
+                  themeConfig={themeConfig}
                 />
               </Section>
             </div>

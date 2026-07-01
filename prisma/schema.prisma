@@ -96,7 +96,8 @@ model Shop {
   sections     ShopSection[]
   optionTypes  OptionType[]
   subscribers  Subscriber[]
-  testimonials Testimonial[]
+  testimonials     Testimonial[]
+  analyticsEvents  AnalyticsEvent[]
 
 
   primaryColor     String @default("#000000")
@@ -109,8 +110,12 @@ model Shop {
 
   shippingRate      Decimal  @default(0) @db.Decimal(10, 2)
   freeThreshold     Decimal  @default(0) @db.Decimal(10, 2)
-  shippingZones Json @default("[]")
- 
+  shippingZones     Json     @default("[]")
+
+  metaPixelId              String?
+  ga4MeasurementId         String?
+  googleAdsId              String?
+  googleAdsConversionLabel String?
 }
 
 // ============================================
@@ -151,12 +156,13 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  shop        Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  categories  Category[]
-  images      ProductImage[]
-  variants    Variant[]
-  optionTypes ProductOptionType[]
-  orderItems  OrderItem[]
+  shop         Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  categories   Category[]
+  images       ProductImage[]
+  variants     Variant[]
+  optionTypes  ProductOptionType[]
+  orderItems   OrderItem[]
+  testimonials Testimonial[]
 
   @@unique([shopId, slug])
 }
@@ -334,6 +340,7 @@ model Subscriber {
 model Testimonial {
   id        String   @id @default(cuid())
   shopId    String
+  productId String?
   name      String
   position  String?
   testimony String
@@ -341,7 +348,28 @@ model Testimonial {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  shop    Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([shopId, productId])
+}
+
+// ============================================
+// ANALYTICS EVENT
+// ============================================
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  shopId    String
+  type      String   // "view" | "add_to_cart" | "checkout" | "purchase"
+  sessionId String
+  productId String?
+  value     Decimal? @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+
   shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, type, createdAt])
+  @@index([shopId, sessionId])
 }
 
 // ============================================

@@ -9,6 +9,7 @@ import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { getShopBase } from "@/lib/shop-base";
 import CartCleaner from "@/components/storefront/cart/CartCleaner";
+import TrackOnMount from "@/components/storefront/tracking/TrackOnMount";
 
 export async function generateMetadata({
   params,
@@ -67,6 +68,23 @@ export default async function OrderConfirmationPage({
   return (
     <>
       <CartCleaner shopId={shop.id} />
+      <TrackOnMount
+        event="Purchase"
+        orderId={order.id}
+        value={Number(order.total)}
+        currency={shop.currency}
+        items={order.items.map((item) => ({
+          id: item.productId,
+          name: item.productName,
+          price: Number(item.price),
+          quantity: item.quantity,
+        }))}
+        googleAdsConversionTarget={
+          shop.googleAdsId && shop.googleAdsConversionLabel
+            ? `${shop.googleAdsId}/${shop.googleAdsConversionLabel}`
+            : undefined
+        }
+      />
       {navbarSection && NavbarComponent && (
         <NavbarComponent
           {...(navbarSection.props as NavbarSectionProps)}

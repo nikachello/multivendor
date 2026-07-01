@@ -6,6 +6,7 @@ import HighlightsSection from "@/themes/_shared/HighlightsSection";
 import CollectionSection from "@/themes/_shared/CollectionSection";
 import CategoriesSection from "@/themes/_shared/CategoriesSection";
 import TestimonialsSection from "@/themes/_shared/TestimonialsSection";
+import ProductTestimonialsSection from "@/themes/_shared/ProductTestimonialsSection";
 import ImageTextSection from "@/themes/_shared/ImageTextSection";
 import GallerySection from "@/themes/_shared/GallerySection";
 import NewsletterSection from "@/themes/_shared/NewsletterSection";
@@ -32,6 +33,7 @@ export const minimalTheme: ThemeDefinition = {
     categories: CategoriesSection,
     highlights: HighlightsSection,
     testimonials: TestimonialsSection,
+    "product-testimonials": ProductTestimonialsSection,
     "rich-text": RichTextSection,
     "image-text": ImageTextSection,
     gallery: GallerySection,

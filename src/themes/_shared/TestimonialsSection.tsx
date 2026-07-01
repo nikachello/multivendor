@@ -10,9 +10,10 @@ const TestimonialsSection = async ({ shopId, variant = "grid", themeConfig }: Pr
   if (!shopId) return null;
 
   const result = await getTestimonialsByShop(shopId);
-  if (!result.ok || !result.data.length) return null;
+  if (!result.ok) return null;
 
-  const testimonials = result.data;
+  const testimonials = result.data.filter((t) => !t.productId && t.isActive);
+  if (!testimonials.length) return null;
 
   if (variant === "marquee") {
     return (

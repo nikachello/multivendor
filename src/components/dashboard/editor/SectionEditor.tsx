@@ -44,6 +44,7 @@ type Props = {
   currency: string;
   categories: { id: string; name: string }[];
   initialTheme: ThemeData;
+  themeId: string;
   firstCategorySlug: string | null;
   firstProductSlug: string | null;
 };
@@ -61,6 +62,7 @@ export default function SectionEditor({
   shopSlug,
   categories,
   initialTheme,
+  themeId,
   firstCategorySlug,
   firstProductSlug,
 }: Props) {
@@ -350,6 +352,8 @@ export default function SectionEditor({
                 onAddNavbar={handleAddNavbar}
                 hasNavbar={sections.some((s) => s.type === "navbar")}
                 onClose={() => setShowAddPanel(false)}
+                themeId={themeId}
+                currentPage={activePage}
               />
             )}
 

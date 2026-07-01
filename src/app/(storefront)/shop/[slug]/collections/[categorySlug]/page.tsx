@@ -7,6 +7,7 @@ import {
   getShopSections,
 } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
+import { getThemeConfig } from "@/themes";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
@@ -73,7 +74,9 @@ export default async function CollectionPage({
   const homeSections = homeSectionsResult.ok ? homeSectionsResult.data : [];
   const pageSections = pageSectionsResult.ok ? pageSectionsResult.data : [];
 
-  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
+  const themeConfig = getThemeConfig(themeId);
   const shopBase = await getShopBase(slug);
 
   const navbarSection = homeSections.find((s) => s.type === "navbar");
@@ -139,6 +142,7 @@ export default async function CollectionPage({
                   shopBase={shopBase}
                   shopName={shop.name}
                   currency={shop.currency}
+                  themeConfig={themeConfig}
                 />
               </Section>
             </div>

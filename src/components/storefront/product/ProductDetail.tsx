@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/hooks/useCart";
 import { ProductWithRelations } from "@/lib/db/queries";
+import { trackViewContent, trackAddToCart } from "@/lib/tracking";
+import { recordEvent } from "@/lib/actions/analytics";
+import { useAnalyticsSession } from "@/hooks/useAnalyticsSession";
 
 type Props = {
   product: ProductWithRelations;
@@ -33,6 +36,15 @@ export default function ProductDetail({
   const [added, setAdded] = useState(false);
 
   const { add } = useCart(shopId);
+  const sessionId = useAnalyticsSession();
+
+  useEffect(() => {
+    if (sessionId) recordEvent(shopId, "view", sessionId, product.id);
+    trackViewContent(
+      { id: product.id, name: product.name, price: Number(product.priceFrom) },
+      currency,
+    );
+  }, [product.id, product.name, product.priceFrom, currency]);
 
   function getVariantOptions(
     variants: ProductWithRelations["variants"][number],
@@ -94,6 +106,11 @@ export default function ProductDetail({
       quantity,
       image: selectedVariant.image ?? product.images[0].url,
     });
+    trackAddToCart(
+      { id: product.id, name: product.name, price: Number(selectedVariant.price), quantity },
+      currency,
+    );
+    if (sessionId) recordEvent(shopId, "add_to_cart", sessionId, product.id, Number(selectedVariant.price) * quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

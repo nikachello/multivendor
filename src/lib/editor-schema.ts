@@ -1,4 +1,5 @@
 import { ShopSection, SectionType } from "@/lib/types/store-section";
+import { PageType } from "@/themes/types";
 
 export type FlatFieldDef =
   | { type: "text"; key: string; label: string; placeholder?: string }
@@ -32,6 +33,7 @@ export const sectionLabels: Record<SectionType, string> = {
   collection: "Collection",
   highlights: "Highlights",
   testimonials: "Testimonials",
+  "product-testimonials": "Product Reviews",
   "rich-text": "Rich Text",
   "image-text": "Image + Text",
   gallery: "Gallery",
@@ -49,25 +51,37 @@ export const sectionLabels: Record<SectionType, string> = {
 type AddableSection = Exclude<ShopSection, { type: "navbar" }>;
 export type AddableSectionType = AddableSection["type"];
 
-export const addableSections: { type: AddableSectionType; description: string }[] = [
-  { type: "announcement", description: "Top bar with a short message or promo" },
-  { type: "banner", description: "Full-width hero image with headline" },
-  { type: "categories", description: "Grid of shop categories" },
-  { type: "collection", description: "Product grid from a category" },
-  { type: "highlights", description: "Highlight key selling points or brand values" },
-  { type: "testimonials", description: "Customer review cards" },
-  { type: "rich-text", description: "Heading and body text with optional CTA" },
-  { type: "image-text", description: "Image beside a text block" },
-  { type: "gallery", description: "Grid of lifestyle images" },
-  { type: "newsletter", description: "Email signup form" },
-  { type: "faq", description: "Expandable questions and answers" },
-  { type: "stats", description: "Key numbers and highlights" },
-  { type: "divider", description: "Vertical spacing between sections" },
-  { type: "before-after", description: "Interactive slider comparing two images — Dew theme" },
-  { type: "ingredients", description: "Ingredient accordion with expand/collapse — Dew theme" },
-  { type: "reviews", description: "Star-rated review cards — Dew theme" },
-  { type: "routine-builder", description: "Bundle picker with live discount — Dew theme" },
-  { type: "shade-picker", description: "Featured product with color swatches — Dew theme" },
+export type AddableSectionMeta = {
+  type: AddableSectionType;
+  description: string;
+  /** If set, only show when the active theme is one of these IDs */
+  themes?: string[];
+  /** If set, only show when editing one of these page types */
+  pages?: PageType[];
+};
+
+const DEW_THEMES = ["dew", "ecru"] as const;
+
+export const addableSections: AddableSectionMeta[] = [
+  { type: "announcement",         description: "Top bar with a short message or promo" },
+  { type: "banner",               description: "Full-width hero image with headline" },
+  { type: "categories",           description: "Grid of shop categories",                   pages: ["home", "collection", "search"] },
+  { type: "collection",           description: "Product grid from a category",              pages: ["home", "collection", "search"] },
+  { type: "highlights",           description: "Highlight key selling points or brand values" },
+  { type: "testimonials",         description: "Customer review cards",                     pages: ["home", "collection", "search"] },
+  { type: "product-testimonials", description: "Reviews linked to this product",            pages: ["product"] },
+  { type: "rich-text",            description: "Heading and body text with optional CTA" },
+  { type: "image-text",           description: "Image beside a text block" },
+  { type: "gallery",              description: "Grid of lifestyle images" },
+  { type: "newsletter",           description: "Email signup form" },
+  { type: "faq",                  description: "Expandable questions and answers" },
+  { type: "stats",                description: "Key numbers and highlights" },
+  { type: "divider",              description: "Vertical spacing between sections" },
+  { type: "before-after",         description: "Interactive before/after image slider",     themes: [...DEW_THEMES] },
+  { type: "ingredients",          description: "Ingredient accordion with expand/collapse", themes: [...DEW_THEMES] },
+  { type: "reviews",              description: "Star-rated static review cards",            themes: [...DEW_THEMES] },
+  { type: "routine-builder",      description: "Bundle picker with live discount",          themes: [...DEW_THEMES] },
+  { type: "shade-picker",         description: "Featured product with color swatches",      themes: [...DEW_THEMES] },
 ];
 
 export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]> = {
@@ -86,6 +100,7 @@ export const sectionDefaults: Record<AddableSectionType, AddableSection["props"]
   collection: { categoryId: "", variant: "grid" },
   highlights: { items: [], variant: "cards" },
   testimonials: { variant: "marquee" },
+  "product-testimonials": { title: "Customer reviews" },
   "rich-text": {
     title: "Our Story",
     body: "Write something about your brand here.",
@@ -267,6 +282,9 @@ export const sectionFieldSchema: Partial<Record<SectionType, FieldDef[]>> = {
         { value: "grid", label: "Grid" },
       ],
     },
+  ],
+  "product-testimonials": [
+    { type: "text", key: "title", label: "Section title", placeholder: "Customer reviews" },
   ],
   "rich-text": [
     {

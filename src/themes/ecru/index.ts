@@ -7,6 +7,7 @@ import RichTextSection from "@/themes/_shared/RichTextSection";
 import CollectionSection from "@/themes/_shared/CollectionSection";
 import CategoriesSection from "@/themes/_shared/CategoriesSection";
 import TestimonialsSection from "@/themes/_shared/TestimonialsSection";
+import ProductTestimonialsSection from "@/themes/_shared/ProductTestimonialsSection";
 import GallerySection from "@/themes/_shared/GallerySection";
 import NewsletterSection from "@/themes/_shared/NewsletterSection";
 import FaqSection from "@/themes/_shared/FaqSection";
@@ -32,6 +33,7 @@ export const ecruTheme: ThemeDefinition = {
     categories: CategoriesSection,
     highlights: HighlightsSection,
     testimonials: TestimonialsSection,
+    "product-testimonials": ProductTestimonialsSection,
     "rich-text": RichTextSection,
     "image-text": ImageTextSection,
     gallery: GallerySection,
