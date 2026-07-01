@@ -51,7 +51,7 @@ function Nav() {
         </div>
 
         {/* Desktop links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 30 }} className="hidden md:flex">
+        <div style={{ alignItems: "center", gap: 30 }} className="hidden md:flex">
           <a href="#features" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფუნქციები</a>
           <a href="#pricing" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფასები</a>
           <Link href="/login" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
@@ -263,7 +263,20 @@ function BrowserMockup() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
   return (
-    <div style={{ fontFamily: "var(--font-georgian), sans-serif", color: "#1d1d1f", background: "#ffffff" }}>
+    <div style={{ fontFamily: "var(--font-georgian), sans-serif", color: "#1d1d1f", background: "#ffffff", overflowX: "hidden" }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .ms-hero-sub { font-size: 17px !important; }
+          .ms-trust-strip { grid-template-columns: 1fr !important; }
+          .ms-how-h2, .ms-feat-h2, .ms-pricing-h2 { font-size: 30px !important; }
+          .ms-themes-outer { padding: 32px 20px 0 !important; }
+          .ms-themes-grid { grid-template-columns: 1fr !important; }
+          .ms-orders-outer { padding: 32px 20px !important; }
+          .ms-orders-grid { grid-template-columns: 1fr !important; }
+          .ms-orders-table { display: none !important; }
+          .ms-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+        }
+      `}</style>
       <Nav />
 
       {/* Hero */}
@@ -283,7 +296,7 @@ export default function Home() {
           >
             ააწყვე შენი მაღაზია.<br />გაყიდე პირველივე დღეს.
           </h1>
-          <p style={{ fontSize: 22, lineHeight: 1.5, color: "#6e6e73", margin: "0 auto 36px", maxWidth: 620 }}>
+          <p className="ms-hero-sub" style={{ fontSize: 22, lineHeight: 1.5, color: "#6e6e73", margin: "0 auto 36px", maxWidth: 620 }}>
             MultiStore გაძლევს ყველა ხელსაწყოს ონლაინ მაღაზიის გასახსნელად. აირჩიე თემა, დაამატე პროდუქტები და მიიღე შეკვეთები. პროგრამირება არ დაგჭირდება.
           </p>
           <div style={{ display: "flex", gap: 22, alignItems: "center", justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
@@ -322,14 +335,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Browser mockup */}
-      <div style={{ maxWidth: 1120, margin: "60px auto 0", padding: "0 28px" }}>
+      {/* Browser mockup — desktop only */}
+      <div className="hidden sm:block" style={{ maxWidth: 1120, margin: "60px auto 0", padding: "0 28px" }}>
         <BrowserMockup />
       </div>
 
       {/* Trust strip */}
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 28px 0" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, textAlign: "center" }}>
+        <div className="ms-trust-strip" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, textAlign: "center" }}>
           {[
             { value: "2,400+", label: "აქტიური მაღაზია" },
             { value: "10 წუთი", label: "საშუალო გასაშვები დრო" },
@@ -348,7 +361,7 @@ export default function Home() {
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>როგორ მუშაობს</div>
-            <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: 0 }}>სამი ნაბიჯი გაყიდვამდე</h2>
+            <h2 className="ms-how-h2" style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: 0 }}>სამი ნაბიჯი გაყიდვამდე</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
             {[
@@ -369,7 +382,7 @@ export default function Home() {
       {/* Features header */}
       <div id="features" style={{ maxWidth: 1120, margin: "0 auto", padding: "100px 28px 0", textAlign: "center" }}>
         <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>ფუნქციები</div>
-        <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px" }}>ყველაფერი გასაყიდად, ერთ ადგილას</h2>
+        <h2 className="ms-feat-h2" style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 18px" }}>ყველაფერი გასაყიდად, ერთ ადგილას</h2>
         <p style={{ fontSize: 19, lineHeight: 1.5, color: "#6e6e73", margin: "0 auto", maxWidth: 560 }}>
           პროფესიონალური ხელსაწყოები მცირე ბიზნესისთვის. მარტივი იმდენად, რომ დღესვე დაიწყო.
         </p>
@@ -377,14 +390,14 @@ export default function Home() {
 
       {/* Feature 1: Themes */}
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "56px 28px 0" }}>
-        <div style={{ background: "#f5f5f7", borderRadius: 24, padding: "52px 56px 0", overflow: "hidden" }}>
+        <div className="ms-themes-outer" style={{ background: "#f5f5f7", borderRadius: 24, padding: "52px 56px 0", overflow: "hidden" }}>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
             <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 9 }}>პროფესიონალური თემები</div>
             <div style={{ fontSize: 15, color: "#6e6e73", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
               აირჩიე Maison ან Minimal. შეცვალე ფერები და ლოგო წამებში, შენი ბრენდის სტილში.
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+          <div className="ms-themes-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             {/* Maison */}
             <div style={{ background: "#fff", borderRadius: "14px 14px 0 0", padding: 30, boxShadow: "0 20px 40px -28px rgba(0,0,0,.3)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -423,8 +436,8 @@ export default function Home() {
 
       {/* Feature 2: Orders dashboard */}
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "24px 28px 0" }}>
-        <div style={{ background: "#1d1d1f", borderRadius: 24, padding: "52px 56px", color: "#f5f5f7" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: 48, alignItems: "center" }}>
+        <div className="ms-orders-outer" style={{ background: "#1d1d1f", borderRadius: 24, padding: "52px 56px", color: "#f5f5f7" }}>
+          <div className="ms-orders-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.15fr", gap: 48, alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 12 }}>შეკვეთების მართვა</div>
               <div style={{ fontSize: 16, lineHeight: 1.6, color: "#a1a1a6", marginBottom: 24 }}>
@@ -438,7 +451,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div style={{ background: "#fff", borderRadius: 14, overflow: "hidden", color: "#1d1d1f" }}>
+            <div className="ms-orders-table" style={{ background: "#fff", borderRadius: 14, overflow: "hidden", color: "#1d1d1f" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #f0f0f2" }}>
                 <span style={{ fontSize: 15, fontWeight: 600 }}>შეკვეთები</span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "#1f7a52", background: "#e7f3ec", padding: "4px 11px", borderRadius: 980 }}>12 ახალი</span>
@@ -541,7 +554,7 @@ export default function Home() {
         <div style={{ maxWidth: 920, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 60 }}>
             <div style={{ fontSize: 15, fontWeight: 600, color: "#1f7a52", marginBottom: 14 }}>ფასები</div>
-            <h2 style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 16px" }}>მარტივი და გამჭვირვალე</h2>
+            <h2 className="ms-pricing-h2" style={{ fontSize: 48, fontWeight: 700, letterSpacing: "-0.03em", margin: "0 0 16px" }}>მარტივი და გამჭვირვალე</h2>
             <p style={{ fontSize: 19, color: "#6e6e73", margin: 0 }}>დაიწყე უფასოდ. გადადი Pro-ზე, როცა მზად იქნები.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
@@ -661,7 +674,7 @@ export default function Home() {
       {/* Footer */}
       <div style={{ borderTop: "1px solid #e3e3e6", padding: "56px 28px 44px" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 32, marginBottom: 44 }} className="footer-grid">
+          <div className="ms-footer-grid" style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 32, marginBottom: 44 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
                 <div style={{ width: 22, height: 22, borderRadius: 6, background: "#1d1d1f", display: "flex", alignItems: "center", justifyContent: "center" }}>
