@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getShop } from "@/lib/auth/get-shop";
+import { getStorefrontUrl } from "@/lib/storefront-url";
 
 export default async function EditorLayout({ children }: { children: React.ReactNode }) {
   const shop = await getShop();
@@ -15,7 +16,7 @@ export default async function EditorLayout({ children }: { children: React.React
         </Link>
         <span className="font-medium text-gray-900">{shop.name}</span>
         <a
-          href={`/shop/${shop.slug}`}
+          href={getStorefrontUrl(shop.slug)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-500 hover:text-gray-900 transition-colors"

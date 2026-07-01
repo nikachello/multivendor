@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
+import { getStorefrontUrl } from "@/lib/storefront-url";
 
 const NAV_ITEMS = [
   { label: "Products", href: "/dashboard/products", icon: Package },
@@ -93,7 +94,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
       {/* Footer */}
       <div className="px-3 py-4 border-t border-gray-100 space-y-0.5">
         <a
-          href={`/shop/${shopSlug}`}
+          href={getStorefrontUrl(shopSlug)}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"

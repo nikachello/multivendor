@@ -3,6 +3,7 @@ import { getDashboardStats } from "@/lib/db/queries";
 import { Package, Tag, ShoppingBag, ArrowUpRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { OrderStatus } from "@/generated/prisma/client";
+import { getStorefrontUrl } from "@/lib/storefront-url";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   pending:    "bg-yellow-50 text-yellow-700",
@@ -150,7 +151,7 @@ export default async function DashboardPage() {
             + New category
           </Link>
           <a
-            href={`/shop/${shop.slug}`}
+            href={getStorefrontUrl(shop.slug)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-sm border border-gray-200 text-gray-600 rounded-md hover:border-gray-400 hover:text-gray-900 transition-colors"
