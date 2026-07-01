@@ -37,7 +37,11 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password.");
+      if (result.error.status === 403) {
+        setError("Please verify your email first. Check your inbox for a verification link.");
+      } else {
+        setError("Invalid email or password.");
+      }
     } else {
       router.push("/dashboard");
     }
