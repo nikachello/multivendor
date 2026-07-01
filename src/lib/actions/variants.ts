@@ -119,6 +119,28 @@ export async function updateVariant(
   return ok(variant);
 }
 
+export async function updateVariants(
+  updates: { id: string; price: number; stock: number; sku: string; trackInventory: boolean }[],
+) {
+  if (!updates.length) return ok(null);
+
+  // Auth once from the first variant
+  const shopId = await shopIdForVariant(updates[0].id);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  await Promise.all(
+    updates.map((u) =>
+      prisma.variant.update({
+        where: { id: u.id },
+        data: { price: u.price, stock: u.stock, sku: u.sku, trackInventory: u.trackInventory },
+      }),
+    ),
+  );
+  return ok(null);
+}
+
 export async function deleteVariant(variantId: string) {
   const shopId = await shopIdForVariant(variantId);
   if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });

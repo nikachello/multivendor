@@ -25,8 +25,9 @@ export async function addOptionType(productId: string, shopId: string, name: str
   return ok(optionType);
 }
 
-export async function addOptionValue(optionTypeId: string, value: string) {
-  if (!value.trim()) return err({ code: ErrorCode.GENERAL_ERROR, message: "Value is required", status: 400 });
+export async function addOptionValues(optionTypeId: string, values: string[]) {
+  const trimmed = values.map((v) => v.trim()).filter(Boolean);
+  if (!trimmed.length) return ok([] as { id: string; value: string }[]);
 
   const optionType = await prisma.optionType.findUnique({
     where: { id: optionTypeId },
@@ -36,13 +37,18 @@ export async function addOptionValue(optionTypeId: string, value: string) {
   try { await assertOwnsShop(optionType.shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  const optionValue = await prisma.optionValue.upsert({
-    where: { optionTypeId_value: { optionTypeId, value: value.trim() } },
-    create: { optionTypeId, value: value.trim() },
-    update: {},
-  });
+  // One auth check, all upserts in parallel
+  const results = await Promise.all(
+    trimmed.map((v) =>
+      prisma.optionValue.upsert({
+        where: { optionTypeId_value: { optionTypeId, value: v } },
+        create: { optionTypeId, value: v },
+        update: {},
+      }),
+    ),
+  );
 
-  return ok(optionValue);
+  return ok(results.map((r) => ({ id: r.id, value: r.value })));
 }
 
 export async function removeOptionTypeFromProduct(productId: string, optionTypeId: string) {

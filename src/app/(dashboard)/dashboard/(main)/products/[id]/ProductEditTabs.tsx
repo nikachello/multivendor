@@ -82,7 +82,6 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
             productId={product.id}
             shopId={shop.id}
             optionTypes={product.optionTypes}
-            onUpdate={() => router.refresh()}
           />
         </div>
       )}

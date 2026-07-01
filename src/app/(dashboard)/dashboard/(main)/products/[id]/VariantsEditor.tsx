@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ProductWithRelations } from "@/lib/db/queries";
-import { generateVariants, updateVariant, deleteVariant } from "@/lib/actions/variants";
+import { generateVariants, updateVariants, deleteVariant } from "@/lib/actions/variants";
 
 type Variant = ProductWithRelations["variants"][number];
 
@@ -44,8 +44,9 @@ function isDirty(v: Variant, edit: EditState): boolean {
   );
 }
 
-export default function VariantsEditor({ productId, priceFrom, variants }: Props) {
+export default function VariantsEditor({ productId, priceFrom, variants: initialVariants }: Props) {
   const router = useRouter();
+  const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSku, setShowSku] = useState(false);
@@ -80,28 +81,21 @@ export default function VariantsEditor({ productId, priceFrom, variants }: Props
   );
 
   async function handleGenerate() {
-    // Flush any pending edits first so nothing is out of sync after the refresh
+    // Flush pending edits first (parallel), then generate
     if (dirtyVariants.length > 0) {
       setSaving(true);
-      let failed = 0;
-      for (const v of dirtyVariants) {
-        const edit = getEdit(v);
-        const result = await updateVariant(
-          v.id,
-          Number(edit.price),
-          Number(edit.stock),
-          edit.sku,
-          edit.trackInventory,
-        );
-        if (!result.ok) failed++;
-      }
+      const result = await updateVariants(
+        dirtyVariants.map((v) => {
+          const edit = getEdit(v);
+          return { id: v.id, price: Number(edit.price), stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
+        }),
+      );
       setSaving(false);
-      if (failed > 0) {
-        toast.error(`${failed} variant(s) failed to save — generation aborted`);
+      if (!result.ok) {
+        toast.error("Failed to save pending changes — generation aborted");
         return;
       }
       setEdits({});
-      toast.success("Changes saved");
     }
 
     setGenerating(true);
@@ -112,43 +106,36 @@ export default function VariantsEditor({ productId, priceFrom, variants }: Props
       toast.info("All variants already exist");
     } else {
       toast.success(`${result.data.created} variant(s) created`);
+      // New variants were created on the server — refresh to load them
+      router.refresh();
     }
-    router.refresh();
   }
 
   async function handleSaveAll() {
     if (dirtyVariants.length === 0) return;
     setSaving(true);
-    let failed = 0;
-    for (const v of dirtyVariants) {
-      const edit = getEdit(v);
-      const result = await updateVariant(
-        v.id,
-        Number(edit.price),
-        Number(edit.stock),
-        edit.sku,
-        edit.trackInventory,
-      );
-      if (!result.ok) failed++;
-    }
+    const result = await updateVariants(
+      dirtyVariants.map((v) => {
+        const edit = getEdit(v);
+        return { id: v.id, price: Number(edit.price), stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
+      }),
+    );
     setSaving(false);
-    if (failed > 0) {
-      toast.error(`${failed} variant(s) failed to save`);
+    if (!result.ok) {
+      toast.error("Failed to save changes");
     } else {
       toast.success(
-        dirtyVariants.length === 1
-          ? "1 change saved"
-          : `${dirtyVariants.length} changes saved`,
+        dirtyVariants.length === 1 ? "1 change saved" : `${dirtyVariants.length} changes saved`,
       );
       setEdits({});
     }
-    router.refresh();
   }
 
   async function handleDelete(variantId: string) {
-    await deleteVariant(variantId);
+    const result = await deleteVariant(variantId);
+    if (!result.ok) { toast.error("Failed to delete variant"); return; }
+    setVariants((prev) => prev.filter((v) => v.id !== variantId));
     toast.success("Variant removed");
-    router.refresh();
   }
 
   // ── Bulk helpers ─────────────────────────────────────────────

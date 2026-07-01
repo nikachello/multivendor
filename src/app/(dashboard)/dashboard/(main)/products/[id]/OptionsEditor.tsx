@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ProductOptionType } from "@/lib/db/queries";
 import {
   addOptionType,
-  addOptionValue,
+  addOptionValues,
   removeOptionTypeFromProduct,
   removeOptionValue,
 } from "@/lib/actions/options";
@@ -14,10 +14,10 @@ type Props = {
   productId: string;
   shopId: string;
   optionTypes: ProductOptionType[];
-  onUpdate: () => void;
 };
 
-export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate }: Props) {
+export default function OptionsEditor({ productId, shopId, optionTypes: initial }: Props) {
+  const [optionTypes, setOptionTypes] = useState<ProductOptionType[]>(initial);
   const [newTypeName, setNewTypeName] = useState("");
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<Record<string, string[]>>({});
@@ -28,17 +28,14 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
 
   function flushInput(optionTypeId: string, raw: string) {
     const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
-    if (parts.length === 0) return;
+    if (!parts.length) return;
 
     const savedValues = optionTypes.find((ot) => ot.optionTypeId === optionTypeId)?.values.map((v) => v.value) ?? [];
     const existingPending = pending[optionTypeId] ?? [];
     const novel = parts.filter((p) => !savedValues.includes(p) && !existingPending.includes(p));
 
     if (novel.length > 0) {
-      setPending((prev) => ({
-        ...prev,
-        [optionTypeId]: [...existingPending, ...novel],
-      }));
+      setPending((prev) => ({ ...prev, [optionTypeId]: [...existingPending, ...novel] }));
     }
     setInputs((prev) => ({ ...prev, [optionTypeId]: "" }));
   }
@@ -59,24 +56,32 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
   }
 
   function removePending(optionTypeId: string, value: string) {
-    setPending((prev) => ({
-      ...prev,
-      [optionTypeId]: (prev[optionTypeId] ?? []).filter((v) => v !== value),
-    }));
+    setPending((prev) => ({ ...prev, [optionTypeId]: (prev[optionTypeId] ?? []).filter((v) => v !== value) }));
   }
 
   async function handleSavePending(optionTypeId: string) {
     const values = pending[optionTypeId] ?? [];
-    if (values.length === 0) return;
+    if (!values.length) return;
 
     setSaving((prev) => ({ ...prev, [optionTypeId]: true }));
-    for (const value of values) {
-      const result = await addOptionValue(optionTypeId, value);
-      if (!result.ok) toast.error(`Failed to add "${value}"`);
-    }
+    // One server call, one auth check, all upserts in parallel
+    const result = await addOptionValues(optionTypeId, values);
     setSaving((prev) => ({ ...prev, [optionTypeId]: false }));
+
+    if (!result.ok) {
+      toast.error("Failed to save values");
+      return;
+    }
+
+    // Update local state — no router.refresh() needed
+    setOptionTypes((prev) =>
+      prev.map((ot) =>
+        ot.optionTypeId === optionTypeId
+          ? { ...ot, values: [...ot.values, ...result.data] }
+          : ot,
+      ),
+    );
     setPending((prev) => ({ ...prev, [optionTypeId]: [] }));
-    onUpdate();
   }
 
   async function handleAddType() {
@@ -84,9 +89,17 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
     setAddingType(true);
     const result = await addOptionType(productId, shopId, newTypeName.trim());
     setAddingType(false);
-    if (!result.ok) { toast.error("Failed to add option"); return; }
+
+    if (!result.ok) {
+      toast.error("Failed to add option");
+      return;
+    }
+
+    setOptionTypes((prev) => [
+      ...prev,
+      { optionTypeId: result.data.id, name: result.data.name, values: [] },
+    ]);
     setNewTypeName("");
-    onUpdate();
   }
 
   async function handleRemoveType(optionTypeId: string) {
@@ -94,17 +107,33 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
     setRemovingTypeId(optionTypeId);
     const result = await removeOptionTypeFromProduct(productId, optionTypeId);
     setRemovingTypeId(null);
-    if (!result.ok) { toast.error("Failed to remove option"); return; }
-    onUpdate();
+
+    if (!result.ok) {
+      toast.error("Failed to remove option");
+      return;
+    }
+
+    setOptionTypes((prev) => prev.filter((ot) => ot.optionTypeId !== optionTypeId));
   }
 
-  async function handleRemoveValue(optionValueId: string) {
+  async function handleRemoveValue(optionValueId: string, optionTypeId: string) {
     if (deletingValueId) return;
     setDeletingValueId(optionValueId);
     const result = await removeOptionValue(optionValueId);
     setDeletingValueId(null);
-    if (!result.ok) { toast.error("Failed to remove value"); return; }
-    onUpdate();
+
+    if (!result.ok) {
+      toast.error("Failed to remove value");
+      return;
+    }
+
+    setOptionTypes((prev) =>
+      prev.map((ot) =>
+        ot.optionTypeId === optionTypeId
+          ? { ...ot, values: ot.values.filter((v) => v.id !== optionValueId) }
+          : ot,
+      ),
+    );
   }
 
   return (
@@ -141,7 +170,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes, onUpdate
                   >
                     {v.value}
                     <button
-                      onClick={() => handleRemoveValue(v.id)}
+                      onClick={() => handleRemoveValue(v.id, ot.optionTypeId)}
                       disabled={isDeleting || !!deletingValueId}
                       className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
                     >
