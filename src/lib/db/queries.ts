@@ -80,9 +80,8 @@ export async function getShopByOwnerId(ownerId: string) {
     });
 
   const shop = await prisma.shop.findFirst({
-    where: {
-      ownerId: ownerId,
-    },
+    where: { ownerId },
+    orderBy: { createdAt: "asc" },
   });
 
   if (!shop) {
