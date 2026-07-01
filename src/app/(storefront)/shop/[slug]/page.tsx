@@ -92,7 +92,8 @@ export default async function ShopPage({
           section.type === "navbar"
             ? {
                 ...section.props,
-                items: resolveNavItems(section.props.items ?? [], shopBase),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                items: resolveNavItems((section.props.items ?? []) as any, shopBase),
               }
             : section.props;
 

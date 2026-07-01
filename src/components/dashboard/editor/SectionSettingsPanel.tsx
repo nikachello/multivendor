@@ -1,7 +1,8 @@
 "use client";
 
 import { ShopSection } from "@/lib/types/store-section";
-import { FieldDef, FlatFieldDef, sectionFieldSchema, sectionLabels } from "@/lib/editor-schema";
+import { FieldDef, FlatFieldDef } from "@/lib/editor-schema";
+import { SectionMeta } from "@/themes/types";
 import { useUploadThing } from "@/lib/uploadthing-client";
 import { useRef } from "react";
 
@@ -44,11 +45,10 @@ type Props = {
   section: ShopSection;
   shopId: string;
   categories: ShopCategory[];
+  sectionMeta: SectionMeta[];
   onChange: (key: string, value: unknown) => void;
 };
 
-// Renders a single flat (non-list) field and calls onChange with the new value.
-// Extracted so it can be reused both at the top level and inside list items.
 function FlatField({
   field,
   value,
@@ -139,8 +139,6 @@ function FlatField({
   return null;
 }
 
-// Renders a single FieldDef — delegates flat types to FlatField,
-// handles list and select-shop-categories here.
 function Field({
   field,
   value,
@@ -152,7 +150,6 @@ function Field({
   categories: ShopCategory[];
   onChange: (val: unknown) => void;
 }) {
-  // Flat types
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -163,13 +160,10 @@ function Field({
     return <FlatField field={field} value={value} onChange={onChange} />;
   }
 
-  // Dynamic select whose options come from the shop's category list
   if (field.type === "select-shop-categories") {
     return (
       <div>
-        <label className="block text-xs font-medium text-neutral-600 mb-1.5">
-          {field.label}
-        </label>
+        <label className="block text-xs font-medium text-neutral-600 mb-1.5">{field.label}</label>
         <select
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
@@ -177,16 +171,13 @@ function Field({
         >
           <option value="">— Select a category —</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
       </div>
     );
   }
 
-  // Multi-select checkboxes for categoryIds
   if (field.type === "multiselect-shop-categories") {
     const selected: string[] = Array.isArray(value) ? (value as string[]) : [];
     return (
@@ -230,7 +221,6 @@ function Field({
     );
   }
 
-  // List of items, each editable via their own FlatField set
   if (field.type === "list") {
     const items = (value as Record<string, unknown>[]) ?? [];
     return (
@@ -260,15 +250,11 @@ function Field({
                 </span>
                 <svg
                   className="w-3 h-3 text-neutral-400 transition-transform group-open:rotate-90"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </summary>
-
               <div className="px-3 pb-3 pt-2 space-y-3 border-t border-neutral-100">
                 {field.itemFields.map((f) => (
                   <FlatField
@@ -276,9 +262,7 @@ function Field({
                     field={f}
                     value={item[f.key]}
                     onChange={(val) =>
-                      onChange(
-                        items.map((it, i) => (i === idx ? { ...it, [f.key]: val } : it))
-                      )
+                      onChange(items.map((it, i) => (i === idx ? { ...it, [f.key]: val } : it)))
                     }
                   />
                 ))}
@@ -299,14 +283,17 @@ function Field({
   return null;
 }
 
-export default function SectionSettingsPanel({ section, shopId, categories, onChange }: Props) {
-  const fields = sectionFieldSchema[section.type];
-  const props = section.props as Record<string, unknown>;
+export default function SectionSettingsPanel({ section, shopId, categories, sectionMeta, onChange }: Props) {
+  void shopId;
+  const meta = sectionMeta.find((m) => m.type === section.type);
+  const fields = meta?.fieldSchema ?? [];
+  const label = meta?.label ?? section.type;
+  const props = section.props;
 
-  if (!fields) {
+  if (fields.length === 0) {
     return (
       <div className="p-5 text-sm text-neutral-400">
-        <p className="font-medium text-neutral-600 mb-1">{sectionLabels[section.type]}</p>
+        <p className="font-medium text-neutral-600 mb-1">{label}</p>
         <p>
           {section.type === "navbar" ? (
             <>
@@ -324,10 +311,7 @@ export default function SectionSettingsPanel({ section, shopId, categories, onCh
 
   return (
     <div className="p-5 space-y-5">
-      <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
-        {sectionLabels[section.type]}
-      </p>
-
+      <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">{label}</p>
       {fields.map((field) => (
         <Field
           key={field.key}

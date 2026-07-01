@@ -3,10 +3,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ShopSection } from "@/lib/types/store-section";
-import { sectionLabels } from "@/lib/editor-schema";
 
 type Props = {
   section: ShopSection;
+  label: string;
   isSelected: boolean;
   onSelect: () => void;
   onRemove: () => void;
@@ -14,14 +14,11 @@ type Props = {
 
 export default function SortableSectionRow({
   section,
+  label,
   isSelected,
   onSelect,
   onRemove,
 }: Props) {
-  // useSortable gives us everything we need for one draggable item.
-  // - attributes/listeners: spread onto the drag handle element
-  // - transform/transition: applied as inline styles so dnd-kit can animate movement
-  // - isDragging: true while this specific item is being dragged
   const isLocked = section.type === "navbar";
 
   const {
@@ -39,7 +36,6 @@ export default function SortableSectionRow({
     opacity: isDragging ? 0.4 : 1,
   };
 
-  // Navbar can't be removed — it's always needed
   const canRemove = section.type !== "navbar";
 
   return (
@@ -53,7 +49,6 @@ export default function SortableSectionRow({
           : "bg-white border-transparent hover:bg-neutral-50"
       } ${isDragging ? "shadow-lg z-50" : ""}`}
     >
-      {/* Drag handle — listeners go here, not on the whole row */}
       {isLocked ? (
         <span className="p-1 text-neutral-200" title="Position locked">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -74,12 +69,8 @@ export default function SortableSectionRow({
         </button>
       )}
 
-      {/* Section label */}
-      <span className="flex-1 text-sm font-medium text-neutral-700">
-        {sectionLabels[section.type]}
-      </span>
+      <span className="flex-1 text-sm font-medium text-neutral-700">{label}</span>
 
-      {/* Remove button */}
       {canRemove && (
         <button
           onClick={(e) => {

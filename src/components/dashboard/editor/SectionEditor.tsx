@@ -22,7 +22,8 @@ import {
 } from "@dnd-kit/modifiers";
 
 import { ShopSection } from "@/lib/types/store-section";
-import { AddableSectionType, sectionDefaults } from "@/lib/editor-schema";
+import { getThemeSectionMeta } from "@/themes/editorMeta";
+import { SectionMeta } from "@/themes/types";
 import SortableSectionRow from "./SortableSectionRow";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import StorefrontPreview from "./StorefrontPreview";
@@ -222,12 +223,13 @@ export default function SectionEditor({
     );
   }
 
-  function handleAddSection(type: AddableSectionType) {
-    const newSection = {
+  function handleAddSection(type: string) {
+    const meta = getThemeSectionMeta(themeId).find((m) => m.type === type);
+    const newSection: ShopSection = {
       id: crypto.randomUUID(),
       type,
-      props: sectionDefaults[type],
-    } as ShopSection;
+      props: meta?.defaultProps ?? {},
+    };
 
     setSections((prev) => [...prev, newSection]);
     setSelectedId(newSection.id);
@@ -326,15 +328,20 @@ export default function SectionEditor({
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="flex flex-col gap-1">
-                    {sections.map((section) => (
-                      <SortableSectionRow
-                        key={section.id}
-                        section={section}
-                        isSelected={selectedId === section.id}
-                        onSelect={() => setSelectedId(section.id)}
-                        onRemove={() => handleRemove(section.id)}
-                      />
-                    ))}
+                    {sections.map((section) => {
+                      const sectionMeta = getThemeSectionMeta(themeId);
+                      const label = sectionMeta.find((m) => m.type === section.type)?.label ?? section.type;
+                      return (
+                        <SortableSectionRow
+                          key={section.id}
+                          section={section}
+                          label={label}
+                          isSelected={selectedId === section.id}
+                          onSelect={() => setSelectedId(section.id)}
+                          onRemove={() => handleRemove(section.id)}
+                        />
+                      );
+                    })}
                   </div>
                 </SortableContext>
               </DndContext>
@@ -348,12 +355,15 @@ export default function SectionEditor({
 
             {showAddPanel && (
               <AddSectionPanel
+                addableMeta={getThemeSectionMeta(themeId).filter(
+                  (m) =>
+                    m.type !== "navbar" &&
+                    (!m.pages || m.pages.includes(activePage)),
+                )}
                 onAdd={handleAddSection}
                 onAddNavbar={handleAddNavbar}
                 hasNavbar={sections.some((s) => s.type === "navbar")}
                 onClose={() => setShowAddPanel(false)}
-                themeId={themeId}
-                currentPage={activePage}
               />
             )}
 
@@ -419,6 +429,7 @@ export default function SectionEditor({
             section={selectedSection}
             shopId={shopId}
             categories={categories}
+            sectionMeta={getThemeSectionMeta(themeId)}
             onChange={handlePropChange}
           />
         ) : (

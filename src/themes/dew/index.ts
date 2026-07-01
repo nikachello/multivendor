@@ -5,19 +5,21 @@ import IngredientsSection from "./IngredientsSection";
 import ReviewsSection from "./ReviewsSection";
 import RoutineBuilderSection from "./RoutineBuilderSection";
 import ShadePickerSection from "./ShadePickerSection";
+import CollectionSection from "./CollectionSection";
+import CategoriesSection from "./CategoriesSection";
+import HighlightsSection from "./HighlightsSection";
+import TestimonialsSection from "./TestimonialsSection";
+import RichTextSection from "./RichTextSection";
+import ImageTextSection from "./ImageTextSection";
+import GallerySection from "./GallerySection";
+import NewsletterSection from "./NewsletterSection";
+import FaqSection from "./FaqSection";
+import StatsSection from "./StatsSection";
 import AnnouncementSection from "@/themes/_shared/AnnouncementSection";
-import CollectionSection from "@/themes/_shared/CollectionSection";
-import CategoriesSection from "@/themes/_shared/CategoriesSection";
-import HighlightsSection from "@/themes/_shared/HighlightsSection";
-import TestimonialsSection from "@/themes/_shared/TestimonialsSection";
-import ProductTestimonialsSection from "@/themes/_shared/ProductTestimonialsSection";
-import RichTextSection from "@/themes/_shared/RichTextSection";
-import ImageTextSection from "@/themes/_shared/ImageTextSection";
-import GallerySection from "@/themes/_shared/GallerySection";
-import NewsletterSection from "@/themes/_shared/NewsletterSection";
-import FaqSection from "@/themes/_shared/FaqSection";
-import StatsSection from "@/themes/_shared/StatsSection";
 import DividerSection from "@/themes/_shared/DividerSection";
+import ProductTestimonialsSection from "@/themes/_shared/ProductTestimonialsSection";
+import { standardSectionMeta, dewSectionMeta } from "@/themes/_shared/sectionMeta";
+import { dewConfig } from "./config";
 import { ThemeDefinition } from "@/themes/types";
 
 export const dewTheme: ThemeDefinition = {
@@ -25,6 +27,7 @@ export const dewTheme: ThemeDefinition = {
   name: "Dew",
   description: "Soft, rounded beauty & wellness theme with periwinkle accents and warm blush tones",
   thumbnail: "/themes/dew-thumb.jpg",
+  config: dewConfig,
   sections: {
     announcement: AnnouncementSection,
     navbar: NavbarSection,
@@ -47,4 +50,5 @@ export const dewTheme: ThemeDefinition = {
     "routine-builder": RoutineBuilderSection,
     "shade-picker": ShadePickerSection,
   },
+  sectionMeta: [...standardSectionMeta, ...dewSectionMeta],
 };

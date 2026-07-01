@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "../db/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import { err } from "../result";
 import { ErrorCode } from "../errors";
 import { ShopSection } from "../types/store-section";
@@ -30,7 +31,7 @@ export async function saveSections(
         id: s.id,
         shopId,
         type: s.type,
-        props: s.props,
+        props: s.props as Prisma.InputJsonValue,
         order: i,
         pageType,
       })),

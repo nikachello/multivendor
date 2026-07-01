@@ -7,6 +7,7 @@ import { toast } from "sonner";
 const FONT_OPTIONS = [
   { value: "sans", label: "Sans-serif" },
   { value: "serif", label: "Serif" },
+  { value: "jakarta", label: "Jakarta Sans" },
   { value: "mono", label: "Monospace" },
 ];
 

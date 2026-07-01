@@ -1,6 +1,31 @@
 import { ComponentType } from "react";
 import { CSSProperties } from "react";
-import { SectionProps, SectionType } from "@/lib/types/store-section";
+import { FieldDef } from "@/lib/editor-schema";
+
+export type PageType = "home" | "collection" | "product" | "search";
+
+// ─── Section metadata ────────────────────────────────────────────────────────
+// Lives inside each theme's index.ts (not in a global registry).
+// This is what the editor uses to render the Add panel and Settings panel.
+
+export type SectionMeta = {
+  type: string;
+  label: string;
+  description: string;
+  /** Restrict to specific pages. Undefined = available on all pages. */
+  pages?: PageType[];
+  /** Field definitions for the right-hand settings panel. */
+  fieldSchema: FieldDef[];
+  /** Initial props when the section is first added. */
+  defaultProps: Record<string, unknown>;
+};
+
+// ─── Section component registry ─────────────────────────────────────────────
+// Open map: any string key → any component.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SectionRegistry = Record<string, ComponentType<any>>;
+
+// ─── Theme config ────────────────────────────────────────────────────────────
 
 export interface ThemeConfig {
   palette: {
@@ -73,16 +98,18 @@ export interface ThemeConfig {
   extras?: Record<string, string>;
 }
 
-export type SectionRegistry = {
-  [T in SectionType]?: ComponentType<SectionProps<T> & { themeConfig: ThemeConfig }>;
-};
-
-export type PageType = "home" | "collection" | "product" | "search";
+// ─── Theme definition ────────────────────────────────────────────────────────
+// A theme is self-contained: sections + config + metadata for the editor.
+// Adding a new theme = create this object and add one line to registry.ts.
 
 export type ThemeDefinition = {
   id:          string;
   name:        string;
   description: string;
   thumbnail:   string;
+  config:      ThemeConfig;
+  /** type key → React component */
   sections:    SectionRegistry;
+  /** All section definitions for this theme, including navbar. */
+  sectionMeta: SectionMeta[];
 };
