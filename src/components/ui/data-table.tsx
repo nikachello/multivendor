@@ -13,9 +13,10 @@ import {
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
+  emptyMessage?: string;
 }
 
-export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
+export function DataTable<TData>({ columns, data, emptyMessage }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -51,9 +52,9 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-10 text-center text-gray-400"
+                className="px-4 py-10 text-center text-gray-400 text-sm"
               >
-                No results.
+                {emptyMessage ?? "No results."}
               </td>
             </tr>
           ) : (

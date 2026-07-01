@@ -30,10 +30,12 @@ export async function addProductImages(productId: string, urls: string[]) {
   });
   const start = (agg._max.sortOrder ?? -1) + 1;
 
-  await prisma.productImage.createMany({
-    data: urls.map((url, i) => ({ productId, url, sortOrder: start + i })),
-  });
-  return ok(null);
+  const images = await Promise.all(
+    urls.map((url, i) => prisma.productImage.create({
+      data: { productId, url, sortOrder: start + i },
+    })),
+  );
+  return ok(images);
 }
 
 export async function deleteProductImage(imageId: string) {

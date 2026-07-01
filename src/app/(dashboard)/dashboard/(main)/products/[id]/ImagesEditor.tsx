@@ -103,7 +103,7 @@ function SortableImageCard({
         <button
           type="button"
           onClick={onSetMain}
-          className="absolute bottom-1 left-1 right-1 text-center text-[10px] px-1 py-0.5 bg-white/90 text-gray-700 border border-gray-200 rounded font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute bottom-1 left-1 right-1 text-center text-[10px] px-1 py-0.5 bg-white/90 text-gray-700 border border-gray-200 rounded font-medium opacity-60 hover:opacity-100 transition-opacity"
         >
           Set main
         </button>
@@ -126,7 +126,7 @@ export default function ImagesEditor({ productId, images: initialImages, onUpdat
     const result = await addProductImages(productId, urls);
     if (!result.ok) { toast.error("Failed to save images"); return; }
     toast.success(`${urls.length} image(s) uploaded`);
-    onUpdate();
+    setImages((prev) => [...prev, ...result.data.map((img) => ({ ...img, altText: img.altText ?? null }))]);
   }
 
   async function handleDelete(imageId: string) {

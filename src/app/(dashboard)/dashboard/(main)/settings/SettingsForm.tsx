@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { updateShop } from "@/lib/actions/shop";
 import ImageUploader from "@/components/ui/ImageUploader";
@@ -34,7 +33,6 @@ type Props = {
 };
 
 export default function SettingsForm({ shopId, shopSlug, defaultValues }: Props) {
-  const router = useRouter();
   const [name, setName] = useState(defaultValues.name);
   const [description, setDescription] = useState(defaultValues.description);
   const [currency, setCurrency] = useState(defaultValues.currency);
@@ -53,7 +51,6 @@ export default function SettingsForm({ shopId, shopSlug, defaultValues }: Props)
     setSaving(false);
     if (!result || !result.ok) { toast.error("Failed to save settings"); return; }
     toast.success("Settings saved");
-    router.refresh();
   }
 
   const inputCls = "border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors w-full";

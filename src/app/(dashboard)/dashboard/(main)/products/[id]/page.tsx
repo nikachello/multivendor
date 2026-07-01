@@ -3,6 +3,7 @@ import { getCategoriesByShop, getProductWithOptions } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import ProductForm from "../new/ProductForm";
 import ProductEditTabs from "./ProductEditTabs";
+import Breadcrumb from "@/components/dashboard/Breadcrumb";
 
 export default async function EditProductPage({
   params,
@@ -22,6 +23,7 @@ export default async function EditProductPage({
 
   return (
     <div className="flex flex-col gap-6">
+      <Breadcrumb items={[{ label: "Products", href: "/dashboard/products" }, { label: product.name }]} />
       <h1 className="text-2xl font-semibold text-gray-900">{product.name}</h1>
       <ProductEditTabs
         product={product}

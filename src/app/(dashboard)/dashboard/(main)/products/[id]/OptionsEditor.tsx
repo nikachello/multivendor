@@ -24,6 +24,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [addingType, setAddingType] = useState(false);
   const [removingTypeId, setRemovingTypeId] = useState<string | null>(null);
+  const [confirmRemoveTypeId, setConfirmRemoveTypeId] = useState<string | null>(null);
   const [deletingValueId, setDeletingValueId] = useState<string | null>(null);
 
   function flushInput(optionTypeId: string, raw: string) {
@@ -152,7 +153,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-800">{ot.name}</span>
               <button
-                onClick={() => handleRemoveType(ot.optionTypeId)}
+                onClick={() => setConfirmRemoveTypeId(ot.optionTypeId)}
                 disabled={isRemovingThisType}
                 className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
               >
@@ -238,6 +239,37 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           {addingType ? "Adding…" : "Add Option"}
         </button>
       </div>
+
+      {/* Remove option type confirmation */}
+      {confirmRemoveTypeId && (() => {
+        const ot = optionTypes.find((o) => o.optionTypeId === confirmRemoveTypeId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-900">Remove "{ot?.name}" option?</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  This removes the option from this product. Existing variants may become inconsistent and should be regenerated.
+                </p>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setConfirmRemoveTypeId(null)}
+                  className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { setConfirmRemoveTypeId(null); handleRemoveType(confirmRemoveTypeId); }}
+                  className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

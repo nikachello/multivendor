@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { generateReactHelpers } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
 
@@ -19,10 +20,13 @@ export default function ImageUploader({ onUploadComplete, endpoint = "productIma
   const { startUpload, isUploading } = useUploadThing(endpoint, {
     onClientUploadComplete: (res) => {
       const urls = res.map((r) => r.ufsUrl);
+      setPreviews([]);
       onUploadComplete(urls);
     },
     onUploadError: (err) => {
       console.error(err);
+      setPreviews([]);
+      toast.error("Upload failed — please try again");
     },
   });
 

@@ -53,6 +53,7 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
         <ProductForm
           shopId={shop.id}
           categories={categories}
+          currency={shop.currency}
           productId={product.id}
           defaultValues={{
             name: product.name,

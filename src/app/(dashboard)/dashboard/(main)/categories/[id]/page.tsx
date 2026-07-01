@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCategoryById } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import CategoryForm from "../CategoryForm";
+import Breadcrumb from "@/components/dashboard/Breadcrumb";
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,6 +14,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
 
   return (
     <div className="flex flex-col gap-6">
+      <Breadcrumb items={[{ label: "Categories", href: "/dashboard/categories" }, { label: category.name }]} />
       <h1 className="text-2xl font-semibold text-gray-900">{category.name}</h1>
       <CategoryForm
         shopId={shop.id}

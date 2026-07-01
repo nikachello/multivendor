@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   createTestimonial,
@@ -70,8 +69,8 @@ function productName(productId: string | null, products: Product[]) {
   return products.find((p) => p.id === productId)?.name ?? "Unknown product";
 }
 
-export default function TestimonialsClient({ testimonials, products, shopId }: Props) {
-  const router = useRouter();
+export default function TestimonialsClient({ testimonials: initial, products, shopId }: Props) {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(initial);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<TestimonialInput & { id?: string }>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -126,26 +125,35 @@ export default function TestimonialsClient({ testimonials, products, shopId }: P
       toast.error("Failed to save testimonial");
       return;
     }
+    const saved = result.data;
+    if (form.id) {
+      setTestimonials((prev) => prev.map((t) => t.id === saved.id ? saved : t));
+    } else {
+      setTestimonials((prev) => [...prev, saved]);
+    }
     toast.success(form.id ? "Testimonial updated" : "Testimonial added");
     closeModal();
-    router.refresh();
   }
 
   async function handleDelete() {
     if (!deleteId) return;
-    const result = await deleteTestimonial(shopId, deleteId);
+    const idToDelete = deleteId;
     setDeleteId(null);
+    const result = await deleteTestimonial(shopId, idToDelete);
     if (!result.ok) { toast.error("Failed to delete"); return; }
+    setTestimonials((prev) => prev.filter((t) => t.id !== idToDelete));
     toast.success("Testimonial deleted");
-    router.refresh();
   }
 
   async function handleToggle(t: Testimonial) {
     setTogglingId(t.id);
+    setTestimonials((prev) => prev.map((row) => row.id === t.id ? { ...row, isActive: !t.isActive } : row));
     const result = await toggleTestimonialActive(shopId, t.id, !t.isActive);
     setTogglingId(null);
-    if (!result.ok) { toast.error("Failed to update"); return; }
-    router.refresh();
+    if (!result.ok) {
+      setTestimonials((prev) => prev.map((row) => row.id === t.id ? { ...row, isActive: t.isActive } : row));
+      toast.error("Failed to update");
+    }
   }
 
   const deleteTarget = testimonials.find((t) => t.id === deleteId);

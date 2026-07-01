@@ -1,13 +1,20 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "@/lib/auth/client";
+import { signIn, useSession } from "@/lib/auth/client";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: sessionData, isPending } = useSession();
+
+  useEffect(() => {
+    if (!isPending && sessionData?.session) {
+      router.replace("/dashboard");
+    }
+  }, [isPending, sessionData, router]);
   const wasReset = searchParams.get("reset") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

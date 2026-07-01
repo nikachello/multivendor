@@ -51,6 +51,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
   const [saving, setSaving] = useState(false);
   const [showSku, setShowSku] = useState(false);
   const [edits, setEdits] = useState<Record<string, EditState>>({});
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Bulk action inputs
   const [bulkPriceSet, setBulkPriceSet] = useState("");
@@ -132,6 +133,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
   }
 
   async function handleDelete(variantId: string) {
+    setConfirmDeleteId(null);
     const result = await deleteVariant(variantId);
     if (!result.ok) { toast.error("Failed to delete variant"); return; }
     setVariants((prev) => prev.filter((v) => v.id !== variantId));
@@ -359,7 +361,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
-                      onClick={() => handleDelete(v.id)}
+                      onClick={() => setConfirmDeleteId(v.id)}
                       className="text-gray-300 hover:text-red-500 transition-colors"
                       title="Delete variant"
                     >
@@ -394,6 +396,37 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
               : `Save ${dirtyVariants.length} change${dirtyVariants.length !== 1 ? "s" : ""}`}
         </button>
       </div>
+
+      {/* Delete variant confirmation */}
+      {confirmDeleteId && (() => {
+        const v = variants.find((v) => v.id === confirmDeleteId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-900">Delete variant?</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  <span className="font-medium text-gray-700">{getVariantLabel(v!) || "This variant"}</span> will be permanently removed.
+                </p>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(confirmDeleteId)}
+                  className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

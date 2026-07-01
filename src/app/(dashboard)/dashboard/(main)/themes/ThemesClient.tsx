@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { THEMES_META } from "@/themes/meta";
 import { updateShopTheme } from "@/lib/actions/shop";
 import { toast } from "sonner";
@@ -101,7 +100,6 @@ function ThemePreview({ themeId }: { themeId: string }) {
 export default function ThemesClient({ shopId, activeThemeId }: Props) {
   const [currentThemeId, setCurrentThemeId] = useState(activeThemeId);
   const [pending, setPending] = useState<string | null>(null);
-  const router = useRouter();
 
   async function handleActivate(themeId: string) {
     if (themeId === currentThemeId || pending) return;
@@ -110,7 +108,6 @@ export default function ThemesClient({ shopId, activeThemeId }: Props) {
       await updateShopTheme(shopId, themeId);
       setCurrentThemeId(themeId);
       toast.success("Theme activated");
-      router.refresh();
     } catch {
       toast.error("Failed to activate theme");
     } finally {

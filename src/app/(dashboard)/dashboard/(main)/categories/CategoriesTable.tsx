@@ -1,31 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { CategoryWithCount } from "@/lib/db/queries";
 import { DataTable } from "@/components/ui/data-table";
 import { createColumns } from "./columns";
 import { deleteCategory } from "@/lib/actions/categories";
 
-export default function CategoriesTable({ categories }: { categories: CategoryWithCount[] }) {
-  const router = useRouter();
+export default function CategoriesTable({ categories: initial }: { categories: CategoryWithCount[] }) {
+  const [categories, setCategories] = useState(initial);
+  const [query, setQuery] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const pendingCategory = categories.find((c) => c.id === pendingDeleteId);
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return categories;
+    return categories.filter((c) => c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q));
+  }, [categories, query]);
+
   async function handleDelete() {
     if (!pendingDeleteId) return;
-    const result = await deleteCategory(pendingDeleteId);
-    setPendingDeleteId(null);
+    const idToDelete = pendingDeleteId;
+    setDeleting(true);
+    const result = await deleteCategory(idToDelete);
+    setDeleting(false);
     if (!result.ok) { toast.error("Failed to delete category"); return; }
+    setCategories((prev) => prev.filter((c) => c.id !== idToDelete));
+    setPendingDeleteId(null);
     toast.success("Category deleted");
-    router.refresh();
   }
+
+  const emptyMessage = query.trim()
+    ? `No categories matching "${query}"`
+    : "No categories yet — click + New category to get started.";
 
   return (
     <>
-      <DataTable columns={createColumns(setPendingDeleteId)} data={categories} />
+      {categories.length > 0 && (
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search categories…"
+          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors max-w-xs"
+        />
+      )}
+      <DataTable columns={createColumns(setPendingDeleteId)} data={filtered} emptyMessage={emptyMessage} />
 
       {/* Confirmation dialog */}
       {pendingDeleteId && (
@@ -45,15 +67,17 @@ export default function CategoriesTable({ categories }: { categories: CategoryWi
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setPendingDeleteId(null)}
-                className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                disabled={deleting}
+                className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                disabled={deleting}
+                className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors disabled:opacity-60"
               >
-                Delete
+                {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>

@@ -15,13 +15,14 @@ type Category = { id: string; name: string };
 type Props = {
   shopId: string;
   categories: Category[];
+  currency?: string;
   productId?: string;
   defaultValues?: Partial<z.input<typeof productSchema>>;
 };
 
 type FormInput = z.input<typeof productSchema>;
 
-export default function ProductForm({ shopId, categories: initialCategories, productId, defaultValues }: Props) {
+export default function ProductForm({ shopId, categories: initialCategories, currency = "GEL", productId, defaultValues }: Props) {
   const router = useRouter();
   const isEditing = !!productId;
 
@@ -63,9 +64,7 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
       return;
     }
     toast.success(isEditing ? "Product updated" : "Product created");
-    if (isEditing) {
-      router.push("/dashboard/products");
-    } else {
+    if (!isEditing) {
       router.push(`/dashboard/products/${result.data.id}`);
     }
   }
@@ -90,7 +89,7 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-xl">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Name</label>
+          <label className="text-sm font-medium text-gray-700">Name <span className="text-red-400">*</span></label>
           <input
             {...register("name")}
             className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
@@ -100,7 +99,7 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Slug</label>
+          <label className="text-sm font-medium text-gray-700">Slug <span className="text-red-400">*</span></label>
           <input
             {...register("slug")}
             className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors font-mono"
@@ -111,25 +110,30 @@ export default function ProductForm({ shopId, categories: initialCategories, pro
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Description</label>
+          <label className="text-sm font-medium text-gray-700">Description <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
           <textarea
             {...register("description")}
             rows={4}
             className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors resize-none"
-            placeholder="Product description"
+            placeholder="Describe your product — materials, dimensions, care instructions…"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Price</label>
-          <input
-            {...register("price")}
-            type="number"
-            step="0.01"
-            min="0"
-            className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
-            placeholder="0.00"
-          />
+          <label className="text-sm font-medium text-gray-700">Price <span className="text-red-400">*</span></label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none select-none">
+              {currency}
+            </span>
+            <input
+              {...register("price")}
+              type="number"
+              step="0.01"
+              min="0"
+              className="border border-gray-200 rounded pl-11 pr-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors w-full"
+              placeholder="0.00"
+            />
+          </div>
           {errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
         </div>
 
