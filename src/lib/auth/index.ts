@@ -17,12 +17,16 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      void sendPasswordResetEmail({ to: user.email, url });
+      sendPasswordResetEmail({ to: user.email, url }).catch((e) =>
+        console.error("[auth] sendPasswordResetEmail failed:", e)
+      );
     },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      void sendVerificationEmail({ to: user.email, url });
+      sendVerificationEmail({ to: user.email, url }).catch((e) =>
+        console.error("[auth] sendVerificationEmail failed:", e)
+      );
     },
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
