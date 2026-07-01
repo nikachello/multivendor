@@ -70,7 +70,7 @@ export default async function ShopPage({
   const shopBase = await getShopBase(slug);
 
   return (
-    <div className="flex flex-col pb-20 bg-[var(--page-bg)]">
+    <div className="flex flex-col bg-[var(--page-bg)]">
       {sections.map((section) => {
         const Component = registry[section.type] as
           | React.ComponentType<ShopSection["props"]>
