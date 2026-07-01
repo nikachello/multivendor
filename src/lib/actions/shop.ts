@@ -57,7 +57,7 @@ export const createShop = async (name: string, slug: string) => {
   if (!name || !slug) return;
 
   const existing = await prisma.shop.findFirst({ where: { ownerId: session.user.id } });
-  if (existing) return err({ code: "SHOP_ALREADY_EXISTS", message: "You already have a shop.", status: 400 });
+  if (existing) return err({ code: ErrorCode.SHOP_CREATE_FAILED, message: "You already have a shop.", status: 400 });
 
   try {
     const shop = await prisma.shop.create({
