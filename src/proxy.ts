@@ -10,21 +10,13 @@ export function proxy(req: NextRequest) {
   const pathname = url.pathname;
   const hasSession = req.cookies.has(SESSION_COOKIE);
 
-  const isRoot = host === ROOT_DOMAIN;
   const isWWW = host === `www.${ROOT_DOMAIN}`;
   const isSubdomain =
     host.endsWith(`.${ROOT_DOMAIN}`) &&
-    !isRoot &&
+    host !== ROOT_DOMAIN &&
     !isWWW;
 
-  // 1. WWW → root (ONLY if not already root)
-  if (isWWW) {
-    url.hostname = ROOT_DOMAIN;
-    url.protocol = "https:";
-    return NextResponse.redirect(url, 308);
-  }
-
-  // 2. Subdomain routing → /shop/:slug
+  // Subdomain routing → /shop/:slug
   if (isSubdomain) {
     const slug = host.replace(`.${ROOT_DOMAIN}`, "");
 
