@@ -65,12 +65,23 @@ export async function generateVariants(productId: string, priceFrom: number) {
     ),
   );
 
+  // Track SKUs across existing variants AND ones being generated this run
+  // to avoid (productId, sku) unique constraint violations when option values
+  // share the same 3-char prefix (e.g. "Red" and "Rose" → both "ROS").
+  const usedSkus = new Set(existing.map((v) => v.sku));
+
   let created = 0;
   for (const combo of combinations) {
     const key = combo.map((v) => v.id).sort().join("|");
     if (existingKeys.has(key)) continue;
 
-    const sku = combo.map((v) => v.value.slice(0, 3).toUpperCase()).join("-");
+    const baseSku = combo.map((v) => v.value.slice(0, 3).toUpperCase()).join("-");
+    let sku = baseSku;
+    let suffix = 2;
+    while (usedSkus.has(sku)) {
+      sku = `${baseSku}-${suffix++}`;
+    }
+    usedSkus.add(sku);
 
     await prisma.variant.create({
       data: {
