@@ -15,6 +15,7 @@ import {
   Earth,
   BarChart2,
   MessageSquare,
+  Ticket,
   Menu,
   X,
 } from "lucide-react";
@@ -45,6 +46,7 @@ const NAV_GROUPS = [
   {
     label: "More",
     items: [
+      { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
       { label: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquare },
       { label: "Settings", href: "/dashboard/settings", icon: Settings },
     ],

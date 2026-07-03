@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import { createOrder } from "@/lib/actions/order";
+import { validateCoupon } from "@/lib/actions/coupons";
 import { trackInitiateCheckout } from "@/lib/tracking";
 import { recordEvent } from "@/lib/actions/analytics";
 import { useAnalyticsSession } from "@/hooks/useAnalyticsSession";
@@ -68,6 +69,10 @@ export default function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponApplied, setCouponApplied] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
@@ -86,7 +91,8 @@ export default function CheckoutForm({
     return zone ? zone.rate : defaultShippingRate;
   }, [form.city, subtotal, shippingZones, defaultShippingRate, freeThreshold]);
 
-  const total = subtotal + shippingCost;
+  const discount = couponApplied?.discount ?? 0;
+  const total = subtotal - discount + shippingCost;
 
   if (items.length === 0 && !submitted) {
     return (
@@ -124,12 +130,27 @@ export default function CheckoutForm({
     return false;
   }
 
+  async function handleApplyCoupon() {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    const result = await validateCoupon(shopId, code, subtotal);
+    setCouponLoading(false);
+    if (!result.ok) {
+      setCouponError(result.error.message);
+      return;
+    }
+    setCouponApplied({ code: result.data.coupon.code, discount: result.data.discount });
+    setCouponInput("");
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
-    const result = await createOrder(shopId, items, form);
+    const result = await createOrder(shopId, items, form, couponApplied?.code);
 
     if (!result?.ok) {
       setLoading(false);
@@ -245,6 +266,47 @@ export default function CheckoutForm({
           </Field>
         </section>
 
+        {/* Coupon */}
+        <section>
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
+            Discount code
+          </h2>
+          {couponApplied ? (
+            <div className="flex items-center justify-between rounded border border-green-200 bg-green-50 px-4 py-3 text-sm">
+              <span className="text-green-700">
+                <span className="font-mono font-medium">{couponApplied.code}</span>
+                {" "}— {currency} {couponApplied.discount.toFixed(2)} off
+              </span>
+              <button
+                type="button"
+                onClick={() => setCouponApplied(null)}
+                className="text-green-500 hover:text-green-700 transition-colors text-xs underline"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={couponInput}
+                onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
+                placeholder="Enter code"
+                className="flex-1 border border-neutral-200 focus:border-neutral-500 px-3 py-2.5 text-sm outline-none transition-colors bg-white font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={couponLoading || !couponInput.trim()}
+                className="px-4 py-2.5 border border-neutral-300 text-sm text-neutral-700 hover:border-neutral-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {couponLoading ? "…" : "Apply"}
+              </button>
+            </div>
+          )}
+          {couponError && <p className="text-xs text-red-500 mt-1.5">{couponError}</p>}
+        </section>
+
         {/* Payment placeholder */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
@@ -304,6 +366,12 @@ export default function CheckoutForm({
               <span>Subtotal</span>
               <span>{currency} {subtotal.toFixed(2)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount ({couponApplied?.code})</span>
+                <span>− {currency} {discount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-neutral-500">
               <span>Shipping</span>
               {shippingCost === 0 ? (

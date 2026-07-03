@@ -20,7 +20,7 @@ type Order = {
   id: string;
   customerEmail: string | null;
   customerPhone: string | null;
-  total: number | string;
+  total: { toString(): string } | number | string;
   status: OrderStatus;
   createdAt: Date;
   items: unknown[];

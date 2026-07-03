@@ -23,60 +23,104 @@ function calcShipping(
   return zone ? zone.rate : defaultRate;
 }
 
+// Statuses that mean the order won't be fulfilled — stock should be returned
+const STOCK_RESTORING_STATUSES: OrderStatus[] = ["cancelled", "refunded"];
+
 export const createOrder = async (
   shopId: string,
   items: CartItem[],
   rawForm: OrderFormData,
+  couponCode?: string,
 ) => {
   if (!shopId || items.length === 0)
-    return err({
-      code: ErrorCode.GENERAL_ERROR,
-      message: "Missing required data",
-      status: 400,
-    });
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
 
   const shopDetails = await prisma.shop.findFirst({ where: { id: shopId } });
   if (!shopDetails)
-    return err({
-      code: ErrorCode.GENERAL_ERROR,
-      message: "Shop not found",
-      status: 404,
-    });
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Shop not found", status: 404 });
 
   const parsed = orderSchema.safeParse(rawForm);
   if (!parsed.success)
-    return err({
-      code: ErrorCode.GENERAL_ERROR,
-      message: "Invalid form data",
-      status: 400,
-    });
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid form data", status: 400 });
   const form = parsed.data;
 
   const session = await auth.api.getSession({ headers: await headers() });
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-  const shippingCost = calcShipping(
-    subtotal,
-    form.city,
-    Number(shopDetails.shippingRate),
-    Number(shopDetails.freeThreshold),
-    (shopDetails.shippingZones as ShippingZone[]) ?? [],
-  );
-
-  const total = subtotal + shippingCost;
-
   try {
-    const order = await prisma.$transaction(async (tx) => {
-      // Pre-check stock for tracked variants
-      for (const item of items) {
-        const variant = await tx.variant.findUnique({
-          where: { id: item.variantId },
-          select: { stock: true, trackInventory: true },
+    const { order, verifiedItems, total } = await prisma.$transaction(async (tx) => {
+      // Re-fetch all variant data from DB — never trust client-supplied prices
+      const dbVariants = await tx.variant.findMany({
+        where: { id: { in: items.map((i) => i.variantId) } },
+        select: {
+          id: true,
+          price: true,
+          stock: true,
+          trackInventory: true,
+          product: { select: { shopId: true } },
+        },
+      });
+
+      const variantMap = new Map(dbVariants.map((v) => [v.id, v]));
+
+      // Ensure every variant belongs to this shop (prevents cross-shop cart manipulation)
+      for (const v of dbVariants) {
+        if (v.product.shopId !== shopId) throw new Error("FORBIDDEN");
+      }
+
+      // Build verified items using DB prices
+      const verifiedItems = items.map((item) => {
+        const v = variantMap.get(item.variantId);
+        if (!v) throw new Error(`PRODUCT_NOT_FOUND:${item.productName}`);
+        return { ...item, price: Number(v.price) };
+      });
+
+      const subtotal = verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+      // Apply coupon if provided — validate inside transaction for consistency
+      let discount = 0;
+      let couponId: string | null = null;
+      if (couponCode) {
+        const code = couponCode.trim().toUpperCase();
+        const coupon = await tx.coupon.findUnique({
+          where: { shopId_code: { shopId, code } },
         });
-        if (variant?.trackInventory && (variant.stock ?? 0) < item.quantity) {
-          throw new Error(`INSUFFICIENT_STOCK:${item.productName}`);
+        if (
+          coupon &&
+          coupon.isActive &&
+          (!coupon.expiresAt || coupon.expiresAt >= new Date()) &&
+          (coupon.maxUses === null || coupon.usedCount < coupon.maxUses) &&
+          (coupon.minOrderAmount === null || subtotal >= Number(coupon.minOrderAmount))
+        ) {
+          discount =
+            coupon.type === "percentage"
+              ? Math.round(Math.min(subtotal, (subtotal * Number(coupon.value)) / 100) * 100) / 100
+              : Math.round(Math.min(subtotal, Number(coupon.value)) * 100) / 100;
+          couponId = coupon.id;
+          await tx.coupon.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } });
         }
+      }
+
+      const shippingCost = calcShipping(
+        subtotal,
+        form.city,
+        Number(shopDetails.shippingRate),
+        Number(shopDetails.freeThreshold),
+        (shopDetails.shippingZones as ShippingZone[]) ?? [],
+      );
+      const total = subtotal - discount + shippingCost;
+
+      // Atomic stock check + decrement in one query per variant — prevents race conditions.
+      // The WHERE clause (stock >= quantity) ensures we only decrement when stock is sufficient;
+      // count === 0 means either out of stock or the variant doesn't track inventory (handled by
+      // the trackInventory check first).
+      for (const item of verifiedItems) {
+        const v = variantMap.get(item.variantId)!;
+        if (!v.trackInventory) continue;
+        const result = await tx.variant.updateMany({
+          where: { id: item.variantId, trackInventory: true, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } },
+        });
+        if (result.count === 0) throw new Error(`INSUFFICIENT_STOCK:${item.productName}`);
       }
 
       const created = await tx.order.create({
@@ -86,6 +130,8 @@ export const createOrder = async (
           customerEmail: form.email,
           customerPhone: form.phone ?? null,
           subtotal,
+          discount: discount > 0 ? discount : null,
+          couponId,
           total,
           notes: form.notes ?? null,
           shippingAddress: {
@@ -100,7 +146,7 @@ export const createOrder = async (
       });
 
       await tx.orderItem.createMany({
-        data: items.map((item) => ({
+        data: verifiedItems.map((item) => ({
           orderId: created.id,
           variantId: item.variantId,
           productId: item.productId,
@@ -112,16 +158,7 @@ export const createOrder = async (
         })),
       });
 
-      await Promise.all(
-        items.map((item) =>
-          tx.variant.updateMany({
-            where: { id: item.variantId, trackInventory: true },
-            data: { stock: { decrement: item.quantity } },
-          }),
-        ),
-      );
-
-      return created;
+      return { order: created, verifiedItems, total };
     });
 
     try {
@@ -130,7 +167,7 @@ export const createOrder = async (
         shopName: shopDetails.name,
         orderId: order.id,
         customerName: form.fullName,
-        items: items.map((item) => ({
+        items: verifiedItems.map((item) => ({
           productName: item.productName,
           variantOptions: Object.entries(item.variantOptions)
             .map(([k, v]) => `${k}: ${v}`)
@@ -148,24 +185,19 @@ export const createOrder = async (
         },
       });
     } catch {
-      // Email failure should not fail the order
+      // Email failure must not fail the order
     }
 
     return ok({ id: order.id });
   } catch (e) {
     if (e instanceof Error && e.message.startsWith("INSUFFICIENT_STOCK:")) {
       const name = e.message.replace("INSUFFICIENT_STOCK:", "");
-      return err({
-        code: ErrorCode.GENERAL_ERROR,
-        message: `"${name}" is out of stock`,
-        status: 409,
-      });
+      return err({ code: ErrorCode.GENERAL_ERROR, message: `"${name}" is out of stock`, status: 409 });
     }
-    return err({
-      code: ErrorCode.ORDER_CREATE_FAILED,
-      message: "Failed to place order",
-      status: 500,
-    });
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid cart items", status: 403 });
+    }
+    return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
   }
 };
 
@@ -175,24 +207,37 @@ export const updateOrderStatus = async (
   shopId: string,
 ) => {
   if (!orderId || !status || !shopId)
-    return err({
-      code: ErrorCode.GENERAL_ERROR,
-      message: "Missing required data",
-      status: 400,
-    });
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
 
   try {
     const existing = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { shopId: true },
+      select: {
+        shopId: true,
+        status: true,
+        items: { select: { variantId: true, quantity: true } },
+      },
     });
 
     if (!existing || existing.shopId !== shopId)
-      return err({
-        code: ErrorCode.ORDER_NOT_FOUND,
-        message: "Order not found",
-        status: 404,
-      });
+      return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+
+    // Restore stock when moving to a non-fulfillment status, but only if we haven't
+    // already restored it (i.e. don't double-restore cancelled → refunded).
+    const shouldRestoreStock =
+      STOCK_RESTORING_STATUSES.includes(status) &&
+      !STOCK_RESTORING_STATUSES.includes(existing.status);
+
+    if (shouldRestoreStock) {
+      await Promise.all(
+        existing.items.map((item) =>
+          prisma.variant.updateMany({
+            where: { id: item.variantId, trackInventory: true },
+            data: { stock: { increment: item.quantity } },
+          }),
+        ),
+      );
+    }
 
     const order = await prisma.order.update({
       where: { id: orderId },
@@ -213,16 +258,12 @@ export const updateOrderStatus = async (
           total: Number(order.total),
         });
       } catch {
-        // Email failure should not fail the status update
+        // Email failure must not fail the status update
       }
     }
 
     return ok(order);
   } catch {
-    return err({
-      code: ErrorCode.ORDER_NOT_FOUND,
-      message: "Order not found",
-      status: 404,
-    });
+    return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
   }
 };

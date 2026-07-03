@@ -98,6 +98,7 @@ model Shop {
   subscribers  Subscriber[]
   testimonials     Testimonial[]
   analyticsEvents  AnalyticsEvent[]
+  coupons          Coupon[]
 
 
   primaryColor     String @default("#000000")
@@ -289,14 +290,17 @@ model Order {
   customerPhone   String?
   status          OrderStatus @default(pending)
   subtotal        Decimal     @db.Decimal(10, 2)
+  discount        Decimal?    @db.Decimal(10, 2)
   total           Decimal     @db.Decimal(10, 2)
   shippingAddress Json
   notes           String?
+  couponId        String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   shop     Shop        @relation(fields: [shopId], references: [id])
   customer User?       @relation(fields: [customerId], references: [id])
+  coupon   Coupon?     @relation(fields: [couponId], references: [id])
   items    OrderItem[]
 }
 
@@ -373,12 +377,39 @@ model AnalyticsEvent {
 }
 
 // ============================================
+// COUPON
+// ============================================
+model Coupon {
+  id             String     @id @default(cuid())
+  shopId         String
+  code           String
+  type           CouponType
+  value          Decimal    @db.Decimal(10, 2)
+  minOrderAmount Decimal?   @db.Decimal(10, 2)
+  maxUses        Int?
+  usedCount      Int        @default(0)
+  expiresAt      DateTime?
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+
+  shop   Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@unique([shopId, code])
+}
+
+// ============================================
 // ENUMS
 // ============================================
 enum Role {
   seller
   customer
   admin
+}
+
+enum CouponType {
+  percentage
+  fixed
 }
 
 enum OrderStatus {
