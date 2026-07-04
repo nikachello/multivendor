@@ -18,6 +18,7 @@ import {
   Ticket,
   Menu,
   X,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/lib/auth/client";
@@ -48,6 +49,7 @@ const NAV_GROUPS = [
     items: [
       { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
       { label: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquare },
+      { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
       { label: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
   },

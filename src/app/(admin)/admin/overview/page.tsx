@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { assertAdmin } from "@/lib/auth/assert-admin";
 import prisma from "@/lib/db/prisma";
 import { Store, Users, ShoppingBag, TrendingUp } from "lucide-react";
