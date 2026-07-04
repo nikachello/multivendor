@@ -385,7 +385,7 @@ export default function Home() {
       style={{
         fontFamily: "var(--font-georgian), sans-serif",
         color: "#0a0a0a",
-        background: "#fff",
+        background: "#f6f6f8",
       }}
     >
       <style>{`
