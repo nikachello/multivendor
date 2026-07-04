@@ -52,6 +52,7 @@ export async function createBogOrder({
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      "Accept-Language": "ka",
     },
     body: JSON.stringify({
       callback_url: callbackUrl,
