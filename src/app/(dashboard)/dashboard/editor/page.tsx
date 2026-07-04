@@ -4,6 +4,8 @@ import {
   getCategoriesByShop,
   getFirstCategorySlug,
   getFirstProductSlug,
+  getShopOptionTypeNames,
+  resolveCollectionConfig,
 } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import SectionEditor from "@/components/dashboard/editor/SectionEditor";
@@ -19,6 +21,7 @@ export default async function EditorPage() {
     categoriesResult,
     firstCategorySlug,
     firstProductSlug,
+    optionTypeNames,
   ] = await Promise.all([
     getShopSections(shop.id, "home"),
     getShopSections(shop.id, "collection"),
@@ -27,6 +30,7 @@ export default async function EditorPage() {
     getCategoriesByShop(shop.id),
     getFirstCategorySlug(shop.id),
     getFirstProductSlug(shop.id),
+    getShopOptionTypeNames(shop.id),
   ]);
 
   if (!homeSectionsResult.ok) notFound();
@@ -54,6 +58,10 @@ export default async function EditorPage() {
       }}
       firstCategorySlug={firstCategorySlug}
       firstProductSlug={firstProductSlug}
+      initialCollectionConfig={resolveCollectionConfig(
+        (shop as { collectionConfig?: unknown }).collectionConfig ?? {},
+      )}
+      optionTypeNames={optionTypeNames}
     />
   );
 }

@@ -1,4 +1,4 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+import { getShop } from "@/lib/auth/get-shop";
 import SettingsForm from "./SettingsForm";
 
 export default async function SettingsPage() {

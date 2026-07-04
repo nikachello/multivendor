@@ -4,6 +4,32 @@ import { ShopSection } from "@/lib/types/store-section";
 import prisma from "./prisma";
 import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
 
+// ============================================
+// COLLECTION CONFIG
+// ============================================
+
+export type CollectionConfig = {
+  showSort?: boolean;
+  showPrice?: boolean;
+  showInStock?: boolean;
+  visibleOptionTypes?: string[] | null; // null/missing = all
+};
+
+export const DEFAULT_COLLECTION_CONFIG: Required<CollectionConfig> = {
+  showSort: true,
+  showPrice: true,
+  showInStock: true,
+  visibleOptionTypes: null,
+};
+
+export function resolveCollectionConfig(raw: Prisma.JsonValue): Required<CollectionConfig> {
+  const cfg =
+    raw && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as Partial<CollectionConfig>)
+      : {};
+  return { ...DEFAULT_COLLECTION_CONFIG, ...cfg };
+}
+
 const productInclude = {
   images: { orderBy: { sortOrder: "asc" } },
   categories: true,
@@ -363,6 +389,137 @@ export async function getProductsByCategory(
   }
 
   return ok(products.map(serializeProduct));
+}
+
+// ============================================
+// SHOP OPTION TYPE NAMES (for collection config UI)
+// ============================================
+
+export async function getShopOptionTypeNames(shopId: string): Promise<string[]> {
+  const types = await prisma.optionType.findMany({
+    where: { shopId },
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+  return types.map((t) => t.name);
+}
+
+// ============================================
+// COLLECTION DATA (storefront — with filters, sort, pagination, facets)
+// ============================================
+
+export type CollectionSortOption = "newest" | "price_asc" | "price_desc" | "name_asc";
+
+export type CollectionFilters = {
+  sort?: CollectionSortOption;
+  page?: number;
+  pageSize?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  optionFilters?: Record<string, string[]>;
+  inStockOnly?: boolean;
+};
+
+export type CollectionFacets = {
+  priceRange: { min: number; max: number };
+  options: Array<{ name: string; values: string[] }>;
+  hasTrackedInventory: boolean;
+};
+
+export type CollectionData = {
+  products: ProductWithRelations[];
+  total: number;
+  allTotal: number;
+  facets: CollectionFacets;
+};
+
+export async function getCollectionData(
+  shopId: string,
+  categoryId: string,
+  filters: CollectionFilters = {},
+): Promise<Result<CollectionData>> {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop id is required", status: 400 });
+  if (!categoryId) return err({ code: ErrorCode.CATEGORY_ID_MISSING, message: "Category id is required", status: 400 });
+
+  const raw = await prisma.product.findMany({
+    where: { shopId, categories: { some: { id: categoryId } }, isActive: true },
+    include: productInclude,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const all = raw.map(serializeProduct);
+
+  // Build facets from all products (static — not narrowed by active filters)
+  const prices = all.map((p) => p.priceFrom);
+  const optionMap = new Map<string, Set<string>>();
+  let hasTrackedInventory = false;
+
+  for (const product of all) {
+    for (const variant of product.variants) {
+      if (variant.trackInventory) hasTrackedInventory = true;
+      for (const ov of variant.optionValues) {
+        const typeName = ov.optionValue.optionType.name;
+        if (!optionMap.has(typeName)) optionMap.set(typeName, new Set());
+        optionMap.get(typeName)!.add(ov.optionValue.value);
+      }
+    }
+  }
+
+  const facets: CollectionFacets = {
+    priceRange: {
+      min: prices.length ? Math.min(...prices) : 0,
+      max: prices.length ? Math.max(...prices) : 0,
+    },
+    options: Array.from(optionMap.entries()).map(([name, values]) => ({
+      name,
+      values: Array.from(values).sort(),
+    })),
+    hasTrackedInventory,
+  };
+
+  const {
+    sort = "newest",
+    page = 1,
+    pageSize = 24,
+    minPrice,
+    maxPrice,
+    optionFilters = {},
+    inStockOnly = false,
+  } = filters;
+
+  let filtered = all;
+
+  if (minPrice !== undefined) filtered = filtered.filter((p) => p.priceFrom >= minPrice);
+  if (maxPrice !== undefined) filtered = filtered.filter((p) => p.priceFrom <= maxPrice);
+
+  if (inStockOnly) {
+    filtered = filtered.filter((p) =>
+      p.variants.some((v) => !v.trackInventory || v.stock > 0),
+    );
+  }
+
+  // Within a type: OR — across types: AND
+  for (const [typeName, values] of Object.entries(optionFilters)) {
+    if (!values.length) continue;
+    filtered = filtered.filter((p) =>
+      p.variants.some((v) =>
+        v.optionValues.some(
+          (ov) =>
+            ov.optionValue.optionType.name === typeName &&
+            values.includes(ov.optionValue.value),
+        ),
+      ),
+    );
+  }
+
+  if (sort === "price_asc") filtered = [...filtered].sort((a, b) => a.priceFrom - b.priceFrom);
+  else if (sort === "price_desc") filtered = [...filtered].sort((a, b) => b.priceFrom - a.priceFrom);
+  else if (sort === "name_asc") filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+
+  const total = filtered.length;
+  const products = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  return ok({ products, total, allTotal: all.length, facets });
 }
 
 // ============================================

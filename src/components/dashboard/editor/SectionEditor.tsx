@@ -31,9 +31,11 @@ import AddSectionPanel from "./AddSectionPanel";
 import { saveSections } from "@/lib/actions/sections";
 import { toast } from "sonner";
 import ThemePanel from "./ThemePanel";
+import CollectionPageSettings from "./CollectionPageSettings";
 import { ThemeData } from "@/lib/actions/theme";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageType } from "@/themes/types";
+import type { CollectionConfig } from "@/lib/db/queries";
 
 type PagesSections = Record<PageType, ShopSection[]>;
 
@@ -48,6 +50,8 @@ type Props = {
   themeId: string;
   firstCategorySlug: string | null;
   firstProductSlug: string | null;
+  initialCollectionConfig: Required<CollectionConfig>;
+  optionTypeNames: string[];
 };
 
 const PAGE_TABS: { label: string; value: PageType }[] = [
@@ -66,6 +70,8 @@ export default function SectionEditor({
   themeId,
   firstCategorySlug,
   firstProductSlug,
+  initialCollectionConfig,
+  optionTypeNames,
 }: Props) {
   const [pagesSections, setPagesSections] = useState<PagesSections>(initialPagesSections);
   const [activePage, setActivePage] = useState<PageType>("home");
@@ -75,6 +81,7 @@ export default function SectionEditor({
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
+  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const justSwitchedPage = useRef(false);
@@ -167,6 +174,7 @@ export default function SectionEditor({
     setActivePage(page);
     setSelectedId(pagesSections[page][0]?.id ?? null);
     setShowAddPanel(false);
+    setPageSettingsOpen(false);
     if (iframeRef.current) {
       iframeRef.current.src = getPreviewUrl(page);
     }
@@ -317,6 +325,23 @@ export default function SectionEditor({
               </p>
             )}
             <div className="flex-1 overflow-y-auto p-3">
+              {/* Page-level settings button — collection only */}
+              {activePage === "collection" && (
+                <button
+                  onClick={() => { setPageSettingsOpen(true); setSelectedId(null); }}
+                  className={`w-full flex items-center gap-2 px-2.5 py-2 mb-2 rounded-lg text-xs font-medium transition-colors ${
+                    pageSettingsOpen
+                      ? "bg-neutral-900 text-white"
+                      : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 border border-neutral-200"
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                  </svg>
+                  Filter bar settings
+                </button>
+              )}
+
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -337,7 +362,7 @@ export default function SectionEditor({
                           section={section}
                           label={label}
                           isSelected={selectedId === section.id}
-                          onSelect={() => setSelectedId(section.id)}
+                          onSelect={() => { setSelectedId(section.id); setPageSettingsOpen(false); }}
                           onRemove={() => handleRemove(section.id)}
                         />
                       );
@@ -424,7 +449,18 @@ export default function SectionEditor({
             Settings
           </p>
         </div>
-        {selectedSection ? (
+        {pageSettingsOpen ? (
+          <CollectionPageSettings
+            shopId={shopId}
+            shopSlug={shopSlug}
+            optionTypeNames={optionTypeNames}
+            initial={initialCollectionConfig}
+            onSaved={() => {
+              setIframeLoading(true);
+              iframeRef.current?.contentWindow?.location.reload();
+            }}
+          />
+        ) : selectedSection ? (
           <SectionSettingsPanel
             section={selectedSection}
             shopId={shopId}

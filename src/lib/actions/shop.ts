@@ -6,10 +6,23 @@ import { err, ok } from "../result";
 import { ErrorCode } from "../errors";
 import prisma from "../db/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getThemeConfig } from "@/themes";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
+import type { CollectionConfig } from "../db/queries";
 
 export type ShippingZone = { city_en: string; city_ka: string; rate: number };
+
+export async function updateCollectionConfig(shopId: string, shopSlug: string, config: CollectionConfig) {
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  await prisma.shop.update({
+    where: { id: shopId },
+    data: { collectionConfig: config as never },
+  });
+  revalidatePath(`/shop/${shopSlug}`, "layout");
+  return ok(null);
+}
 
 export async function updateShipping(
   shopId: string,
