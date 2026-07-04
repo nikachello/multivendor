@@ -15,164 +15,115 @@ function Nav() {
   const isLoggedIn = !!sessionData?.session;
 
   return (
-    <nav
+    <div
       style={{
         position: "sticky",
-        top: 0,
+        top: 12,
         zIndex: 50,
-        background: "rgba(255,255,255,0.82)",
-        backdropFilter: "saturate(180%) blur(20px)",
-        WebkitBackdropFilter: "saturate(180%) blur(20px)",
-        borderBottom: "1px solid rgba(0,0,0,0.06)",
+        padding: "0 16px",
+        pointerEvents: "none",
       }}
     >
+      {/* Floating pill */}
       <div
         style={{
-          maxWidth: 1100,
+          maxWidth: 1060,
           margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 56,
-          padding: "0 28px",
+          background: "rgba(255,255,255,0.62)",
+          backdropFilter: "saturate(200%) blur(24px)",
+          WebkitBackdropFilter: "saturate(200%) blur(24px)",
+          border: "1px solid rgba(255,255,255,0.7)",
+          borderRadius: 20,
+          boxShadow:
+            "0 8px 32px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.85)",
+          pointerEvents: "auto",
+          overflow: "hidden",
         }}
       >
-        {/* Wordmark */}
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-jakarta)",
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#0a0a0a",
-            textDecoration: "none",
-            letterSpacing: "-0.025em",
-            flexShrink: 0,
-          }}
-        >
-          MultiStore
-        </Link>
-
-        {/* Desktop center links */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 36,
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
+            justifyContent: "space-between",
+            height: 52,
+            padding: "0 20px",
+            position: "relative",
           }}
-          className="hidden md:flex"
         >
-          <a href="#features" style={{ fontSize: 14, color: "#555", textDecoration: "none" }}>
-            ფუნქციები
-          </a>
-          <a href="#pricing" style={{ fontSize: 14, color: "#555", textDecoration: "none" }}>
-            ფასები
-          </a>
-        </div>
+          {/* Wordmark */}
+          <Link
+            href="/"
+            style={{
+              fontFamily: "var(--font-jakarta)",
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#0a0a0a",
+              textDecoration: "none",
+              letterSpacing: "-0.025em",
+              flexShrink: 0,
+            }}
+          >
+            MultiStore
+          </Link>
 
-        {/* Desktop right auth */}
-        <div
-          style={{ display: "flex", alignItems: "center", gap: 24, flexShrink: 0 }}
-          className="hidden md:flex"
-        >
-          {isLoggedIn ? (
-            <Link
-              href="/dashboard"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "#fff",
-                background: "#0a0a0a",
-                padding: "7px 18px",
-                borderRadius: 980,
-                textDecoration: "none",
-              }}
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link href="/login" style={{ fontSize: 14, color: "#555", textDecoration: "none" }}>
-                შესვლა
-              </Link>
+          {/* Center links — desktop */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              alignItems: "center",
+              gap: 32,
+            }}
+            className="hidden md:flex"
+          >
+            <a href="#features" style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}>
+              ფუნქციები
+            </a>
+            <a href="#pricing" style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}>
+              ფასები
+            </a>
+          </div>
+
+          {/* Right auth — desktop */}
+          <div
+            style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}
+            className="hidden md:flex"
+          >
+            {isLoggedIn ? (
               <Link
-                href="/register"
+                href="/dashboard"
                 style={{
-                  fontSize: 14,
+                  fontSize: 13.5,
                   fontWeight: 600,
                   color: "#fff",
                   background: "#0a0a0a",
-                  padding: "7px 18px",
+                  padding: "6px 16px",
                   borderRadius: 980,
                   textDecoration: "none",
                 }}
               >
-                დაიწყე
-              </Link>
-            </>
-          )}
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setOpen(!open)}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
-          className="md:hidden"
-          aria-label="menu"
-        >
-          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#0a0a0a" strokeWidth={1.8}>
-            {open ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div
-          style={{
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            background: "rgba(255,255,255,0.98)",
-            padding: "18px 28px 24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 18,
-          }}
-        >
-          <a href="#features" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}>
-            ფუნქციები
-          </a>
-          <a href="#pricing" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}>
-            ფასები
-          </a>
-          <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>
-            {isLoggedIn ? (
-              <Link href="/dashboard" onClick={() => setOpen(false)} style={{ fontSize: 15, fontWeight: 600, color: "#0a0a0a", textDecoration: "none" }}>
                 Dashboard
               </Link>
             ) : (
               <>
-                <Link href="/login" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#555", textDecoration: "none" }}>
+                <Link
+                  href="/login"
+                  style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}
+                >
                   შესვლა
                 </Link>
                 <Link
                   href="/register"
-                  onClick={() => setOpen(false)}
                   style={{
-                    fontSize: 15,
+                    fontSize: 13.5,
                     fontWeight: 600,
                     color: "#fff",
                     background: "#0a0a0a",
-                    padding: "12px 16px",
-                    borderRadius: 12,
+                    padding: "6px 16px",
+                    borderRadius: 980,
                     textDecoration: "none",
-                    textAlign: "center",
                   }}
                 >
                   დაიწყე
@@ -180,9 +131,105 @@ function Nav() {
               </>
             )}
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setOpen(!open)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+            className="md:hidden"
+            aria-label="menu"
+          >
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#0a0a0a"
+              strokeWidth={1.8}
+            >
+              {open ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
-      )}
-    </nav>
+
+        {/* Mobile menu */}
+        {open && (
+          <div
+            style={{
+              borderTop: "1px solid rgba(0,0,0,0.07)",
+              padding: "16px 20px 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            <a
+              href="#features"
+              onClick={() => setOpen(false)}
+              style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}
+            >
+              ფუნქციები
+            </a>
+            <a
+              href="#pricing"
+              onClick={() => setOpen(false)}
+              style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}
+            >
+              ფასები
+            </a>
+            <div
+              style={{
+                borderTop: "1px solid rgba(0,0,0,0.07)",
+                paddingTop: 16,
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+              }}
+            >
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  style={{ fontSize: 15, fontWeight: 600, color: "#0a0a0a", textDecoration: "none" }}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    style={{ fontSize: 15, color: "#555", textDecoration: "none" }}
+                  >
+                    შესვლა
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setOpen(false)}
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: "#fff",
+                      background: "#0a0a0a",
+                      padding: "11px 16px",
+                      borderRadius: 12,
+                      textDecoration: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    დაიწყე
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
