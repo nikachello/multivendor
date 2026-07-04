@@ -2,7 +2,7 @@
 import { ErrorCode } from "@/lib/errors";
 import { ShopSection } from "@/lib/types/store-section";
 import prisma from "./prisma";
-import { Category, Shop, Prisma, Testimonial } from "@/generated/prisma/client";
+import { Category, Shop, Prisma, Testimonial, OrderStatus } from "@/generated/prisma/client";
 
 // ============================================
 // COLLECTION CONFIG
@@ -528,29 +528,29 @@ export async function getCollectionData(
 
 export async function getProductsByShop(
   shopId: string,
-): Promise<Result<ProductWithRelations[]>> {
-  if (!shopId) {
-    return err({
-      code: ErrorCode.SHOP_ID_MISSING,
-      message: "Shop id is required",
-      status: 400,
-    });
-  }
-
-  const products = await prisma.product.findMany({
-    where: { shopId, isActive: true },
-    include: productInclude,
-  });
-
-  if (!products) {
-    return err({
-      code: ErrorCode.PRODUCTS_NOT_FOUND,
-      message: "áƒžáƒ áƒáƒ“áƒ£áƒ¥áƒ¢áƒ”áƒ‘áƒ˜ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
-      status: 404,
-    });
-  }
-
-  return ok(products.map(serializeProduct));
+  opts: { q?: string; page?: number; pageSize?: number } = {},
+): Promise<Result<{ data: ProductWithRelations[]; total: number }>> {
+  if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop id is required", status: 400 });
+  const { q, page = 1, pageSize = 20 } = opts;
+  const where: Prisma.ProductWhereInput = {
+    shopId,
+    isActive: true,
+    ...(q ? { OR: [
+      { name: { contains: q, mode: "insensitive" } },
+      { slug: { contains: q, mode: "insensitive" } },
+    ]} : {}),
+  };
+  const [total, products] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      include: productInclude,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return ok({ data: products.map(serializeProduct), total });
 }
 
 // ============================================
@@ -623,16 +623,16 @@ export async function getDashboardStats(shopId: string) {
   };
 }
 
-export async function getAnalyticsData(shopId: string) {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+export async function getAnalyticsData(shopId: string, days = 30) {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
   const [events, orders] = await Promise.all([
     prisma.analyticsEvent.findMany({
-      where: { shopId, createdAt: { gte: thirtyDaysAgo } },
+      where: { shopId, createdAt: { gte: since } },
       select: { type: true, sessionId: true, value: true, createdAt: true, productId: true },
     }),
     prisma.order.findMany({
-      where: { shopId, createdAt: { gte: thirtyDaysAgo }, status: { notIn: ["cancelled", "refunded"] } },
+      where: { shopId, createdAt: { gte: since }, status: { notIn: ["cancelled", "refunded"] } },
       select: { total: true, createdAt: true, items: { select: { productId: true, productName: true, price: true, quantity: true } } },
       orderBy: { createdAt: "asc" },
     }),
@@ -654,9 +654,9 @@ export async function getAnalyticsData(shopId: string) {
   const orderCount = orders.length;
   const aov = orderCount > 0 ? revenue / orderCount : 0;
 
-  // Daily revenue — last 30 days, fill missing days with 0
+  // Daily revenue — fill missing days with 0
   const dailyMap = new Map<string, number>();
-  for (let i = 29; i >= 0; i--) {
+  for (let i = days - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
     dailyMap.set(d.toISOString().slice(0, 10), 0);
   }
@@ -714,28 +714,58 @@ export async function searchProducts(
   return ok(products.map(serializeProduct));
 }
 
-export async function getOrdersByShop(shopId: string) {
+export async function getOrdersByShop(
+  shopId: string,
+  opts: { q?: string; status?: string; page?: number; pageSize?: number } = {},
+) {
   if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
-
-  const orders = await prisma.order.findMany({
-    where: { shopId },
-    include: { items: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return ok(orders);
+  const { q, status, page = 1, pageSize = 20 } = opts;
+  const where: Prisma.OrderWhereInput = {
+    shopId,
+    ...(status ? { status: status as OrderStatus } : {}),
+    ...(q ? { OR: [
+      { id: { contains: q, mode: "insensitive" } },
+      { customerEmail: { contains: q, mode: "insensitive" } },
+      { customerPhone: { contains: q, mode: "insensitive" } },
+    ]} : {}),
+  };
+  const [total, orders] = await Promise.all([
+    prisma.order.count({ where }),
+    prisma.order.findMany({
+      where,
+      include: { items: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return ok({ data: orders, total });
 }
 
 export type CategoryWithCount = Category & { _count: { products: number } };
 
-export async function getCategoriesWithCount(shopId: string): Promise<Result<CategoryWithCount[]>> {
+export async function getCategoriesWithCount(
+  shopId: string,
+  opts: { q?: string; page?: number; pageSize?: number } = {},
+): Promise<Result<{ data: CategoryWithCount[]; total: number }>> {
   if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop ID is required", status: 400 });
-
-  const data = await prisma.category.findMany({
-    where: { shopId },
-    include: { _count: { select: { products: true } } },
-    orderBy: { name: "asc" },
-  });
-
-  return ok(data);
+  const { q, page = 1, pageSize = 20 } = opts;
+  const where: Prisma.CategoryWhereInput = {
+    shopId,
+    ...(q ? { OR: [
+      { name: { contains: q, mode: "insensitive" } },
+      { slug: { contains: q, mode: "insensitive" } },
+    ]} : {}),
+  };
+  const [total, data] = await Promise.all([
+    prisma.category.count({ where }),
+    prisma.category.findMany({
+      where,
+      include: { _count: { select: { products: true } } },
+      orderBy: { name: "asc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return ok({ data, total });
 }

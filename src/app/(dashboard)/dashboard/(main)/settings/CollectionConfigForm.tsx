@@ -7,11 +7,12 @@ import type { CollectionConfig } from "@/lib/db/queries";
 
 type Props = {
   shopId: string;
+  shopSlug: string;
   optionTypeNames: string[];
   initial: Required<CollectionConfig>;
 };
 
-export default function CollectionConfigForm({ shopId, optionTypeNames, initial }: Props) {
+export default function CollectionConfigForm({ shopId, shopSlug, optionTypeNames, initial }: Props) {
   const [showSort, setShowSort] = useState(initial.showSort);
   const [showPrice, setShowPrice] = useState(initial.showPrice);
   const [showInStock, setShowInStock] = useState(initial.showInStock);
@@ -39,7 +40,7 @@ export default function CollectionConfigForm({ shopId, optionTypeNames, initial 
       showInStock,
       visibleOptionTypes: limitOptions ? Array.from(visibleOptions) : null,
     };
-    const result = await updateCollectionConfig(shopId, config);
+    const result = await updateCollectionConfig(shopId, shopSlug, config);
     setSaving(false);
     if (!result?.ok) {
       toast.error("Failed to save");

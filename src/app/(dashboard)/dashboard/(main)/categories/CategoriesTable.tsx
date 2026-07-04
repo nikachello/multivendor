@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { CategoryWithCount } from "@/lib/db/queries";
 import { DataTable } from "@/components/ui/data-table";
@@ -13,20 +13,10 @@ export default function CategoriesTable({
   categories: CategoryWithCount[];
 }) {
   const [categories, setCategories] = useState(initial);
-  const [query, setQuery] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const pendingCategory = categories.find((c) => c.id === pendingDeleteId);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return categories;
-    return categories.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q),
-    );
-  }, [categories, query]);
 
   async function handleDelete() {
     if (!pendingDeleteId) return;
@@ -43,24 +33,12 @@ export default function CategoriesTable({
     toast.success("Category deleted");
   }
 
-  const emptyMessage = query.trim()
-    ? `No categories matching "${query}"`
-    : "No categories yet  click + New category to get started.";
-
   return (
     <>
-      {categories.length > 0 && (
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search categories€¦"
-          className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm max-w-xs bg-white"
-        />
-      )}
       <DataTable
         columns={createColumns(setPendingDeleteId)}
-        data={filtered}
-        emptyMessage={emptyMessage}
+        data={categories}
+        emptyMessage="No categories found."
       />
 
       {/* Confirmation dialog */}
