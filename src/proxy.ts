@@ -50,7 +50,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // Auth guard
-  if (pathname.startsWith("/dashboard") && !hasSession) {
+  if ((pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) && !hasSession) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
