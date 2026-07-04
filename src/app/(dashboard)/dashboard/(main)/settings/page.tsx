@@ -1,5 +1,6 @@
 import { getShop } from "@/lib/auth/get-shop";
 import SettingsForm from "./SettingsForm";
+import CustomDomainForm from "./CustomDomainForm";
 
 export default async function SettingsPage() {
   const shop = await getShop();
@@ -24,6 +25,12 @@ export default async function SettingsPage() {
           googleAdsId: shop.googleAdsId ?? "",
           googleAdsConversionLabel: shop.googleAdsConversionLabel ?? "",
         }}
+      />
+
+      <CustomDomainForm
+        shopId={shop.id}
+        initialDomain={shop.customDomain ?? null}
+        initialVerified={shop.domainVerified}
       />
     </div>
   );

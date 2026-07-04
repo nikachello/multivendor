@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/db/prisma";
 
 // Better Auth prepends __Secure- when BETTER_AUTH_URL uses https://
 const SESSION_COOKIE = "__Secure-better-auth.session_token";
 const SESSION_COOKIE_PLAIN = "better-auth.session_token";
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "multistore.ge";
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const url = req.nextUrl.clone();
 
   const host = (req.headers.get("host") ?? "").split(":")[0];
@@ -31,7 +32,24 @@ export function proxy(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  // 3. Auth guard
+  // Custom domain routing — host is not on ROOT_DOMAIN at all
+  const isRootDomain = host === ROOT_DOMAIN || isWWW || host.endsWith(`.${ROOT_DOMAIN}`);
+  if (!isRootDomain) {
+    try {
+      const shop = await prisma.shop.findFirst({
+        where: { customDomain: host },
+        select: { slug: true },
+      });
+      if (shop && !pathname.startsWith(`/shop/${shop.slug}`)) {
+        url.pathname = `/shop/${shop.slug}${pathname === "/" ? "" : pathname}`;
+        return NextResponse.rewrite(url);
+      }
+    } catch {
+      // DB lookup failed — fall through
+    }
+  }
+
+  // Auth guard
   if (pathname.startsWith("/dashboard") && !hasSession) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
