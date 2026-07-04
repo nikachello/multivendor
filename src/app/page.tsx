@@ -29,13 +29,13 @@ function Nav() {
         style={{
           maxWidth: 1060,
           margin: "0 auto",
-          background: "rgba(255,255,255,0.62)",
-          backdropFilter: "saturate(200%) blur(24px)",
-          WebkitBackdropFilter: "saturate(200%) blur(24px)",
-          border: "1px solid rgba(255,255,255,0.7)",
+          background: "rgba(255,255,255,0.5)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          border: "1px solid rgba(255,255,255,0.6)",
           borderRadius: 20,
           boxShadow:
-            "0 8px 32px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.85)",
+            "0 2px 4px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
           pointerEvents: "auto",
           overflow: "hidden",
         }}
@@ -386,7 +386,6 @@ export default function Home() {
         fontFamily: "var(--font-georgian), sans-serif",
         color: "#0a0a0a",
         background: "#fff",
-        overflowX: "hidden",
       }}
     >
       <style>{`
@@ -410,7 +409,7 @@ export default function Home() {
       <div
         style={{
           background:
-            "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(31,122,82,0.07) 0%, #ffffff 62%)",
+            "radial-gradient(ellipse 90% 45% at 50% 0%, rgba(31,122,82,0.09) 0%, #f6f6f8 100%)",
           padding: "132px 24px 100px",
           textAlign: "center",
         }}
