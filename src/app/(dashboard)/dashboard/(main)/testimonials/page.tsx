@@ -13,7 +13,7 @@ export default async function TestimonialsPage() {
 
   const testimonials = testimonialsResult.ok ? testimonialsResult.data : [];
   const products = productsResult.ok
-    ? productsResult.data.map((p) => ({ id: p.id, name: p.name }))
+    ? productsResult.data.data.map((p) => ({ id: p.id, name: p.name }))
     : [];
 
   return (
