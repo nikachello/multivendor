@@ -78,14 +78,14 @@ export default function LandingNav() {
 
       {open && (
         <div
-          className="md:hidden px-6 pb-5 flex flex-col gap-4"
+          className="md:hidden px-6 pt-4 pb-5 flex flex-col gap-4"
           style={{ borderTop: "1px solid #e7e3da", background: "#fcfbf9" }}
         >
           {NAV_LINKS.map(({ href, label }) => (
             <a
               key={href}
               href={href}
-              className="text-sm pt-1"
+              className="text-sm"
               style={{ color: "#1c1a17" }}
               onClick={() => setOpen(false)}
             >

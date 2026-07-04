@@ -72,7 +72,6 @@ function Nav() {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              display: "flex",
               alignItems: "center",
               gap: 32,
             }}
@@ -88,7 +87,7 @@ function Nav() {
 
           {/* Right auth — desktop */}
           <div
-            style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}
+            style={{ alignItems: "center", gap: 20, flexShrink: 0 }}
             className="hidden md:flex"
           >
             {isLoggedIn ? (
