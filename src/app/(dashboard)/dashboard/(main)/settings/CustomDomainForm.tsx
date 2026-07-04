@@ -12,12 +12,14 @@ type Props = {
   shopId: string;
   initialDomain: string | null;
   initialVerified: boolean;
+  isPro: boolean;
 };
 
 export default function CustomDomainForm({
   shopId,
   initialDomain,
   initialVerified,
+  isPro,
 }: Props) {
   const [domain, setDomain] = useState(initialDomain ?? "");
   const [connectedDomain, setConnectedDomain] = useState(initialDomain);
@@ -74,6 +76,28 @@ export default function CustomDomainForm({
         toast("Not verified yet. Make sure your CNAME record is saved.");
       }
     });
+  }
+
+  if (!isPro) {
+    return (
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
+          Custom Domain
+        </h2>
+        <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-4 bg-gray-50">
+          <div>
+            <p className="text-sm font-medium text-gray-700">Connect your own domain</p>
+            <p className="text-xs text-gray-400 mt-0.5">Available on the Pro plan.</p>
+          </div>
+          <a
+            href="/dashboard/billing"
+            className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap"
+          >
+            Upgrade to Pro
+          </a>
+        </div>
+      </section>
+    );
   }
 
   return (

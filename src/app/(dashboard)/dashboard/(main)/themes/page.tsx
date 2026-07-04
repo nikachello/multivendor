@@ -1,9 +1,11 @@
 ﻿import { getShop } from "@/lib/auth/get-shop";
+import { isProShop } from "@/lib/subscription";
 import ThemesClient from "./ThemesClient";
 
 export default async function ThemesPage() {
   const shop = await getShop();
   const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const isPro = isProShop(shop.subscriptionPaidUntil);
 
   return (
     <div className="p-8 max-w-4xl">
@@ -18,7 +20,7 @@ export default async function ThemesPage() {
         </p>
       </div>
 
-      <ThemesClient shopId={shop.id} activeThemeId={themeId} />
+      <ThemesClient shopId={shop.id} activeThemeId={themeId} isPro={isPro} />
     </div>
   );
 }

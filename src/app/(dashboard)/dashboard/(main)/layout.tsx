@@ -2,20 +2,25 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import Link from "next/link";
 
-function getSubscriptionBanner(paidUntil: Date | null): { message: string; style: string } | null {
-  const now = new Date();
+function getSubscriptionBanner(
+  paidUntil: Date | null,
+): { message: string; style: string } | null {
+  if (!paidUntil) return null;
 
-  if (!paidUntil || paidUntil < now) {
+  const now = new Date();
+  const until = new Date(paidUntil);
+
+  if (until < now) {
     return {
-      message: "Your subscription has expired. Your store will go offline in 7 days unless you renew.",
-      style: "bg-red-50 border-red-200 text-red-700",
+      message: "Your Pro subscription has expired. You're back on the free plan — upgrade to restore all features.",
+      style: "bg-amber-50 border-amber-200 text-amber-700",
     };
   }
 
-  const daysLeft = Math.ceil((paidUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const daysLeft = Math.ceil((until.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   if (daysLeft <= 7) {
     return {
-      message: `Your subscription expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}. Renew to keep your store online.`,
+      message: `Your Pro subscription expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}. Renew to keep all Pro features.`,
       style: "bg-amber-50 border-amber-200 text-amber-700",
     };
   }

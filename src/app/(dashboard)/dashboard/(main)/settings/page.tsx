@@ -1,9 +1,11 @@
 import { getShop } from "@/lib/auth/get-shop";
+import { isProShop } from "@/lib/subscription";
 import SettingsForm from "./SettingsForm";
 import CustomDomainForm from "./CustomDomainForm";
 
 export default async function SettingsPage() {
   const shop = await getShop();
+  const isPro = isProShop(shop.subscriptionPaidUntil);
 
   return (
     <div className="flex flex-col gap-6 max-w-xl">
@@ -31,6 +33,7 @@ export default async function SettingsPage() {
         shopId={shop.id}
         initialDomain={shop.customDomain ?? null}
         initialVerified={shop.domainVerified}
+        isPro={isPro}
       />
     </div>
   );

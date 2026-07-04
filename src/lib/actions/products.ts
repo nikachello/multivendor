@@ -4,6 +4,7 @@ import prisma from "../db/prisma";
 import { ErrorCode } from "../errors";
 import { err, ok } from "../result";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
+import { isProShop, FREE_PRODUCT_LIMIT } from "../subscription";
 
 async function shopIdForProduct(productId: string) {
   const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
@@ -91,6 +92,18 @@ export const createProduct = async (
     });
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  if (!isProShop(shopData?.subscriptionPaidUntil)) {
+    const count = await prisma.product.count({ where: { shopId } });
+    if (count >= FREE_PRODUCT_LIMIT) {
+      return err({
+        code: ErrorCode.GENERAL_ERROR,
+        message: `Free plan is limited to ${FREE_PRODUCT_LIMIT} products. Upgrade to Pro to add more.`,
+        status: 403,
+      });
+    }
+  }
 
   const product = await prisma.product.create({
     data: {

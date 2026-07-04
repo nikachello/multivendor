@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 import { getThemeConfig } from "@/themes";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 import type { CollectionConfig } from "../db/queries";
+import { isProShop, FREE_THEME } from "../subscription";
 
 export type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
@@ -36,6 +37,12 @@ export async function updateShipping(
 export async function updateShopTheme(shopId: string, themeId: string) {
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  if (themeId !== FREE_THEME) {
+    const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+    if (!isProShop(shopData?.subscriptionPaidUntil)) {
+      throw new Error("Pro subscription required to use this theme.");
+    }
+  }
   const { defaults } = getThemeConfig(themeId);
   await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
 }
@@ -98,6 +105,11 @@ export async function connectCustomDomain(shopId: string, domain: string) {
 
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  if (!isProShop(shopData?.subscriptionPaidUntil)) {
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Custom domains require a Pro subscription. Upgrade to connect your domain.", status: 403 });
+  }
 
   const existing = await prisma.shop.findFirst({ where: { customDomain: cleaned, NOT: { id: shopId } } });
   if (existing) return err({ code: ErrorCode.GENERAL_ERROR, message: "Domain already in use", status: 400 });

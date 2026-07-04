@@ -24,12 +24,12 @@ export default async function BillingPage() {
           {isActive ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-medium text-green-700">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-              Active
+              Pro
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-[12px] font-medium text-red-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-              Inactive
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-[12px] font-medium text-gray-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
+              Free
             </span>
           )}
         </div>

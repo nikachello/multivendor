@@ -8,6 +8,7 @@ import { toast } from "sonner";
 type Props = {
   shopId: string;
   activeThemeId: string;
+  isPro: boolean;
 };
 
 function ThemePreview({ themeId }: { themeId: string }) {
@@ -175,12 +176,16 @@ function ThemePreview({ themeId }: { themeId: string }) {
   return <div className="w-full h-full bg-neutral-100" />;
 }
 
-export default function ThemesClient({ shopId, activeThemeId }: Props) {
+export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
   const [currentThemeId, setCurrentThemeId] = useState(activeThemeId);
   const [pending, setPending] = useState<string | null>(null);
 
   async function handleActivate(themeId: string) {
     if (themeId === currentThemeId || pending) return;
+    if (!isPro && themeId !== "minimal") {
+      toast.error("Upgrade to Pro to unlock all themes.");
+      return;
+    }
     setPending(themeId);
     try {
       await updateShopTheme(shopId, themeId);
@@ -198,6 +203,7 @@ export default function ThemesClient({ shopId, activeThemeId }: Props) {
       {THEMES_META.map((theme) => {
         const isActive = theme.id === currentThemeId;
         const isSaving = pending === theme.id;
+        const isLocked = !isPro && theme.id !== "minimal" && theme.available;
 
         return (
           <div
@@ -211,8 +217,15 @@ export default function ThemesClient({ shopId, activeThemeId }: Props) {
             }`}
           >
             {/* Preview */}
-            <div className="w-full aspect-video overflow-hidden bg-gray-50">
+            <div className="w-full aspect-video overflow-hidden bg-gray-50 relative">
               <ThemePreview themeId={theme.id} />
+              {isLocked && (
+                <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                  <span className="text-[10px] font-semibold px-2 py-1 bg-gray-900 text-white rounded-full tracking-wide">
+                    PRO
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Info + actions */}
@@ -225,6 +238,11 @@ export default function ThemesClient({ shopId, activeThemeId }: Props) {
                   {isActive && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-900 text-white rounded">
                       Active
+                    </span>
+                  )}
+                  {isLocked && (
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                      Pro
                     </span>
                   )}
                   {!theme.available && (
@@ -246,13 +264,20 @@ export default function ThemesClient({ shopId, activeThemeId }: Props) {
                   >
                     Customize
                   </a>
+                ) : isLocked ? (
+                  <a
+                    href="/dashboard/billing"
+                    className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors whitespace-nowrap text-center"
+                  >
+                    Upgrade
+                  </a>
                 ) : theme.available ? (
                   <button
                     onClick={() => handleActivate(theme.id)}
                     disabled={!!pending}
                     className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
-                    {isSaving ? "Activating€¦" : "Activate"}
+                    {isSaving ? "Activating..." : "Activate"}
                   </button>
                 ) : null}
               </div>
