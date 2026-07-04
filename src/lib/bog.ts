@@ -75,7 +75,10 @@ export async function createBogOrder({
     }),
   });
 
-  if (!res.ok) throw new Error(`BOG order failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`BOG order failed: ${res.status} — ${body}`);
+  }
 
   const data = await res.json() as {
     id: string;

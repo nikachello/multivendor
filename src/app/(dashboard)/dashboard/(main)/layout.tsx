@@ -1,13 +1,47 @@
 ﻿import { getShop } from "@/lib/auth/get-shop";
 import Sidebar from "@/components/dashboard/Sidebar";
+import Link from "next/link";
+
+function getSubscriptionBanner(paidUntil: Date | null): { message: string; style: string } | null {
+  const now = new Date();
+
+  if (!paidUntil || paidUntil < now) {
+    return {
+      message: "Your subscription has expired. Your store will go offline in 7 days unless you renew.",
+      style: "bg-red-50 border-red-200 text-red-700",
+    };
+  }
+
+  const daysLeft = Math.ceil((paidUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysLeft <= 7) {
+    return {
+      message: `Your subscription expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}. Renew to keep your store online.`,
+      style: "bg-amber-50 border-amber-200 text-amber-700",
+    };
+  }
+
+  return null;
+}
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const shop = await getShop();
+  const banner = getSubscriptionBanner(shop.subscriptionPaidUntil);
 
   return (
     <div className="flex h-screen bg-[#f5f5f7]">
       <Sidebar shopName={shop.name} shopSlug={shop.slug} />
       <div className="flex-1 overflow-y-auto p-4 pt-16 md:pt-4 md:p-8">
+        {banner && (
+          <div className={`mb-6 flex items-center justify-between border rounded-lg px-4 py-3 text-[13px] ${banner.style}`}>
+            <span>{banner.message}</span>
+            <Link
+              href="/dashboard/billing"
+              className="ml-4 shrink-0 font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
+            >
+              Renew now
+            </Link>
+          </div>
+        )}
         {children}
       </div>
     </div>

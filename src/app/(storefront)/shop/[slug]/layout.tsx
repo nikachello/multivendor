@@ -19,6 +19,29 @@ export default async function ShopSlugLayout({
   const result = await getShopBySlug(slug);
   if (!result.ok) notFound();
   const shop = result.data;
+
+  // Storefront goes offline 7 days after subscription expires
+  const paidUntil = shop.subscriptionPaidUntil;
+  const graceDeadline = paidUntil
+    ? new Date(new Date(paidUntil).getTime() + 7 * 24 * 60 * 60 * 1000)
+    : null;
+  const isOffline = !graceDeadline || graceDeadline < new Date();
+
+  if (isOffline) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f5f7" }}>
+        <div style={{ textAlign: "center", maxWidth: 400, padding: "0 24px" }}>
+          <p style={{ fontSize: 48, marginBottom: 16 }}>🔒</p>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: "#111", marginBottom: 8 }}>
+            Store temporarily unavailable
+          </h1>
+          <p style={{ fontSize: 14, color: "#888", lineHeight: 1.6 }}>
+            This store is currently offline. If you are the owner, please renew your subscription to bring it back online.
+          </p>
+        </div>
+      </div>
+    );
+  }
   const shopBase = await getShopBase(slug);
 
   const themeConfig = getThemeConfig((shop as { themeId?: string }).themeId ?? "minimal");
