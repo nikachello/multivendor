@@ -36,8 +36,8 @@ const CategoriesSection = async ({
   if (!result.ok) return null;
 
   const categories = categoryIds.length
-    ? result.data.filter((c) => categoryIds.includes(c.id))
-    : result.data;
+    ? result.data.data.filter((c) => categoryIds.includes(c.id))
+    : result.data.data;
 
   if (!categories.length) return null;
 

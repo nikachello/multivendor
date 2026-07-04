@@ -13,7 +13,7 @@ export default function SearchInput({ defaultValue = "", placeholder, className 
   const [value, setValue] = useState(defaultValue);
   const router = useRouter();
   const pathname = usePathname();
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
