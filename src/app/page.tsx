@@ -10,8 +10,8 @@ const DEMO_URL = ROOT ? `https://zari.${ROOT}` : "/shop/zari";
 // ── Nav ───────────────────────────────────────────────────────────────────────
 function Nav() {
   const [open, setOpen] = useState(false);
-  const { data: sessionData, isPending } = useSession();
-  const isLoggedIn = !isPending && !!sessionData?.session;
+  const { data: sessionData } = useSession();
+  const isLoggedIn = !!sessionData?.session;
 
   return (
     <div
@@ -58,10 +58,28 @@ function Nav() {
         <div style={{ alignItems: "center", gap: 30 }} className="hidden md:flex">
           <a href="#features" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფუნქციები</a>
           <a href="#pricing" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>ფასები</a>
-          {!isPending && (
-            isLoggedIn ? (
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: 13.5,
+                fontWeight: 600,
+                color: "#fff",
+                background: "#1d1d1f",
+                padding: "7px 15px",
+                borderRadius: 980,
+                textDecoration: "none",
+              }}
+            >
+              Dashboard →
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
               <Link
-                href="/dashboard"
+                href="/register"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -74,29 +92,9 @@ function Nav() {
                   textDecoration: "none",
                 }}
               >
-                Dashboard →
+                დაიწყე უფასოდ
               </Link>
-            ) : (
-              <>
-                <Link href="/login" style={{ fontSize: 13.5, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
-                <Link
-                  href="/register"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    fontSize: 13.5,
-                    fontWeight: 600,
-                    color: "#fff",
-                    background: "#1d1d1f",
-                    padding: "7px 15px",
-                    borderRadius: 980,
-                    textDecoration: "none",
-                  }}
-                >
-                  დაიწყე უფასოდ
-                </Link>
-              </>
-            )
+            </>
           )}
         </div>
 
@@ -124,32 +122,30 @@ function Nav() {
         >
           <a href="#features" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>ფუნქციები</a>
           <a href="#pricing" onClick={() => setOpen(false)} style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>ფასები</a>
-          {!isPending && (
-            isLoggedIn ? (
-              <Link href="/dashboard" style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f", textDecoration: "none" }}>
-                Dashboard →
+          {isLoggedIn ? (
+            <Link href="/dashboard" style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f", textDecoration: "none" }}>
+              Dashboard →
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
+              <Link
+                href="/register"
+                style={{
+                  display: "inline-flex",
+                  justifyContent: "center",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "#1d1d1f",
+                  padding: "11px 15px",
+                  borderRadius: 980,
+                  textDecoration: "none",
+                }}
+              >
+                დაიწყე უფასოდ
               </Link>
-            ) : (
-              <>
-                <Link href="/login" style={{ fontSize: 15, color: "#1d1d1f", textDecoration: "none" }}>შესვლა</Link>
-                <Link
-                  href="/register"
-                  style={{
-                    display: "inline-flex",
-                    justifyContent: "center",
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: "#fff",
-                    background: "#1d1d1f",
-                    padding: "11px 15px",
-                    borderRadius: 980,
-                    textDecoration: "none",
-                  }}
-                >
-                  დაიწყე უფასოდ
-                </Link>
-              </>
-            )
+            </>
           )}
         </div>
       )}

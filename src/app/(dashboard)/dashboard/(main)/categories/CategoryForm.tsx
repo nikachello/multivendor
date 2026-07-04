@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -53,7 +53,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         <label className="text-sm font-medium text-gray-700">Name</label>
         <input
           {...register("name")}
-          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
           placeholder="Category name"
         />
         {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
@@ -63,7 +63,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         <label className="text-sm font-medium text-gray-700">Slug</label>
         <input
           {...register("slug")}
-          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors font-mono"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm font-mono"
           placeholder="category-slug"
         />
         {isEditing && <p className="text-xs text-gray-400">Changing the slug will break any existing links to this category.</p>}
@@ -75,7 +75,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         <textarea
           {...register("description")}
           rows={3}
-          className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors resize-none"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm resize-none"
           placeholder="Optional description"
         />
       </div>
@@ -94,7 +94,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
               onClick={() => setValue("image", "")}
               className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              ×
+              Ã—
             </button>
           </div>
         )}
@@ -115,7 +115,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
       <button
         type="submit"
         disabled={isSubmitting}
-        className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-700 transition-colors disabled:opacity-50 self-start"
+        className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 self-start"
       >
         {isSubmitting ? "Saving..." : isEditing ? "Save Changes" : "Create Category"}
       </button>

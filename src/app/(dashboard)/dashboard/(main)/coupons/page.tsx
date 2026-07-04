@@ -1,4 +1,4 @@
-import { getShop } from "@/lib/auth/get-shop";
+﻿import { getShop } from "@/lib/auth/get-shop";
 import { getCouponsByShop } from "@/lib/actions/coupons";
 import CouponsClient from "./CouponsClient";
 

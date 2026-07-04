@@ -1,4 +1,4 @@
-import { getShop } from "@/lib/auth/get-shop";
+﻿import { getShop } from "@/lib/auth/get-shop";
 import ThemesClient from "./ThemesClient";
 
 export default async function ThemesPage() {

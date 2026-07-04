@@ -60,7 +60,7 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
           value={status}
           disabled={saving}
           onChange={(e) => handleChange(e.target.value as OrderStatus)}
-          className="text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-gray-400 transition-colors disabled:opacity-50"
+          className="text-[13px] border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-gray-400 transition-all shadow-sm disabled:opacity-50 bg-white"
         >
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
             <option key={value} value={value}>{label}</option>
@@ -90,7 +90,7 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
               </button>
               <button
                 onClick={() => { const s = pendingStatus; setPendingStatus(null); applyChange(s); }}
-                className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
               >
                 Confirm
               </button>

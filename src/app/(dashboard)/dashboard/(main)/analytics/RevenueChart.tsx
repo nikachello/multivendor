@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 type DataPoint = { date: string; value: number };
 
@@ -24,7 +24,10 @@ export default function RevenueChart({ data, currency }: Props) {
   }
 
   const linePath = data
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(d.value).toFixed(1)}`)
+    .map(
+      (d, i) =>
+        `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(d.value).toFixed(1)}`,
+    )
     .join(" ");
 
   const fillPath = `${linePath} L ${x(data.length - 1).toFixed(1)} ${(PAD.top + chartH).toFixed(1)} L ${PAD.left.toFixed(1)} ${(PAD.top + chartH).toFixed(1)} Z`;
@@ -35,10 +38,10 @@ export default function RevenueChart({ data, currency }: Props) {
     y: y(max * t),
   }));
 
-  // X-axis labels — show every 7th day
+  // X-axis labels  show every 7th day
   const xLabels = data.filter((_, i) => i % 7 === 0 || i === data.length - 1);
 
-  // Tooltip state via title element — pure SVG, no JS needed
+  // Tooltip state via title element  pure SVG, no JS needed
   const hasRevenue = data.some((d) => d.value > 0);
 
   return (
@@ -59,17 +62,25 @@ export default function RevenueChart({ data, currency }: Props) {
         {yTicks.map((t) => (
           <g key={t.value}>
             <line
-              x1={PAD.left} y1={t.y}
-              x2={W - PAD.right} y2={t.y}
-              stroke="#f3f4f6" strokeWidth="1"
+              x1={PAD.left}
+              y1={t.y}
+              x2={W - PAD.right}
+              y2={t.y}
+              stroke="#f3f4f6"
+              strokeWidth="1"
             />
             <text
-              x={PAD.left - 8} y={t.y + 4}
-              textAnchor="end" fontSize="10" fill="#9ca3af"
+              x={PAD.left - 8}
+              y={t.y + 4}
+              textAnchor="end"
+              fontSize="10"
+              fill="#9ca3af"
             >
-              {t.value === 0 ? "0" : t.value >= 1000
-                ? `${(t.value / 1000).toFixed(1)}k`
-                : t.value.toFixed(0)}
+              {t.value === 0
+                ? "0"
+                : t.value >= 1000
+                  ? `${(t.value / 1000).toFixed(1)}k`
+                  : t.value.toFixed(0)}
             </text>
           </g>
         ))}
@@ -77,9 +88,19 @@ export default function RevenueChart({ data, currency }: Props) {
         {/* X-axis labels */}
         {xLabels.map((d) => {
           const i = data.indexOf(d);
-          const label = new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const label = new Date(d.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
           return (
-            <text key={d.date} x={x(i)} y={H - 6} textAnchor="middle" fontSize="10" fill="#9ca3af">
+            <text
+              key={d.date}
+              x={x(i)}
+              y={H - 6}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#9ca3af"
+            >
               {label}
             </text>
           );
@@ -90,21 +111,35 @@ export default function RevenueChart({ data, currency }: Props) {
 
         {/* Line */}
         {hasRevenue && (
-          <path d={linePath} fill="none" stroke="#111827" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="#111827"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
         )}
 
         {/* Data point dots with tooltips */}
-        {data.map((d, i) => (
-          d.value > 0 && (
-            <g key={d.date}>
-              <circle cx={x(i)} cy={y(d.value)} r="3" fill="#111827" />
-              <title>{`${d.date}: ${currency} ${d.value.toFixed(2)}`}</title>
-            </g>
-          )
-        ))}
+        {data.map(
+          (d, i) =>
+            d.value > 0 && (
+              <g key={d.date}>
+                <circle cx={x(i)} cy={y(d.value)} r="3" fill="#111827" />
+                <title>{`${d.date}: ${currency} ${d.value.toFixed(2)}`}</title>
+              </g>
+            ),
+        )}
 
         {!hasRevenue && (
-          <text x={W / 2} y={H / 2} textAnchor="middle" fontSize="13" fill="#d1d5db">
+          <text
+            x={W / 2}
+            y={H / 2}
+            textAnchor="middle"
+            fontSize="13"
+            fill="#d1d5db"
+          >
             No revenue yet
           </text>
         )}

@@ -1,4 +1,4 @@
-import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+﻿import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import MenuEditor from "@/components/dashboard/navigation/MenuEditor";

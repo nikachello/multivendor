@@ -1,4 +1,4 @@
-import { getShop } from "@/lib/auth/get-shop";
+﻿import { getShop } from "@/lib/auth/get-shop";
 import { getOrdersByShop } from "@/lib/db/queries";
 import OrdersTable from "./OrdersTable";
 

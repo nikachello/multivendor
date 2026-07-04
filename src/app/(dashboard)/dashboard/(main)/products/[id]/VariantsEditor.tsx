@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ProductWithRelations } from "@/lib/db/queries";
@@ -46,6 +46,7 @@ function isDirty(v: Variant, edit: EditState): boolean {
 
 export default function VariantsEditor({ productId, priceFrom, variants: initialVariants }: Props) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -108,7 +109,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
     } else {
       toast.success(`${result.data.created} variant(s) created`);
       // New variants were created on the server — refresh to load them
-      router.refresh();
+      startTransition(() => router.refresh());
     }
   }
 
@@ -176,7 +177,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
         >
           {generating ? "Generating..." : "Generate Variants"}
         </button>
@@ -201,14 +202,14 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
         >
           {generating ? "Generating..." : "Generate Variants"}
         </button>
       </div>
 
       {/* Bulk actions */}
-      <div className="border border-gray-200 rounded p-3 bg-gray-50 flex flex-col gap-3">
+      <div className="border border-gray-200 rounded-xl p-3 bg-gray-50 flex flex-col gap-3">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bulk actions</p>
 
         {/* Stock row */}
@@ -236,7 +237,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
               onChange={(e) => setBulkStockSet(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && bulkSetStock()}
               placeholder="Qty"
-              className="w-16 border border-gray-200 rounded px-2 py-1 text-xs outline-none focus:border-gray-400"
+              className="w-16 border border-gray-200 rounded-md px-2 py-1 text-xs outline-none focus:border-gray-400 shadow-sm"
             />
             <button
               type="button"
@@ -270,7 +271,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
               onChange={(e) => setBulkPriceSet(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && bulkSetPrice()}
               placeholder="Price"
-              className="w-20 border border-gray-200 rounded px-2 py-1 text-xs outline-none focus:border-gray-400"
+              className="w-20 border border-gray-200 rounded-md px-2 py-1 text-xs outline-none focus:border-gray-400 shadow-sm"
             />
             <button
               type="button"
@@ -284,7 +285,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
       </div>
 
       {/* Table */}
-      <div className="border border-gray-200 rounded overflow-hidden">
+      <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -378,7 +379,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
       </div>
 
       {/* Bottom save bar */}
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3 sticky bottom-0 z-10 bg-white border-t border-gray-100 -mx-4 px-4 -mb-4 pb-4">
         {dirtyVariants.length > 0 && (
           <p className="text-xs text-blue-500">
             {dirtyVariants.length} unsaved change{dirtyVariants.length !== 1 ? "s" : ""}
@@ -387,7 +388,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
         <button
           onClick={handleSaveAll}
           disabled={saving || dirtyVariants.length === 0}
-          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {saving
             ? "Saving..."
@@ -418,7 +419,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
                 </button>
                 <button
                   onClick={() => handleDelete(confirmDeleteId)}
-                  className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                  className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
                 >
                   Delete
                 </button>

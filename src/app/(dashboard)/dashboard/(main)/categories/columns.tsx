@@ -1,10 +1,12 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { CategoryWithCount } from "@/lib/db/queries";
 
-export function createColumns(onDelete: (id: string) => void): ColumnDef<CategoryWithCount>[] {
+export function createColumns(
+  onDelete: (id: string) => void,
+): ColumnDef<CategoryWithCount>[] {
   return [
     {
       accessorKey: "name",
@@ -17,14 +19,18 @@ export function createColumns(onDelete: (id: string) => void): ColumnDef<Categor
       accessorKey: "slug",
       header: "Slug",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-gray-400">{row.original.slug}</span>
+        <span className="font-mono text-xs text-gray-400">
+          {row.original.slug}
+        </span>
       ),
     },
     {
       id: "products",
       header: "Products",
       cell: ({ row }) => (
-        <span className="text-sm text-gray-500">{row.original._count.products}</span>
+        <span className="text-sm text-gray-500">
+          {row.original._count.products}
+        </span>
       ),
     },
     {
@@ -49,7 +55,7 @@ export function createColumns(onDelete: (id: string) => void): ColumnDef<Categor
             href={`/dashboard/categories/${row.original.id}`}
             className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
           >
-            Edit →
+            Edit
           </Link>
           <button
             onClick={() => onDelete(row.original.id)}

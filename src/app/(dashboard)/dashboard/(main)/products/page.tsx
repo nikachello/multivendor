@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { getProductsByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import { notFound } from "next/navigation";
@@ -20,7 +20,7 @@ const page = async () => {
         </div>
         <Link
           href="/dashboard/products/new"
-          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
           + New product
         </Link>

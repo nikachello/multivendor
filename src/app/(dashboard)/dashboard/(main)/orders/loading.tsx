@@ -1,4 +1,4 @@
-export default function OrdersLoading() {
+﻿export default function OrdersLoading() {
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div className="flex flex-col gap-1.5">
@@ -9,7 +9,7 @@ export default function OrdersLoading() {
         <div className="h-9 flex-1 bg-gray-100 rounded animate-pulse" />
         <div className="h-9 w-36 bg-gray-100 rounded animate-pulse" />
       </div>
-      <div className="border border-gray-100 rounded-lg overflow-hidden">
+      <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
         <div className="bg-gray-50 h-10" />
         {Array.from({ length: 7 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 px-4 py-3 border-t border-gray-100">

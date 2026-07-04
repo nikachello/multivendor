@@ -71,7 +71,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
   const sidebarContent = (
     <>
       {/* Shop header */}
-      <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-5 border-b border-gray-200/60 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-7 h-7 rounded bg-gray-900 flex items-center justify-center shrink-0">
             <span className="text-white text-[11px] font-bold uppercase">
@@ -108,13 +108,13 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
                     key={href}
                     href={href}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] transition-all ${
                       active
-                        ? "bg-gray-100 text-gray-900 font-medium"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-gray-900 text-white font-medium shadow-sm"
+                        : "text-gray-500 hover:bg-gray-100/70 hover:text-gray-900"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 ${active ? "text-gray-900" : "text-gray-400"}`} />
+                    <Icon className={`w-[15px] h-[15px] shrink-0 ${active ? "text-white" : "text-gray-400"}`} />
                     {label}
                   </Link>
                 );
@@ -125,21 +125,21 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-gray-100 space-y-0.5">
+      <div className="px-3 py-4 border-t border-gray-200/60 space-y-0.5">
         <a
           href={getStorefrontUrl(shopSlug)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] text-gray-500 hover:bg-gray-100/70 hover:text-gray-900 transition-all"
         >
-          <Store className="w-4 h-4 shrink-0 text-gray-400" />
+          <Store className="w-[15px] h-[15px] shrink-0 text-gray-400" />
           View Store
         </a>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors w-full text-left"
+          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] text-gray-500 hover:bg-gray-100/70 hover:text-gray-900 transition-all w-full text-left"
         >
-          <LogOut className="w-4 h-4 shrink-0 text-gray-400" />
+          <LogOut className="w-[15px] h-[15px] shrink-0 text-gray-400" />
           Sign out
         </button>
       </div>
@@ -166,13 +166,13 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
       )}
 
       {/* Desktop sidebar — always visible, part of flex flow */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white border-r border-gray-100 h-screen">
+      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white/90 backdrop-blur-xl border-r border-gray-200/60 h-screen shadow-[1px_0_0_0_rgba(0,0,0,0.04)]">
         {sidebarContent}
       </aside>
 
       {/* Mobile sidebar — fixed overlay */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-white border-r border-gray-100 shadow-xl transition-transform duration-200 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-white/95 backdrop-blur-xl border-r border-gray-200/60 shadow-2xl transition-transform duration-200 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

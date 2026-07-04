@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Category, Shop } from "@/generated/prisma/client";
 import { ProductOptionType } from "@/lib/db/queries";
@@ -27,6 +27,7 @@ type Props = {
 
 export default function ProductEditTabs({ product, shop, categories }: Props) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<Tab>("details");
 
   return (
@@ -70,7 +71,7 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
         <ImagesEditor
           productId={product.id}
           images={product.images}
-          onUpdate={() => router.refresh()}
+          onUpdate={() => startTransition(() => router.refresh())}
         />
       )}
 

@@ -1,4 +1,4 @@
-import { getCategoriesByShop } from "@/lib/db/queries";
+﻿import { getCategoriesByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import ProductForm from "./ProductForm";
 import Breadcrumb from "@/components/dashboard/Breadcrumb";

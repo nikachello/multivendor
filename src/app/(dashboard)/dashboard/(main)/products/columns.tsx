@@ -1,10 +1,12 @@
-"use client";
+﻿"use client";
 
 import { ProductWithRelations } from "@/lib/db/queries";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-export function createColumns(currency: string): ColumnDef<ProductWithRelations>[] {
+export function createColumns(
+  currency: string,
+): ColumnDef<ProductWithRelations>[] {
   return [
     {
       accessorKey: "name",
@@ -17,7 +19,9 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
       accessorKey: "priceFrom",
       header: "Price",
       cell: ({ row }) => (
-        <span className="font-mono text-sm">{Number(row.original.priceFrom).toFixed(2)} {currency}</span>
+        <span className="font-mono text-sm">
+          {Number(row.original.priceFrom).toFixed(2)} {currency}
+        </span>
       ),
     },
     {
@@ -25,9 +29,11 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
       header: "Category",
       cell: ({ row }) => (
         <span className="text-sm text-gray-500">
-          {row.original.categories.length
-            ? row.original.categories.map((c) => c.name).join(", ")
-            : <span className="text-gray-300">—</span>}
+          {row.original.categories.length ? (
+            row.original.categories.map((c) => c.name).join(", ")
+          ) : (
+            <span className="text-gray-300"></span>
+          )}
         </span>
       ),
     },
@@ -41,9 +47,17 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
           return <span className="text-xs text-gray-400">Unlimited</span>;
         const total = tracked.reduce((s, v) => s + v.stock, 0);
         if (total === 0)
-          return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-red-50 text-red-600">Out of stock</span>;
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-red-50 text-red-600">
+              Out of stock
+            </span>
+          );
         if (total <= 5)
-          return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700">{total} left</span>;
+          return (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700">
+              {total} left
+            </span>
+          );
         return <span className="text-xs text-gray-600">{total}</span>;
       },
     },
@@ -68,7 +82,7 @@ export function createColumns(currency: string): ColumnDef<ProductWithRelations>
           href={`/dashboard/products/${row.original.id}`}
           className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
         >
-          Edit →
+          Edit
         </Link>
       ),
     },

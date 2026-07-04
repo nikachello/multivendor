@@ -149,7 +149,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
         const isRemovingThisType = removingTypeId === ot.optionTypeId;
 
         return (
-          <div key={ot.optionTypeId} className="border border-gray-200 rounded p-4 flex flex-col gap-3">
+          <div key={ot.optionTypeId} className="border border-gray-200 rounded-xl p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-800">{ot.name}</span>
               <button
@@ -202,13 +202,13 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                 onChange={(e) => handleInputChange(ot.optionTypeId, e.target.value)}
                 onKeyDown={(e) => handleInputKeyDown(ot.optionTypeId, e)}
                 placeholder="Type values, separate by comma (e.g. S, M, L)"
-                className="flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm outline-none focus:border-gray-400 transition-colors"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
               />
               {hasPending && (
                 <button
                   onClick={() => handleSavePending(ot.optionTypeId)}
                   disabled={saving[ot.optionTypeId]}
-                  className="px-3 py-1.5 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 bg-gray-900 text-white text-[13px] rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
                 >
                   {saving[ot.optionTypeId] ? "Saving…" : "Save"}
                 </button>
@@ -229,12 +229,12 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           onChange={(e) => setNewTypeName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddType()}
           placeholder="New option name (e.g. Size, Color)"
-          className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-gray-400 transition-colors"
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
         />
         <button
           onClick={handleAddType}
           disabled={addingType}
-          className="px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
         >
           {addingType ? "Adding…" : "Add Option"}
         </button>
@@ -261,7 +261,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                 </button>
                 <button
                   onClick={() => { setConfirmRemoveTypeId(null); handleRemoveType(confirmRemoveTypeId); }}
-                  className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                  className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
                 >
                   Remove
                 </button>

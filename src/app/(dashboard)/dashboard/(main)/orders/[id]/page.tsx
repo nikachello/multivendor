@@ -96,7 +96,7 @@ export default async function OrderDetailPage({
       )}
 
       {/* Items */}
-      <section className="border border-gray-100 rounded-lg overflow-hidden">
+      <section className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
             Items ({order.items.length})

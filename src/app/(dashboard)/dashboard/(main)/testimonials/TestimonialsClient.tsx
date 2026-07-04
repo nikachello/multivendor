@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { toast } from "sonner";
@@ -37,7 +37,13 @@ const EMPTY_FORM: TestimonialInput & { id?: string } = {
   productId: null,
 };
 
-function StarRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function StarRow({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
   return (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -47,7 +53,7 @@ function StarRow({ value, onChange }: { value: number; onChange: (v: number) => 
           onClick={() => onChange(star)}
           className={`text-xl leading-none ${star <= value ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
         >
-          ★
+          ˜…
         </button>
       ))}
     </div>
@@ -58,8 +64,8 @@ function Stars({ value }: { value: number | null }) {
   if (!value) return <span className="text-gray-300 text-xs">No rating</span>;
   return (
     <span className="text-yellow-400 text-sm">
-      {"★".repeat(value)}
-      <span className="text-gray-200">{"★".repeat(5 - value)}</span>
+      {"˜…".repeat(value)}
+      <span className="text-gray-200">{"˜…".repeat(5 - value)}</span>
     </span>
   );
 }
@@ -69,10 +75,16 @@ function productName(productId: string | null, products: Product[]) {
   return products.find((p) => p.id === productId)?.name ?? "Unknown product";
 }
 
-export default function TestimonialsClient({ testimonials: initial, products, shopId }: Props) {
+export default function TestimonialsClient({
+  testimonials: initial,
+  products,
+  shopId,
+}: Props) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(initial);
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState<TestimonialInput & { id?: string }>(EMPTY_FORM);
+  const [form, setForm] = useState<TestimonialInput & { id?: string }>(
+    EMPTY_FORM,
+  );
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -127,7 +139,9 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
     }
     const saved = result.data;
     if (form.id) {
-      setTestimonials((prev) => prev.map((t) => t.id === saved.id ? saved : t));
+      setTestimonials((prev) =>
+        prev.map((t) => (t.id === saved.id ? saved : t)),
+      );
     } else {
       setTestimonials((prev) => [...prev, saved]);
     }
@@ -140,18 +154,29 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
     const idToDelete = deleteId;
     setDeleteId(null);
     const result = await deleteTestimonial(shopId, idToDelete);
-    if (!result.ok) { toast.error("Failed to delete"); return; }
+    if (!result.ok) {
+      toast.error("Failed to delete");
+      return;
+    }
     setTestimonials((prev) => prev.filter((t) => t.id !== idToDelete));
     toast.success("Testimonial deleted");
   }
 
   async function handleToggle(t: Testimonial) {
     setTogglingId(t.id);
-    setTestimonials((prev) => prev.map((row) => row.id === t.id ? { ...row, isActive: !t.isActive } : row));
+    setTestimonials((prev) =>
+      prev.map((row) =>
+        row.id === t.id ? { ...row, isActive: !t.isActive } : row,
+      ),
+    );
     const result = await toggleTestimonialActive(shopId, t.id, !t.isActive);
     setTogglingId(null);
     if (!result.ok) {
-      setTestimonials((prev) => prev.map((row) => row.id === t.id ? { ...row, isActive: t.isActive } : row));
+      setTestimonials((prev) =>
+        prev.map((row) =>
+          row.id === t.id ? { ...row, isActive: t.isActive } : row,
+        ),
+      );
       toast.error("Failed to update");
     }
   }
@@ -163,7 +188,7 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
       <div className="flex justify-end">
         <button
           onClick={openAdd}
-          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
+          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
           + Add testimonial
         </button>
@@ -171,19 +196,34 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
 
       {testimonials.length === 0 ? (
         <div className="border border-dashed border-gray-200 rounded-lg py-14 text-center">
-          <p className="text-sm font-medium text-gray-500">No testimonials yet</p>
-          <p className="text-xs text-gray-400 mt-1">Add shop-level testimonials for your homepage, or link them to specific products.</p>
+          <p className="text-sm font-medium text-gray-500">
+            No testimonials yet
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Add shop-level testimonials for your homepage, or link them to
+            specific products.
+          </p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-100 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-left">
-                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Name</th>
-                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Testimony</th>
-                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Rating</th>
-                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Product</th>
-                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Active</th>
+                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Testimony
+                </th>
+                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Rating
+                </th>
+                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Product
+                </th>
+                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Active
+                </th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -191,11 +231,17 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
               {testimonials.map((t) => (
                 <tr key={t.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900 text-sm">{t.name}</p>
-                    {t.position && <p className="text-xs text-gray-400">{t.position}</p>}
+                    <p className="font-medium text-gray-900 text-sm">
+                      {t.name}
+                    </p>
+                    {t.position && (
+                      <p className="text-xs text-gray-400">{t.position}</p>
+                    )}
                   </td>
                   <td className="px-4 py-3 max-w-xs">
-                    <p className="text-gray-600 text-sm line-clamp-2">{t.testimony}</p>
+                    <p className="text-gray-600 text-sm line-clamp-2">
+                      {t.testimony}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <Stars value={t.rating} />
@@ -255,45 +301,67 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
               <h2 className="text-sm font-semibold text-gray-900">
                 {form.id ? "Edit testimonial" : "Add testimonial"}
               </h2>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+              >
+                Ã—
+              </button>
             </div>
-            <form onSubmit={handleSave} className="px-6 py-5 flex flex-col gap-4">
+            <form
+              onSubmit={handleSave}
+              className="px-6 py-5 flex flex-col gap-4"
+            >
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Name *</label>
+                  <label className="text-xs font-medium text-gray-700">
+                    Name *
+                  </label>
                   <input
                     value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     placeholder="Jane Doe"
-                    className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm"
                     required
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Position / Title</label>
+                  <label className="text-xs font-medium text-gray-700">
+                    Position / Title
+                  </label>
                   <input
                     value={form.position ?? ""}
-                    onChange={(e) => setForm((f) => ({ ...f, position: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, position: e.target.value }))
+                    }
                     placeholder="CEO, Example Corp"
-                    className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Testimony *</label>
+                <label className="text-xs font-medium text-gray-700">
+                  Testimony *
+                </label>
                 <textarea
                   value={form.testimony}
-                  onChange={(e) => setForm((f) => ({ ...f, testimony: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, testimony: e.target.value }))
+                  }
                   placeholder="Amazing product, highly recommend!"
                   rows={3}
-                  className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400 resize-none"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm resize-none"
                   required
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Rating</label>
+                <label className="text-xs font-medium text-gray-700">
+                  Rating
+                </label>
                 <StarRow
                   value={form.rating ?? 5}
                   onChange={(v) => setForm((f) => ({ ...f, rating: v }))}
@@ -301,26 +369,41 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Link to product (optional)</label>
+                <label className="text-xs font-medium text-gray-700">
+                  Link to product (optional)
+                </label>
                 <select
                   value={form.productId ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value || null }))}
-                  className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400 bg-white"
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      productId: e.target.value || null,
+                    }))
+                  }
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm bg-white"
                 >
-                  <option value="">Shop-level (homepage testimonials section)</option>
+                  <option value="">
+                    Shop-level (homepage testimonials section)
+                  </option>
                   {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
                   ))}
                 </select>
                 <p className="text-[11px] text-gray-400">
-                  Shop-level testimonials appear in your homepage Testimonials section. Product-linked testimonials appear on that product&apos;s page.
+                  Shop-level testimonials appear in your homepage Testimonials
+                  section. Product-linked testimonials appear on that
+                  product&apos;s page.
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
+                  onClick={() =>
+                    setForm((f) => ({ ...f, isActive: !f.isActive }))
+                  }
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                     form.isActive ? "bg-gray-900" : "bg-gray-200"
                   }`}
@@ -347,9 +430,13 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-1.5 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
                 >
-                  {saving ? "Saving…" : form.id ? "Save changes" : "Add testimonial"}
+                  {saving
+                    ? "Saving€¦"
+                    : form.id
+                      ? "Save changes"
+                      : "Add testimonial"}
                 </button>
               </div>
             </form>
@@ -362,9 +449,15 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-sm font-semibold text-gray-900">Delete testimonial?</h2>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Delete testimonial?
+              </h2>
               <p className="text-sm text-gray-500 mt-1">
-                From <span className="font-medium text-gray-900">{deleteTarget?.name}</span> — this cannot be undone.
+                From{" "}
+                <span className="font-medium text-gray-900">
+                  {deleteTarget?.name}
+                </span>{" "}
+                this cannot be undone.
               </p>
             </div>
             <div className="flex gap-3 justify-end">
@@ -376,7 +469,7 @@ export default function TestimonialsClient({ testimonials: initial, products, sh
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+                className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
               >
                 Delete
               </button>

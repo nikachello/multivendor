@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { updateShipping, ShippingZone } from "@/lib/actions/shop";
@@ -33,12 +33,17 @@ export default function ShippingForm({
   function addZone() {
     const city = GEORGIA_CITIES.find((c) => c.name_en === addingCity);
     if (!city) return;
-    setZones((prev) => [...prev, { city_en: city.name_en, city_ka: city.name_ka, rate: defaultRate }]);
+    setZones((prev) => [
+      ...prev,
+      { city_en: city.name_en, city_ka: city.name_ka, rate: defaultRate },
+    ]);
     setAddingCity("");
   }
 
   function updateZoneRate(city_en: string, rate: number) {
-    setZones((prev) => prev.map((z) => (z.city_en === city_en ? { ...z, rate } : z)));
+    setZones((prev) =>
+      prev.map((z) => (z.city_en === city_en ? { ...z, rate } : z)),
+    );
   }
 
   function removeZone(city_en: string) {
@@ -80,11 +85,13 @@ export default function ShippingForm({
             step={0.01}
             value={defaultRate}
             onChange={(e) => setDefaultRate(Number(e.target.value))}
-            className="border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors w-32"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm w-32 bg-white"
           />
           <span className="text-sm text-neutral-500">{currency}</span>
           {defaultRate === 0 && (
-            <span className="text-xs text-green-600 font-medium">Free shipping</span>
+            <span className="text-xs text-green-600 font-medium">
+              Free shipping
+            </span>
           )}
         </div>
       </section>
@@ -99,11 +106,16 @@ export default function ShippingForm({
         </p>
 
         {zones.length > 0 && (
-          <div className="border border-neutral-200 divide-y divide-neutral-100">
+          <div className="border border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden shadow-sm">
             {zones.map((zone) => (
-              <div key={zone.city_en} className="flex items-center gap-3 px-4 py-2.5">
+              <div
+                key={zone.city_en}
+                className="flex items-center gap-3 px-4 py-2.5"
+              >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-neutral-900">{zone.city_ka}</p>
+                  <p className="text-sm font-medium text-neutral-900">
+                    {zone.city_ka}
+                  </p>
                   <p className="text-xs text-neutral-400">{zone.city_en}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -112,16 +124,20 @@ export default function ShippingForm({
                     min={0}
                     step={0.01}
                     value={zone.rate}
-                    onChange={(e) => updateZoneRate(zone.city_en, Number(e.target.value))}
-                    className="border border-neutral-200 px-2 py-1 text-sm outline-none focus:border-neutral-500 transition-colors w-24 text-right"
+                    onChange={(e) =>
+                      updateZoneRate(zone.city_en, Number(e.target.value))
+                    }
+                    className="border border-gray-200 rounded-md px-2 py-1 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm w-24 text-right bg-white"
                   />
-                  <span className="text-xs text-neutral-400 w-6">{currency}</span>
+                  <span className="text-xs text-neutral-400 w-6">
+                    {currency}
+                  </span>
                 </div>
                 <button
                   onClick={() => removeZone(zone.city_en)}
                   className="text-neutral-300 hover:text-red-400 transition-colors text-lg leading-none ml-1"
                 >
-                  ×
+                  Ã—
                 </button>
               </div>
             ))}
@@ -132,19 +148,19 @@ export default function ShippingForm({
           <select
             value={addingCity}
             onChange={(e) => setAddingCity(e.target.value)}
-            className="border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors flex-1"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm flex-1 bg-white"
           >
-            <option value="">Select city…</option>
+            <option value="">Select city€¦</option>
             {availableCities.map((c) => (
               <option key={c.name_en} value={c.name_en}>
-                {c.name_ka} — {c.name_en}
+                {c.name_ka} {c.name_en}
               </option>
             ))}
           </select>
           <button
             onClick={addZone}
             disabled={!addingCity}
-            className="px-4 py-2 text-sm border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-[13px] font-medium border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white"
           >
             + Add
           </button>
@@ -157,7 +173,8 @@ export default function ShippingForm({
           Free shipping threshold
         </h2>
         <p className="text-xs text-neutral-400 -mt-1">
-          Orders above this amount always get free shipping. Set to 0 to disable.
+          Orders above this amount always get free shipping. Set to 0 to
+          disable.
         </p>
         <div className="flex items-center gap-3">
           <input
@@ -166,7 +183,7 @@ export default function ShippingForm({
             step={0.01}
             value={threshold}
             onChange={(e) => setThreshold(Number(e.target.value))}
-            className="border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors w-32"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm w-32 bg-white"
           />
           <span className="text-sm text-neutral-500">{currency}</span>
           {threshold > 0 && (
@@ -180,9 +197,9 @@ export default function ShippingForm({
       <button
         onClick={handleSave}
         disabled={saving}
-        className="px-6 py-2.5 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-700 transition-colors disabled:opacity-50"
+        className="px-3 py-1.5 text-[13px] font-medium bg-gray-900 text-white rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
       >
-        {saving ? "Saving…" : "Save"}
+        {saving ? "Saving€¦" : "Save"}
       </button>
     </div>
   );

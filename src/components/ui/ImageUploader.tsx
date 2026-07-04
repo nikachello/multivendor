@@ -33,6 +33,18 @@ export default function ImageUploader({ onUploadComplete, endpoint = "productIma
   const handleFiles = useCallback(
     async (files: File[]) => {
       if (!files.length) return;
+      const MAX_BYTES = 4 * 1024 * 1024; // 4MB
+      const oversized = files.filter((f) => f.size > MAX_BYTES);
+      if (oversized.length > 0) {
+        toast.error(
+          oversized.length === 1
+            ? `"${oversized[0].name}" exceeds the 4 MB limit`
+            : `${oversized.length} files exceed the 4 MB limit`
+        );
+        const valid = files.filter((f) => f.size <= MAX_BYTES);
+        if (valid.length === 0) return;
+        files = valid;
+      }
       const objectUrls = files.map((f) => URL.createObjectURL(f));
       setPreviews((prev) => [...prev, ...objectUrls]);
       await startUpload(files);
