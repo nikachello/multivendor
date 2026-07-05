@@ -14,6 +14,8 @@ import { ShopSection } from "@/lib/types/store-section";
 import Section from "@/components/storefront/layout/Section";
 import EditorBridge from "@/components/storefront/EditorBridge";
 import { getShopBase } from "@/lib/shop-base";
+import { getCanonicalShopUrl } from "@/lib/storefront-url";
+import { safeJsonLd } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -31,13 +33,15 @@ export async function generateMetadata({
   const product = productResult.data;
   const shop = shopResult.data;
   const firstImage = product.images?.[0]?.url;
+  const canonicalUrl = getCanonicalShopUrl(shop, `/product/${productSlug}`);
   return {
     title: `${product.name} — ${shop.name}`,
     description: product.description ?? undefined,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${product.name} — ${shop.name}`,
       description: product.description ?? undefined,
-      url: `/shop/${slug}/product/${productSlug}`,
+      url: canonicalUrl,
       siteName: shop.name,
       type: "website",
       ...(firstImage && { images: [{ url: firstImage, alt: product.name }] }),
@@ -88,6 +92,10 @@ export default async function ProductPage({
     "banner", "announcement", "navbar", "testimonials", "product-testimonials", "collection", "newsletter", "divider",
   ]);
 
+  const inStock = product.variants.some(
+    (v) => !v.trackInventory || v.stock > 0,
+  );
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -98,7 +106,10 @@ export default async function ProductPage({
       "@type": "Offer",
       price: product.priceFrom,
       priceCurrency: shop.currency,
-      availability: "https://schema.org/InStock",
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: getCanonicalShopUrl(shop, `/product/${productSlug}`),
     },
   };
 
@@ -106,7 +117,7 @@ export default async function ProductPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       {navbarSection && NavbarComponent && (
         <NavbarComponent

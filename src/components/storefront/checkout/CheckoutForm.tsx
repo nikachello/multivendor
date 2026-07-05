@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,6 +12,7 @@ import { recordEvent } from "@/lib/actions/analytics";
 import { useAnalyticsSession } from "@/hooks/useAnalyticsSession";
 import { orderSchema } from "@/lib/validations/order";
 import { GEORGIA_CITIES } from "@/lib/constants/georgia-cities";
+import { useT } from "@/i18n/context";
 
 type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
@@ -54,13 +55,15 @@ export default function CheckoutForm({
   shopId,
   shopSlug,
   shopBase,
-  shopName: _shopName,
   currency,
   defaultShippingRate,
   freeThreshold,
   shippingZones,
 }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
+  const t = useT();
+  const couponFieldId = useId();
+  const couponErrorId = useId();
   const router = useRouter();
   const { cart } = useCart(shopId);
   const sessionId = useAnalyticsSession();
@@ -97,12 +100,12 @@ export default function CheckoutForm({
   if (items.length === 0 && !submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-        <p className="text-neutral-500 text-sm">Your cart is empty.</p>
+        <p className="text-neutral-500 text-sm">{t("checkout.empty_cart")}</p>
         <Link
           href={base || "/"}
           className="text-sm underline underline-offset-4 hover:text-neutral-600 transition-colors"
         >
-          Continue shopping
+          {t("checkout.continue_shopping")}
         </Link>
       </div>
     );
@@ -154,11 +157,11 @@ export default function CheckoutForm({
 
     if (!result?.ok) {
       setLoading(false);
-      setServerError(result?.error.message ?? "Something went wrong. Please try again.");
+      setServerError(result?.error.message ?? t("checkout.generic_error"));
       return;
     }
 
-    if (sessionId) recordEvent(shopId, "purchase", sessionId, undefined, total);
+    if (sessionId) recordEvent(shopId, "purchase", sessionId, undefined, result.data.total).catch(() => {});
     setSubmitted(true);
     router.push(`${base}/order/${result.data.id}`);
   }
@@ -167,10 +170,10 @@ export default function CheckoutForm({
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
       {/* ── LEFT: Form ── */}
       <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Checkout</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("checkout.title")}</h1>
 
         {serverError && (
-          <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {serverError}
           </div>
         )}
@@ -178,34 +181,46 @@ export default function CheckoutForm({
         {/* Contact */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Contact
+            {t("checkout.contact")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Full name" error={errors.fullName}>
-              <input
-                value={form.fullName}
-                onChange={(e) => update("fullName", e.target.value)}
-                placeholder="John Doe"
-                className={inputCls(!!errors.fullName)}
-              />
+            <Field label={t("checkout.full_name")} error={errors.fullName}>
+              {(id) => (
+                <input
+                  id={id}
+                  autoComplete="name"
+                  value={form.fullName}
+                  onChange={(e) => update("fullName", e.target.value)}
+                  placeholder="John Doe"
+                  className={inputCls(!!errors.fullName)}
+                />
+              )}
             </Field>
-            <Field label="Email" error={errors.email}>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="john@example.com"
-                className={inputCls(!!errors.email)}
-              />
+            <Field label={t("checkout.email")} error={errors.email}>
+              {(id) => (
+                <input
+                  id={id}
+                  type="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  placeholder="john@example.com"
+                  className={inputCls(!!errors.email)}
+                />
+              )}
             </Field>
-            <Field label="Phone" hint="Optional">
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => update("phone", e.target.value)}
-                placeholder="+995 555 00 00 00"
-                className={inputCls(false)}
-              />
+            <Field label={t("checkout.phone")} hint={t("checkout.optional")}>
+              {(id) => (
+                <input
+                  id={id}
+                  type="tel"
+                  autoComplete="tel"
+                  value={form.phone}
+                  onChange={(e) => update("phone", e.target.value)}
+                  placeholder="+995 555 00 00 00"
+                  className={inputCls(false)}
+                />
+              )}
             </Field>
           </div>
         </section>
@@ -213,38 +228,50 @@ export default function CheckoutForm({
         {/* Shipping address */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Shipping address
+            {t("checkout.shipping_address")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Address" error={errors.line1} className="sm:col-span-2">
-              <input
-                value={form.line1}
-                onChange={(e) => update("line1", e.target.value)}
-                placeholder="Street, building, apartment"
-                className={inputCls(!!errors.line1)}
-              />
+            <Field label={t("checkout.address")} error={errors.line1} className="sm:col-span-2">
+              {(id) => (
+                <input
+                  id={id}
+                  autoComplete="address-line1"
+                  value={form.line1}
+                  onChange={(e) => update("line1", e.target.value)}
+                  placeholder={t("checkout.address_placeholder")}
+                  className={inputCls(!!errors.line1)}
+                />
+              )}
             </Field>
-            <Field label="Address line 2" hint="Optional" className="sm:col-span-2">
-              <input
-                value={form.line2}
-                onChange={(e) => update("line2", e.target.value)}
-                placeholder="Entrance, floor, etc."
-                className={inputCls(false)}
-              />
+            <Field label={t("checkout.address_line2")} hint={t("checkout.optional")} className="sm:col-span-2">
+              {(id) => (
+                <input
+                  id={id}
+                  autoComplete="address-line2"
+                  value={form.line2}
+                  onChange={(e) => update("line2", e.target.value)}
+                  placeholder={t("checkout.address_line2_placeholder")}
+                  className={inputCls(false)}
+                />
+              )}
             </Field>
-            <Field label="City" error={errors.city} className="sm:col-span-2">
-              <select
-                value={form.city}
-                onChange={(e) => update("city", e.target.value)}
-                className={inputCls(!!errors.city)}
-              >
-                <option value="">Select city…</option>
-                {GEORGIA_CITIES.map((c) => (
-                  <option key={c.name_en} value={c.name_en}>
-                    {c.name_ka}
-                  </option>
-                ))}
-              </select>
+            <Field label={t("checkout.city")} error={errors.city} className="sm:col-span-2">
+              {(id) => (
+                <select
+                  id={id}
+                  autoComplete="address-level2"
+                  value={form.city}
+                  onChange={(e) => update("city", e.target.value)}
+                  className={inputCls(!!errors.city)}
+                >
+                  <option value="">{t("checkout.select_city")}</option>
+                  {GEORGIA_CITIES.map((c) => (
+                    <option key={c.name_en} value={c.name_en}>
+                      {c.name_ka}
+                    </option>
+                  ))}
+                </select>
+              )}
             </Field>
           </div>
         </section>
@@ -252,46 +279,53 @@ export default function CheckoutForm({
         {/* Delivery note */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Note
+            {t("checkout.note")}
           </h2>
-          <Field label="Delivery note" hint="Optional">
-            <textarea
-              value={form.notes}
-              onChange={(e) => update("notes", e.target.value)}
-              placeholder="Any special instructions for delivery…"
-              rows={3}
-              maxLength={500}
-              className="w-full border border-neutral-200 focus:border-neutral-500 px-3 py-2.5 text-sm outline-none transition-colors bg-white resize-none"
-            />
+          <Field label={t("checkout.delivery_note")} hint={t("checkout.optional")}>
+            {(id) => (
+              <textarea
+                id={id}
+                value={form.notes}
+                onChange={(e) => update("notes", e.target.value)}
+                placeholder={t("checkout.delivery_note_placeholder")}
+                rows={3}
+                maxLength={500}
+                className="w-full border border-neutral-200 focus:border-neutral-500 px-3 py-2.5 text-sm outline-none transition-colors bg-white resize-none"
+              />
+            )}
           </Field>
         </section>
 
         {/* Coupon */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Discount code
+            {t("checkout.discount_code")}
           </h2>
           {couponApplied ? (
             <div className="flex items-center justify-between rounded border border-green-200 bg-green-50 px-4 py-3 text-sm">
               <span className="text-green-700">
                 <span className="font-mono font-medium">{couponApplied.code}</span>
-                {" "}— {currency} {couponApplied.discount.toFixed(2)} off
+                {" "}— {currency} {couponApplied.discount.toFixed(2)} {t("checkout.discount_off")}
               </span>
               <button
                 type="button"
                 onClick={() => setCouponApplied(null)}
                 className="text-green-500 hover:text-green-700 transition-colors text-xs underline"
               >
-                Remove
+                {t("checkout.remove")}
               </button>
             </div>
           ) : (
             <div className="flex gap-2">
+              <label htmlFor={couponFieldId} className="sr-only">{t("checkout.discount_code")}</label>
               <input
+                id={couponFieldId}
                 value={couponInput}
                 onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
-                placeholder="Enter code"
+                placeholder={t("checkout.enter_code")}
+                aria-describedby={couponError ? couponErrorId : undefined}
+                aria-invalid={!!couponError}
                 className="flex-1 border border-neutral-200 focus:border-neutral-500 px-3 py-2.5 text-sm outline-none transition-colors bg-white font-mono"
               />
               <button
@@ -300,20 +334,20 @@ export default function CheckoutForm({
                 disabled={couponLoading || !couponInput.trim()}
                 className="px-4 py-2.5 border border-neutral-300 text-sm text-neutral-700 hover:border-neutral-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                {couponLoading ? "…" : "Apply"}
+                {couponLoading ? "…" : t("checkout.apply")}
               </button>
             </div>
           )}
-          {couponError && <p className="text-xs text-red-500 mt-1.5">{couponError}</p>}
+          {couponError && <p id={couponErrorId} role="alert" className="text-xs text-red-500 mt-1.5">{couponError}</p>}
         </section>
 
         {/* Payment placeholder */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Payment
+            {t("checkout.payment")}
           </h2>
-          <div className="rounded border border-dashed border-neutral-200 bg-neutral-50 px-5 py-6 text-center text-sm text-neutral-400">
-            Cash on delivery
+          <div className="rounded border border-dashed border-neutral-200 bg-neutral-50 px-5 py-6 text-center text-sm text-neutral-500">
+            {t("checkout.cash_on_delivery")}
           </div>
         </section>
 
@@ -322,7 +356,7 @@ export default function CheckoutForm({
           disabled={loading}
           className="w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Placing order…" : "Place Order"}
+          {loading ? t("checkout.placing_order") : t("checkout.place_order")}
         </button>
       </form>
 
@@ -330,7 +364,7 @@ export default function CheckoutForm({
       <aside className="lg:col-span-2">
         <div className="sticky top-6 space-y-4">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-            Order summary
+            {t("checkout.order_summary")}
           </h2>
 
           <ul className="divide-y divide-neutral-100">
@@ -338,7 +372,7 @@ export default function CheckoutForm({
               <li key={item.variantId} className="flex gap-4 py-4">
                 <div className="relative w-14 h-14 flex-shrink-0 bg-neutral-100 overflow-hidden">
                   {item.image ? (
-                    <Image src={item.image} alt={item.productName} fill className="object-cover" unoptimized />
+                    <Image src={item.image} alt={item.productName} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-neutral-100" />
                   )}
@@ -349,7 +383,7 @@ export default function CheckoutForm({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-neutral-900 truncate">{item.productName}</p>
                   {Object.values(item.variantOptions).length > 0 && (
-                    <p className="text-xs text-neutral-400 mt-0.5">
+                    <p className="text-xs text-neutral-500 mt-0.5">
                       {Object.values(item.variantOptions).join(" · ")}
                     </p>
                   )}
@@ -363,30 +397,30 @@ export default function CheckoutForm({
 
           <div className="border-t border-neutral-100 pt-4 space-y-2 text-sm">
             <div className="flex justify-between text-neutral-500">
-              <span>Subtotal</span>
+              <span>{t("checkout.subtotal")}</span>
               <span>{currency} {subtotal.toFixed(2)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-green-600">
-                <span>Discount ({couponApplied?.code})</span>
+                <span>{t("checkout.discount")} ({couponApplied?.code})</span>
                 <span>− {currency} {discount.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between text-neutral-500">
-              <span>Shipping</span>
+              <span>{t("checkout.shipping")}</span>
               {shippingCost === 0 ? (
-                <span className="text-green-600">Free</span>
+                <span className="text-green-600">{t("checkout.free")}</span>
               ) : (
                 <span>{currency} {shippingCost.toFixed(2)}</span>
               )}
             </div>
             {freeThreshold > 0 && subtotal < freeThreshold && (
-              <p className="text-xs text-neutral-400">
-                Add {currency} {(freeThreshold - subtotal).toFixed(2)} more for free shipping
+              <p className="text-xs text-neutral-500">
+                {t("checkout.free_shipping_hint", { amount: `${currency} ${(freeThreshold - subtotal).toFixed(2)}` })}
               </p>
             )}
             <div className="flex justify-between font-semibold text-neutral-900 text-base pt-2 border-t border-neutral-100">
-              <span>Total</span>
+              <span>{t("checkout.total")}</span>
               <span>{currency} {total.toFixed(2)}</span>
             </div>
           </div>
@@ -406,19 +440,20 @@ function Field({
   label: string;
   hint?: string;
   error?: string;
-  children: React.ReactNode;
+  children: (id: string) => React.ReactNode;
   className?: string;
 }) {
+  const id = useId();
   return (
     <div className={className}>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs font-medium text-neutral-700">{label}</label>
+        <label htmlFor={id} className="text-xs font-medium text-neutral-700">{label}</label>
         {error
-          ? <span className="text-xs text-red-500">{error}</span>
-          : hint && <span className="text-xs text-neutral-400">{hint}</span>
+          ? <span role="alert" className="text-xs text-red-500">{error}</span>
+          : hint && <span className="text-xs text-neutral-500">{hint}</span>
         }
       </div>
-      {children}
+      {children(id)}
     </div>
   );
 }

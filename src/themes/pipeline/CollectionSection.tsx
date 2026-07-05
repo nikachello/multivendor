@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ThemeConfig } from "@/themes/types";
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
+import { getCategoryById, getProductsByCategory, getFeaturedProducts } from "@/lib/db/queries";
 import PipelineProductGrid, { PipelineProduct } from "./PipelineProductGrid";
 
 type Props = {
@@ -26,19 +26,20 @@ const CollectionSection = async ({
   showViewAll = true,
   limit,
 }: Props) => {
-  if (!shopId || !shopSlug || !currency) return null;
+  if (!shopId || !shopSlug || !currency || !categoryId) return null;
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
-  const categoriesResult = await getCategoriesByShop(shopId);
-  if (!categoriesResult.ok) return null;
-  const category = categoriesResult.data.find((c) => c.id === categoryId);
-  if (!category) return null;
+  const categoryResult = await getCategoryById(categoryId);
+  if (!categoryResult.ok) return null;
+  const category = categoryResult.data;
 
-  const productsResult = await getProductsByCategory(shopId, categoryId);
+  const productsResult = limit
+    ? await getFeaturedProducts(shopId, categoryId, limit)
+    : await getProductsByCategory(shopId, categoryId);
   if (!productsResult.ok) return null;
   const raw = productsResult.data;
 
-  const products: PipelineProduct[] = (limit ? raw.slice(0, limit) : raw).map((p) => {
+  const products: PipelineProduct[] = raw.map((p) => {
     const minPrice = Math.min(...p.variants.map((v) => v.price));
     return {
       id: p.id,

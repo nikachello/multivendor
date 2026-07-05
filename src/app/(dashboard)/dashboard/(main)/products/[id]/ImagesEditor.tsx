@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
   DndContext,
   closestCenter,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -14,6 +15,7 @@ import {
   SortableContext,
   useSortable,
   rectSortingStrategy,
+  sortableKeyboardCoordinates,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -77,19 +79,22 @@ function SortableImageCard({
       />
 
       {/* Drag handle — top-left */}
-      <div
+      <button
+        type="button"
         {...attributes}
         {...listeners}
-        className="absolute top-1 left-1 w-5 h-5 bg-white/85 rounded flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+        aria-label="Drag to reorder image"
+        className="absolute top-1 left-1 w-5 h-5 bg-white/85 rounded flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity shadow-sm"
       >
         <DragHandle />
-      </div>
+      </button>
 
       {/* Delete — top-right */}
       <button
         type="button"
         onClick={onDelete}
-        className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Delete image"
+        className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
       >
         ×
       </button>
@@ -114,13 +119,18 @@ function SortableImageCard({
 
 export default function ImagesEditor({ productId, images: initialImages, onUpdate }: Props) {
   const [images, setImages] = useState(initialImages);
+  const [prevInitialImages, setPrevInitialImages] = useState(initialImages);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  useEffect(() => {
+  // Adjust local state during render when the parent passes fresh images,
+  // instead of syncing via an effect (avoids an extra render pass).
+  if (initialImages !== prevInitialImages) {
+    setPrevInitialImages(initialImages);
     setImages(initialImages);
-  }, [initialImages]);
+  }
 
   async function handleUploadComplete(urls: string[]) {
     const result = await addProductImages(productId, urls);

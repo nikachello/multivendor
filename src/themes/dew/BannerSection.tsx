@@ -63,7 +63,6 @@ const BannerSection = ({
               fill
               className="object-cover"
               style={{ objectPosition: imagePosition, borderRadius: "0" }}
-              unoptimized
             />
           ) : null}
         </div>
@@ -108,7 +107,7 @@ const BannerSection = ({
       }}
     >
       {image && (
-        <Image src={image} alt={title ?? ""} fill className="object-cover" style={{ objectPosition: imagePosition }} unoptimized priority />
+        <Image src={image} alt={title ?? ""} fill className="object-cover" style={{ objectPosition: imagePosition }} priority />
       )}
       <div
         className="relative z-10"

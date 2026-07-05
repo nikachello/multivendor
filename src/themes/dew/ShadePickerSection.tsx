@@ -35,7 +35,7 @@ export default function ShadePickerSection({
           }}
         >
           {image ? (
-            <Image src={image} alt={title ?? "Product"} fill className="object-cover" unoptimized />
+            <Image src={image} alt={title ?? "Product"} fill className="object-cover" />
           ) : null}
         </div>
 

@@ -31,7 +31,7 @@ const BannerSection = ({
       <section className="grid md:grid-cols-2 border-t border-b border-[var(--subtle)]">
         <div className="relative bg-[var(--surface)]" style={{ minHeight: "clamp(360px, 46vw, 580px)" }}>
           {image && (
-            <Image src={image} alt={title} fill className="object-cover" style={{ objectPosition: imagePosition }} unoptimized />
+            <Image src={image} alt={title} fill className="object-cover" style={{ objectPosition: imagePosition }} />
           )}
         </div>
         <div className="flex flex-col justify-center bg-[var(--page-bg)]" style={{ padding: "clamp(48px, 7vw, 96px)" }}>

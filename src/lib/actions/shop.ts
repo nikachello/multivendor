@@ -47,12 +47,27 @@ export async function updateShopTheme(shopId: string, themeId: string) {
   await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
 }
 
+const GA4_ID_RE = /^G-[A-Z0-9]{4,12}$/;
+const GOOGLE_ADS_ID_RE = /^AW-\d{6,12}$/;
+const META_PIXEL_ID_RE = /^\d{10,20}$/;
+const GOOGLE_ADS_LABEL_RE = /^[A-Za-z0-9_-]{4,20}$/;
+
 export async function updateShop(
   shopId: string,
   data: { name: string; description?: string; currency: string; logo?: string; metaPixelId?: string; ga4MeasurementId?: string; googleAdsId?: string; googleAdsConversionLabel?: string },
 ) {
   if (!shopId || !data.name || !data.currency)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
+
+  if (data.ga4MeasurementId && !GA4_ID_RE.test(data.ga4MeasurementId))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid GA4 measurement ID format", status: 400 });
+  if (data.googleAdsId && !GOOGLE_ADS_ID_RE.test(data.googleAdsId))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Google Ads ID format", status: 400 });
+  if (data.metaPixelId && !META_PIXEL_ID_RE.test(data.metaPixelId))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Meta Pixel ID format", status: 400 });
+  if (data.googleAdsConversionLabel && !GOOGLE_ADS_LABEL_RE.test(data.googleAdsConversionLabel))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Google Ads conversion label format", status: 400 });
+
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 

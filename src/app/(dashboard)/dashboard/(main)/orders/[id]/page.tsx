@@ -107,7 +107,7 @@ export default async function OrderDetailPage({
             <li key={item.id} className="flex gap-4 px-5 py-4">
               <div className="relative w-12 h-12 flex-shrink-0 bg-gray-100 overflow-hidden rounded">
                 {item.image ? (
-                  <Image src={item.image} alt={item.productName} fill className="object-cover" unoptimized />
+                  <Image src={item.image} alt={item.productName} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gray-100" />
                 )}

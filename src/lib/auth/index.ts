@@ -50,7 +50,16 @@ export const auth = betterAuth({
       role: {
         type: "string",
         defaultValue: "seller",
-        input: true,
+        input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => ({
+          data: { ...user, role: "seller" },
+        }),
       },
     },
   },

@@ -52,7 +52,7 @@ const HighlightsSection = ({ items = [], variant = "cards", themeConfig }: Props
                   className="relative w-10 h-10 shrink-0 overflow-hidden"
                   style={{ borderRadius: "999px", backgroundColor: "var(--accent)" }}
                 >
-                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain p-2" unoptimized />
+                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain p-2" />
                 </div>
               ) : (
                 <div
@@ -92,7 +92,6 @@ const HighlightsSection = ({ items = [], variant = "cards", themeConfig }: Props
                   fill
                   className="object-contain p-3"
                   style={{ opacity: 1 / 0.12 }}
-                  unoptimized
                 />
               </div>
             ) : (

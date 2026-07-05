@@ -61,16 +61,16 @@ const NavbarSection = ({
                     {item.label} {chevron}
                   </Link>
                 ) : (
-                  <span className={`cursor-pointer ${hoverColor} transition-colors flex items-center gap-1.5 whitespace-nowrap`}>
+                  <button type="button" aria-haspopup="true" className={`cursor-pointer bg-transparent border-0 p-0 ${hoverColor} transition-colors flex items-center gap-1.5 whitespace-nowrap`}>
                     {item.label} {chevron}
-                  </span>
+                  </button>
                 );
 
                 if (hasMegaMenu) {
                   return (
                     <li key={index} className="relative group">
                       {trigger}
-                      <div className="absolute left-0 top-full pt-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                      <div className="absolute left-0 top-full pt-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
                         <div className={`${dropdownBg} flex divide-x divide-[#E2DDD5]`}>
                           {standaloneLinks.length > 0 && (
                             <div className="min-w-[150px] py-4">
@@ -133,7 +133,7 @@ const NavbarSection = ({
                 return (
                   <li key={index} className="relative group">
                     {trigger}
-                    <div className="absolute left-0 top-full pt-3 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                    <div className="absolute left-0 top-full pt-3 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
                       <div className={`${dropdownBg} py-2`}>
                         {item.children.map((child, i) =>
                           child.type === "link" ? (
@@ -182,7 +182,7 @@ const NavbarSection = ({
 
       {/* MOBILE */}
       <div className="md:hidden flex items-center justify-between px-5 py-6">
-        <button onClick={() => setOpen(!open)} className="flex flex-col justify-center items-center w-8 h-8 gap-[5px]" aria-label="Toggle menu">
+        <button onClick={() => setOpen(!open)} className="flex flex-col justify-center items-center w-8 h-8 gap-[5px]" aria-label="Toggle menu" aria-expanded={open}>
           <span className={`block h-px w-6 transition-all origin-center ${transparent ? "bg-white" : "bg-[#1C1C1C]"} ${open ? "rotate-45 translate-y-[5px]" : ""}`} />
           <span className={`block h-px w-6 transition-all ${transparent ? "bg-white" : "bg-[#1C1C1C]"} ${open ? "opacity-0" : ""}`} />
           <span className={`block h-px w-6 transition-all origin-center ${transparent ? "bg-white" : "bg-[#1C1C1C]"} ${open ? "-rotate-45 -translate-y-[5px]" : ""}`} />

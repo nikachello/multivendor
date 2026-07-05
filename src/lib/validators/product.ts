@@ -9,7 +9,7 @@ export const productSchema = z.object({
       /^[a-z0-9-]+$/,
       "Slug can only contain lowercase letters, numbers and hyphens",
     ),
-  description: z.string().optional(),
+  description: z.string().max(5000).optional(),
   price: z.coerce.number().positive("Price must be positive"),
   categoryIds: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),

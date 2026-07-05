@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useSession } from "@/lib/auth/client";
+import { useT } from "@/i18n/context";
 
 const ROOT = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
 const DEMO_URL = ROOT ? `https://zari.${ROOT}` : "/shop/zari";
@@ -13,6 +14,7 @@ function Nav() {
   const [open, setOpen] = useState(false);
   const { data: sessionData } = useSession();
   const isLoggedIn = !!sessionData?.session;
+  const t = useT();
 
   return (
     <div
@@ -78,10 +80,10 @@ function Nav() {
             className="hidden md:flex"
           >
             <a href="#features" style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}>
-              ფუნქციები
+              {t("landing.nav.features")}
             </a>
             <a href="#pricing" style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}>
-              ფასები
+              {t("landing.nav.pricing")}
             </a>
           </div>
 
@@ -103,7 +105,7 @@ function Nav() {
                   textDecoration: "none",
                 }}
               >
-                Dashboard
+                {t("landing.nav.dashboard")}
               </Link>
             ) : (
               <>
@@ -111,7 +113,7 @@ function Nav() {
                   href="/login"
                   style={{ fontSize: 13.5, color: "#444", textDecoration: "none" }}
                 >
-                  შესვლა
+                  {t("landing.nav.login")}
                 </Link>
                 <Link
                   href="/register"
@@ -125,7 +127,7 @@ function Nav() {
                     textDecoration: "none",
                   }}
                 >
-                  დაიწყე
+                  {t("landing.nav.start")}
                 </Link>
               </>
             )}
@@ -171,14 +173,14 @@ function Nav() {
               onClick={() => setOpen(false)}
               style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}
             >
-              ფუნქციები
+              {t("landing.nav.features")}
             </a>
             <a
               href="#pricing"
               onClick={() => setOpen(false)}
               style={{ fontSize: 15, color: "#0a0a0a", textDecoration: "none" }}
             >
-              ფასები
+              {t("landing.nav.pricing")}
             </a>
             <div
               style={{
@@ -195,7 +197,7 @@ function Nav() {
                   onClick={() => setOpen(false)}
                   style={{ fontSize: 15, fontWeight: 600, color: "#0a0a0a", textDecoration: "none" }}
                 >
-                  Dashboard
+                  {t("landing.nav.dashboard")}
                 </Link>
               ) : (
                 <>
@@ -204,7 +206,7 @@ function Nav() {
                     onClick={() => setOpen(false)}
                     style={{ fontSize: 15, color: "#555", textDecoration: "none" }}
                   >
-                    შესვლა
+                    {t("landing.nav.login")}
                   </Link>
                   <Link
                     href="/register"
@@ -220,7 +222,7 @@ function Nav() {
                       textAlign: "center",
                     }}
                   >
-                    დაიწყე
+                    {t("landing.nav.start")}
                   </Link>
                 </>
               )}
@@ -379,6 +381,7 @@ function StorefrontPreview() {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const t = useT();
   return (
     <div
       style={{
@@ -439,7 +442,7 @@ export default function Home() {
                 flexShrink: 0,
               }}
             />
-            ახლა ხელმისაწვდომია
+            {t("landing.hero.badge")}
           </div>
 
           <h1
@@ -453,9 +456,9 @@ export default function Home() {
               margin: "0 0 26px",
             }}
           >
-            ააწყვე მაღაზია.
+            {t("landing.hero.title1")}
             <br />
-            გაყიდე პირველივე დღეს.
+            {t("landing.hero.title2")}
           </h1>
 
           <p
@@ -468,7 +471,7 @@ export default function Home() {
               fontWeight: 400,
             }}
           >
-            ქართული ბიზნესისთვის შექმნილი პლატფორმა. ონლაინ მაღაზია 10 წუთში, კოდის გარეშე.
+            {t("landing.hero.subtitle")}
           </p>
 
           <div
@@ -494,7 +497,7 @@ export default function Home() {
                 textDecoration: "none",
               }}
             >
-              დაიწყე უფასოდ
+              {t("landing.hero.cta_primary")}
             </Link>
             <a
               href={DEMO_URL}
@@ -510,12 +513,12 @@ export default function Home() {
                 textDecoration: "none",
               }}
             >
-              ნახე დემო
+              {t("landing.hero.cta_demo")}
             </a>
           </div>
 
           <div style={{ fontSize: 13, color: "#9b9ba0" }}>
-            უფასო ვერსია სამუდამოდ. ბარათი საჭირო არ არის.
+            {t("landing.hero.fine_print")}
           </div>
         </div>
       </div>
@@ -532,9 +535,9 @@ export default function Home() {
           style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", textAlign: "center" }}
         >
           {[
-            { value: "2,400+", label: "აქტიური მაღაზია", mono: true },
-            { value: "10 წთ", label: "გასაშვებად", mono: false },
-            { value: "₾0", label: "საწყისი ღირებულება", mono: true },
+            { value: "2,400+", label: t("landing.stats.stores"), mono: true },
+            { value: "10 წთ", label: t("landing.stats.time"), mono: false },
+            { value: "₾0", label: t("landing.stats.cost"), mono: true },
           ].map((s, i) => (
             <div
               key={s.label}
@@ -577,7 +580,7 @@ export default function Home() {
               marginBottom: 18,
             }}
           >
-            ფუნქციები
+            {t("landing.features.label")}
           </div>
           <h2
             style={{
@@ -587,10 +590,10 @@ export default function Home() {
               margin: "0 0 16px",
             }}
           >
-            ყველაფერი ერთ ადგილას
+            {t("landing.features.title")}
           </h2>
           <p style={{ fontSize: 18, color: "#636366", margin: "0 auto", maxWidth: 460, lineHeight: 1.5 }}>
-            პროფესიონალური ხელსაწყოები. მარტივი გამოყენება.
+            {t("landing.features.subtitle")}
           </p>
         </div>
 
@@ -621,7 +624,7 @@ export default function Home() {
                     marginBottom: 18,
                   }}
                 >
-                  თემები
+                  {t("landing.features.themes_label")}
                 </div>
                 <h3
                   style={{
@@ -632,10 +635,10 @@ export default function Home() {
                     marginBottom: 16,
                   }}
                 >
-                  შენი ბრენდის სტილი
+                  {t("landing.features.themes_title")}
                 </h3>
                 <p style={{ fontSize: 16, lineHeight: 1.65, color: "#636366" }}>
-                  4 ხელნაკეთი თემა კომბინირებული ფერების სისტემით. შეცვალე ლოგო, ფერები და შრიფტები კოდის გარეშე.
+                  {t("landing.features.themes_desc")}
                 </p>
               </div>
               <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -693,7 +696,7 @@ export default function Home() {
                       borderTop: "1px solid #f5f5f7",
                     }}
                   >
-                    ელეგანტური, ორგანული
+                    {t("landing.features.maison_style")}
                   </div>
                 </div>
 
@@ -752,7 +755,7 @@ export default function Home() {
                       borderTop: "1px solid #f5f5f7",
                     }}
                   >
-                    მონოქრომატული, სმარტი
+                    {t("landing.features.pipeline_style")}
                   </div>
                 </div>
               </div>
@@ -783,7 +786,7 @@ export default function Home() {
                     marginBottom: 18,
                   }}
                 >
-                  შეკვეთები
+                  {t("landing.features.orders_label")}
                 </div>
                 <h3
                   style={{
@@ -795,10 +798,10 @@ export default function Home() {
                     marginBottom: 16,
                   }}
                 >
-                  მართე ბიზნესი ერთი ეკრანიდან
+                  {t("landing.features.orders_title")}
                 </h3>
                 <p style={{ fontSize: 15, lineHeight: 1.65, color: "#a1a1a6" }}>
-                  ახალი შეკვეთები, სტატუსების განახლება, ინვენტარი, კუპონები და ანალიტიკა. ყველაფერი ერთ სუფთა პანელში.
+                  {t("landing.features.orders_desc")}
                 </p>
               </div>
 
@@ -906,7 +909,7 @@ export default function Home() {
                   marginBottom: 14,
                 }}
               >
-                ვიზუალური რედაქტორი
+                {t("landing.features.editor_label")}
               </div>
               <h3
                 style={{
@@ -917,10 +920,10 @@ export default function Home() {
                   marginBottom: 12,
                 }}
               >
-                მოაწყე გვერდი ვიზუალურად
+                {t("landing.features.editor_title")}
               </h3>
               <p style={{ fontSize: 15, lineHeight: 1.65, color: "#636366", marginBottom: 28 }}>
-                გადაათრიე სექციები, შეცვალე შინაარსი. ცვლილებები ჩანს დაუყოვნებლივ.
+                {t("landing.features.editor_desc")}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
@@ -983,7 +986,7 @@ export default function Home() {
                   marginBottom: 14,
                 }}
               >
-                ანალიტიკა
+                {t("landing.features.analytics_label")}
               </div>
               <h3
                 style={{
@@ -994,10 +997,10 @@ export default function Home() {
                   marginBottom: 12,
                 }}
               >
-                გაყიდვების სრული სურათი
+                {t("landing.features.analytics_title")}
               </h3>
               <p style={{ fontSize: 15, lineHeight: 1.65, color: "#636366", marginBottom: 28 }}>
-                შემოსავალი, კონვერსია, საუკეთესო პროდუქტები. 7, 30 ან 90 დღის განახლებით.
+                {t("landing.features.analytics_desc")}
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
@@ -1043,7 +1046,7 @@ export default function Home() {
               marginBottom: 18,
             }}
           >
-            პროცესი
+            {t("landing.how.label")}
           </div>
           <h2
             style={{
@@ -1053,27 +1056,15 @@ export default function Home() {
               margin: 0,
             }}
           >
-            სამი ნაბიჯი გაყიდვამდე
+            {t("landing.how.title")}
           </h2>
         </div>
 
         <div className="lp-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)" }}>
           {[
-            {
-              n: "01",
-              title: "შექმენი ანგარიში",
-              desc: "დარეგისტრირდი ელ. ფოსტით. სერვერი, ჰოსტინგი, ტექნიკა — ეს ყველაფერი ჩვენ გვაქვს.",
-            },
-            {
-              n: "02",
-              title: "მოარგე მაღაზია",
-              desc: "აირჩიე თემა, დაამატე პროდუქტები, მოაწყე გვერდი ვიზუალური რედაქტორით.",
-            },
-            {
-              n: "03",
-              title: "გამოაქვეყნე",
-              desc: "შენი მაღაზია ონლაინ. შეკვეთები პანელში, გადახდა მიწოდებისას.",
-            },
+            { n: "01", title: t("landing.how.s1_title"), desc: t("landing.how.s1_desc") },
+            { n: "02", title: t("landing.how.s2_title"), desc: t("landing.how.s2_desc") },
+            { n: "03", title: t("landing.how.s3_title"), desc: t("landing.how.s3_desc") },
           ].map((s, i) => (
             <div
               key={s.n}
@@ -1120,7 +1111,7 @@ export default function Home() {
                 marginBottom: 18,
               }}
             >
-              ფასები
+              {t("landing.pricing.label")}
             </div>
             <h2
               style={{
@@ -1130,10 +1121,10 @@ export default function Home() {
                 margin: "0 0 14px",
               }}
             >
-              მარტივი. გამჭვირვალე.
+              {t("landing.pricing.title")}
             </h2>
             <p style={{ fontSize: 18, color: "#636366", margin: 0 }}>
-              დაიწყე უფასოდ. გადადი Pro-ზე, როცა გაიზრდება.
+              {t("landing.pricing.subtitle")}
             </p>
           </div>
 
@@ -1150,8 +1141,8 @@ export default function Home() {
                 boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
               }}
             >
-              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>უფასო</div>
-              <div style={{ fontSize: 14, color: "#888", marginBottom: 28 }}>დასაწყებად</div>
+              <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>{t("landing.pricing.free_name")}</div>
+              <div style={{ fontSize: 14, color: "#888", marginBottom: 28 }}>{t("landing.pricing.free_tagline")}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 32 }}>
                 <span
                   style={{
@@ -1164,7 +1155,7 @@ export default function Home() {
                 >
                   ₾0
                 </span>
-                <span style={{ fontSize: 14, color: "#888" }}>სამუდამოდ</span>
+                <span style={{ fontSize: 14, color: "#888" }}>{t("landing.pricing.free_period")}</span>
               </div>
               <Link
                 href="/register"
@@ -1182,10 +1173,10 @@ export default function Home() {
                   textDecoration: "none",
                 }}
               >
-                დაიწყე
+                {t("landing.pricing.free_cta")}
               </Link>
               <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-                {["10 პროდუქტამდე", "1 თემა", "შეკვეთების მართვა", "გადახდა მიწოდებისას"].map(
+                {[t("landing.pricing.free_f1"), t("landing.pricing.free_f2"), t("landing.pricing.free_f3"), t("landing.pricing.free_f4")].map(
                   (f) => (
                     <div
                       key={f}
@@ -1232,11 +1223,11 @@ export default function Home() {
                     borderRadius: 980,
                   }}
                 >
-                  პოპულარული
+                  {t("landing.pricing.pro_badge")}
                 </div>
               </div>
               <div style={{ fontSize: 14, color: "#636366", marginBottom: 28 }}>
-                მზარდი ბიზნესისთვის
+                {t("landing.pricing.pro_tagline")}
               </div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 32 }}>
                 <span
@@ -1250,7 +1241,7 @@ export default function Home() {
                 >
                   ₾29
                 </span>
-                <span style={{ fontSize: 14, color: "#636366" }}>თვეში</span>
+                <span style={{ fontSize: 14, color: "#636366" }}>{t("landing.pricing.pro_period")}</span>
               </div>
               <Link
                 href="/register"
@@ -1267,16 +1258,16 @@ export default function Home() {
                   textDecoration: "none",
                 }}
               >
-                აირჩიე Pro
+                {t("landing.pricing.pro_cta")}
               </Link>
               <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
                 {[
-                  "ულიმიტო პროდუქტი",
-                  "ყველა თემა",
-                  "მიწოდების ზონები",
-                  "საკუთარი დომენი",
-                  "კუპონები და ფასდაკლება",
-                  "პრიორიტეტული მხარდაჭერა",
+                  t("landing.pricing.pro_f1"),
+                  t("landing.pricing.pro_f2"),
+                  t("landing.pricing.pro_f3"),
+                  t("landing.pricing.pro_f4"),
+                  t("landing.pricing.pro_f5"),
+                  t("landing.pricing.pro_f6"),
                 ].map((f) => (
                   <div
                     key={f}
@@ -1314,7 +1305,7 @@ export default function Home() {
               margin: "0 0 24px",
             }}
           >
-            შენი მაღაზია 10 წუთში.
+            {t("landing.cta.title")}
           </h2>
           <p
             style={{
@@ -1325,7 +1316,7 @@ export default function Home() {
               lineHeight: 1.5,
             }}
           >
-            პირველი შეკვეთა დღეს. ბარათი საჭირო არ არის.
+            {t("landing.cta.subtitle")}
           </p>
           <Link
             href="/register"
@@ -1341,7 +1332,7 @@ export default function Home() {
               textDecoration: "none",
             }}
           >
-            დაიწყე უფასოდ
+            {t("landing.cta.button")}
           </Link>
         </div>
       </div>
@@ -1372,7 +1363,7 @@ export default function Home() {
                 MultiStore
               </div>
               <div style={{ fontSize: 14, color: "#888", lineHeight: 1.6, maxWidth: 220 }}>
-                ქართული მცირე ბიზნესისთვის. ონლაინ მაღაზია კოდის გარეშე.
+                {t("landing.footer.tagline")}
               </div>
             </div>
             <div>
@@ -1386,14 +1377,14 @@ export default function Home() {
                   marginBottom: 16,
                 }}
               >
-                პროდუქტი
+                {t("landing.footer.col_product")}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
                 <a href="#features" style={{ color: "#636366", textDecoration: "none" }}>
-                  ფუნქციები
+                  {t("landing.footer.features")}
                 </a>
                 <a href="#pricing" style={{ color: "#636366", textDecoration: "none" }}>
-                  ფასები
+                  {t("landing.footer.pricing")}
                 </a>
               </div>
             </div>
@@ -1408,14 +1399,14 @@ export default function Home() {
                   marginBottom: 16,
                 }}
               >
-                ანგარიში
+                {t("landing.footer.col_account")}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
                 <Link href="/login" style={{ color: "#636366", textDecoration: "none" }}>
-                  შესვლა
+                  {t("landing.footer.login")}
                 </Link>
                 <Link href="/register" style={{ color: "#636366", textDecoration: "none" }}>
-                  რეგისტრაცია
+                  {t("landing.footer.register")}
                 </Link>
               </div>
             </div>
@@ -1430,14 +1421,14 @@ export default function Home() {
                   marginBottom: 16,
                 }}
               >
-                სამართლებრივი
+                {t("landing.footer.col_legal")}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
                 <Link href="/terms" style={{ color: "#636366", textDecoration: "none" }}>
-                  წესები
+                  {t("landing.footer.terms")}
                 </Link>
                 <Link href="/privacy" style={{ color: "#636366", textDecoration: "none" }}>
-                  კონფიდენციალურობა
+                  {t("landing.footer.privacy")}
                 </Link>
               </div>
             </div>

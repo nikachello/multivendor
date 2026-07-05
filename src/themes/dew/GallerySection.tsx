@@ -30,7 +30,6 @@ const GallerySection = ({ images = [], columns = 3, themeConfig }: Props) => {
                 alt={img.alt ?? ""}
                 fill
                 className="object-cover"
-                unoptimized
               />
             </div>
           ))}

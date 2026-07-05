@@ -4,12 +4,27 @@ import { render } from "@react-email/components";
 import OrderConfirmation from "@/emails/OrderConfirmation";
 import OrderStatusUpdate from "@/emails/OrderStatusUpdate";
 
-if (!process.env.RESEND_API_KEY) {
-  console.warn("RESEND_API_KEY is not set — emails will not be sent");
+const EMAIL_FROM = process.env.EMAIL_FROM ?? "orders@resend.dev";
+
+// Constructed lazily so a missing RESEND_API_KEY doesn't throw at module load
+// time (which previously broke `next build`'s page-data collection for any
+// route that imports this file, e.g. /admin/orders).
+let _resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY is not set — emails will not be sent");
+    return null;
+  }
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const EMAIL_FROM = process.env.EMAIL_FROM ?? "orders@resend.dev";
+async function send(params: { to: string; subject: string; html: string }) {
+  const resend = getResend();
+  if (!resend) return;
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, ...params });
+  if (error) console.error("[email] send failed:", params.subject, error);
+}
 
 type OrderConfirmationProps = {
   to: string;
@@ -34,8 +49,7 @@ type OrderConfirmationProps = {
 
 export const sendOrderConfirmation = async (props: OrderConfirmationProps) => {
   const html = await render(React.createElement(OrderConfirmation, props));
-  await resend.emails.send({
-    from: EMAIL_FROM,
+  await send({
     to: props.to,
     subject: `Order confirmed — ${props.shopName}`,
     html,
@@ -58,8 +72,7 @@ const STATUS_SUBJECT_LABELS: Record<string, string> = {
 };
 
 export const sendVerificationEmail = async ({ to, url }: { to: string; url: string }) => {
-  await resend.emails.send({
-    from: EMAIL_FROM,
+  await send({
     to,
     subject: "Verify your MultiStore email",
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 24px">
@@ -72,8 +85,7 @@ export const sendVerificationEmail = async ({ to, url }: { to: string; url: stri
 };
 
 export const sendPasswordResetEmail = async ({ to, url }: { to: string; url: string }) => {
-  await resend.emails.send({
-    from: EMAIL_FROM,
+  await send({
     to,
     subject: "Reset your password",
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 24px">
@@ -88,8 +100,7 @@ export const sendPasswordResetEmail = async ({ to, url }: { to: string; url: str
 export const sendOrderStatusUpdate = async (props: OrderStatusUpdateProps) => {
   const html = await render(React.createElement(OrderStatusUpdate, props));
   const label = STATUS_SUBJECT_LABELS[props.status] ?? props.status;
-  await resend.emails.send({
-    from: EMAIL_FROM,
+  await send({
     to: props.to,
     subject: `Order #${props.orderId.slice(-8).toUpperCase()} ${label} — ${props.shopName}`,
     html,

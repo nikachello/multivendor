@@ -55,7 +55,7 @@ export default function BeforeAfterSection({
           {/* Before layer (full) */}
           <div className="absolute inset-0">
             {beforeImage ? (
-              <Image src={beforeImage} alt={beforeLabel} fill className="object-cover" unoptimized />
+              <Image src={beforeImage} alt={beforeLabel} fill className="object-cover" />
             ) : (
               <div className="w-full h-full flex items-end justify-start p-4">
                 <span className="font-mono text-[11px] text-[var(--muted)] tracking-widest uppercase">{beforeLabel}</span>
@@ -69,7 +69,7 @@ export default function BeforeAfterSection({
             style={{ clipPath: `inset(0 ${100 - value}% 0 0)` }}
           >
             {afterImage ? (
-              <Image src={afterImage} alt={afterLabel} fill className="object-cover" unoptimized />
+              <Image src={afterImage} alt={afterLabel} fill className="object-cover" />
             ) : (
               <div
                 className="w-full h-full flex items-end justify-end p-4"

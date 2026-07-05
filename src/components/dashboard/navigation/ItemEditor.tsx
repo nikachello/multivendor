@@ -19,8 +19,14 @@ type Props = {
 
 function useDebounced(externalValue: string, onChange: (v: string) => void, delay = 300) {
   const [local, setLocal] = useState(externalValue);
+  const [prevExternalValue, setPrevExternalValue] = useState(externalValue);
 
-  useEffect(() => { setLocal(externalValue); }, [externalValue]);
+  // Adjust local state during render when the external value changes,
+  // instead of syncing via an effect (avoids an extra render pass).
+  if (externalValue !== prevExternalValue) {
+    setPrevExternalValue(externalValue);
+    setLocal(externalValue);
+  }
 
   useEffect(() => {
     if (local === externalValue) return;
@@ -52,13 +58,17 @@ export default function ItemEditor({
   onLabelChange, onHrefChange, onTypeChange, onDelete, onAddChild,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [prevItemId, setPrevItemId] = useState(item?.id);
 
   const currentHref = item?.type === "link" ? item.href : (item?.type === "group" ? (item.href ?? "") : "");
 
   const [localLabel, setLocalLabel] = useDebounced(item?.label ?? "", onLabelChange);
   const [localHref, setLocalHref] = useDebounced(currentHref, onHrefChange);
 
-  useEffect(() => { setConfirmDelete(false); }, [item?.id]);
+  if (item?.id !== prevItemId) {
+    setPrevItemId(item?.id);
+    setConfirmDelete(false);
+  }
 
   const isGroup = item?.type === "group";
   const childCount = isGroup ? item.children.length : 0;

@@ -19,7 +19,7 @@ const ImageTextSection = ({
   const imageCol = (
     <div className="relative w-full h-full min-h-[400px] overflow-hidden bg-neutral-50">
       {image ? (
-        <Image src={image} alt={title ?? ""} fill className="object-cover" unoptimized />
+        <Image src={image} alt={title ?? ""} fill className="object-cover" />
       ) : (
         <div className="w-full h-full bg-neutral-100" />
       )}

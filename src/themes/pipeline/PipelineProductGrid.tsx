@@ -52,7 +52,6 @@ function ProductCard({ product, base, currency }: { product: PipelineProduct; ba
             alt={product.name}
             fill
             className={`object-cover transition-all duration-500 ${showRollover ? "opacity-0 scale-[1.02]" : "opacity-100 scale-100"}`}
-            unoptimized
           />
         ) : (
           <div className="w-full h-full bg-neutral-100" />
@@ -65,7 +64,6 @@ function ProductCard({ product, base, currency }: { product: PipelineProduct; ba
             alt={product.name}
             fill
             className={`object-cover absolute inset-0 transition-all duration-500 ${showRollover ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"}`}
-            unoptimized
           />
         )}
 

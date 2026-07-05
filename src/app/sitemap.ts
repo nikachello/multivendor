@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { getAllShops } from "@/lib/db/queries";
+import { getAbsoluteCanonicalShopUrl } from "@/lib/storefront-url";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const shop of shops) {
     entries.push({
-      url: `/shop/${shop.slug}`,
+      url: getAbsoluteCanonicalShopUrl(shop),
       lastModified: shop.updatedAt,
       changeFrequency: "weekly",
       priority: 1,
@@ -17,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const product of shop.products) {
       entries.push({
-        url: `/shop/${shop.slug}/product/${product.slug}`,
+        url: getAbsoluteCanonicalShopUrl(shop, `/product/${product.slug}`),
         lastModified: product.updatedAt,
         changeFrequency: "weekly",
         priority: 0.8,
@@ -26,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const category of shop.categories) {
       entries.push({
-        url: `/shop/${shop.slug}/collections/${category.slug}`,
+        url: getAbsoluteCanonicalShopUrl(shop, `/collections/${category.slug}`),
         lastModified: category.updatedAt,
         changeFrequency: "weekly",
         priority: 0.6,

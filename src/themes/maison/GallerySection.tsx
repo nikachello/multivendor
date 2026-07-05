@@ -30,7 +30,6 @@ const GallerySection = ({ images = [], columns = 3, themeConfig }: Props) => {
                 alt={img.alt ?? ""}
                 fill
                 className="object-cover group-hover:opacity-90 transition-opacity duration-500"
-                unoptimized
               />
             </div>
           ))}

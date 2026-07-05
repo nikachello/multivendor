@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ThemeConfig } from "@/themes/types";
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
+import { getCategoryById, getProductsByCategory, getFeaturedProducts } from "@/lib/db/queries";
 import type { CollectionSectionProps } from "@/lib/types/sections";
 
 type Props = CollectionSectionProps & {
@@ -21,15 +21,16 @@ const CollectionSection = async ({
   themeConfig,
   variant = "grid",
 }: Props) => {
-  if (!shopId || !shopSlug || !currency) return null;
+  if (!shopId || !shopSlug || !currency || !categoryId) return null;
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
-  const categoriesResult = await getCategoriesByShop(shopId);
-  if (!categoriesResult.ok) return null;
-  const category = categoriesResult.data.find((c) => c.id === categoryId);
-  if (!category) return null;
+  const categoryResult = await getCategoryById(categoryId);
+  if (!categoryResult.ok) return null;
+  const category = categoryResult.data;
 
-  const productsResult = await getProductsByCategory(shopId, categoryId);
+  const productsResult = variant === "featured"
+    ? await getFeaturedProducts(shopId, categoryId, 4)
+    : await getProductsByCategory(shopId, categoryId);
   if (!productsResult.ok) return null;
   const products = productsResult.data;
 
@@ -61,7 +62,7 @@ const CollectionSection = async ({
                 {idx > 0 && <div className="absolute left-0 right-0 -mt-5 border-t border-neutral-100" />}
                 <div className="relative w-16 h-16 shrink-0 overflow-hidden bg-neutral-50">
                   {mainImage ? (
-                    <Image src={mainImage.url} alt={product.name} fill className="object-cover" unoptimized />
+                    <Image src={mainImage.url} alt={product.name} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-neutral-100" />
                   )}
@@ -110,7 +111,6 @@ const CollectionSection = async ({
                       alt={product.name}
                       fill
                       className="object-cover group-hover:opacity-90 transition-opacity duration-300"
-                      unoptimized
                     />
                   ) : (
                     <div className="w-full h-full bg-neutral-100" />
@@ -161,7 +161,6 @@ const CollectionSection = async ({
                     alt={product.name}
                     fill
                     className="object-cover group-hover:opacity-80 transition-opacity duration-200"
-                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full bg-neutral-100" />

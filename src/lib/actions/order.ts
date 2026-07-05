@@ -10,6 +10,9 @@ import { orderSchema, OrderFormData } from "../validations/order";
 import { OrderStatus } from "@/generated/prisma/client";
 import { sendOrderConfirmation, sendOrderStatusUpdate } from "../email";
 import { ShippingZone } from "./shop";
+import { assertOwnsShop } from "../auth/assert-owns-shop";
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 function calcShipping(
   subtotal: number,
@@ -74,7 +77,7 @@ export const createOrder = async (
         return { ...item, price: Number(v.price) };
       });
 
-      const subtotal = verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      const subtotal = round2(verifiedItems.reduce((sum, i) => sum + i.price * i.quantity, 0));
 
       // Apply coupon if provided — validate inside transaction for consistency
       let discount = 0;
@@ -84,20 +87,29 @@ export const createOrder = async (
         const coupon = await tx.coupon.findUnique({
           where: { shopId_code: { shopId, code } },
         });
-        if (
-          coupon &&
+        const isValid =
+          !!coupon &&
           coupon.isActive &&
           (!coupon.expiresAt || coupon.expiresAt >= new Date()) &&
-          (coupon.maxUses === null || coupon.usedCount < coupon.maxUses) &&
-          (coupon.minOrderAmount === null || subtotal >= Number(coupon.minOrderAmount))
-        ) {
-          discount =
-            coupon.type === "percentage"
-              ? Math.round(Math.min(subtotal, (subtotal * Number(coupon.value)) / 100) * 100) / 100
-              : Math.round(Math.min(subtotal, Number(coupon.value)) * 100) / 100;
-          couponId = coupon.id;
-          await tx.coupon.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } });
-        }
+          (coupon.minOrderAmount === null || subtotal >= Number(coupon.minOrderAmount));
+        if (!isValid) throw new Error("COUPON_INVALID");
+
+        discount =
+          coupon.type === "percentage"
+            ? round2(Math.min(subtotal, (subtotal * Number(coupon.value)) / 100))
+            : round2(Math.min(subtotal, Number(coupon.value)));
+        couponId = coupon.id;
+
+        // Atomic conditional increment — only succeeds if usage cap not already hit,
+        // closing the check-then-increment race under concurrent checkouts.
+        const claimed = await tx.coupon.updateMany({
+          where: {
+            id: coupon.id,
+            OR: [{ maxUses: null }, { usedCount: { lt: coupon.maxUses ?? 0 } }],
+          },
+          data: { usedCount: { increment: 1 } },
+        });
+        if (claimed.count === 0) throw new Error("COUPON_INVALID");
       }
 
       const shippingCost = calcShipping(
@@ -107,7 +119,7 @@ export const createOrder = async (
         Number(shopDetails.freeThreshold),
         (shopDetails.shippingZones as ShippingZone[]) ?? [],
       );
-      const total = subtotal - discount + shippingCost;
+      const total = round2(subtotal - discount + shippingCost);
 
       // Atomic stock check + decrement in one query per variant — prevents race conditions.
       // The WHERE clause (stock >= quantity) ensures we only decrement when stock is sufficient;
@@ -188,7 +200,7 @@ export const createOrder = async (
       // Email failure must not fail the order
     }
 
-    return ok({ id: order.id });
+    return ok({ id: order.id, total });
   } catch (e) {
     if (e instanceof Error && e.message.startsWith("INSUFFICIENT_STOCK:")) {
       const name = e.message.replace("INSUFFICIENT_STOCK:", "");
@@ -196,6 +208,13 @@ export const createOrder = async (
     }
     if (e instanceof Error && e.message === "FORBIDDEN") {
       return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid cart items", status: 403 });
+    }
+    if (e instanceof Error && e.message === "COUPON_INVALID") {
+      return err({
+        code: ErrorCode.GENERAL_ERROR,
+        message: "This coupon is no longer valid. Please remove it and try again.",
+        status: 409,
+      });
     }
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
   }
@@ -209,40 +228,49 @@ export const updateOrderStatus = async (
   if (!orderId || !status || !shopId)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
 
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   try {
-    const existing = await prisma.order.findUnique({
-      where: { id: orderId },
-      select: {
-        shopId: true,
-        status: true,
-        items: { select: { variantId: true, quantity: true } },
-      },
-    });
+    const order = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({
+        where: { id: orderId },
+        select: {
+          shopId: true,
+          status: true,
+          items: { select: { variantId: true, quantity: true } },
+        },
+      });
 
-    if (!existing || existing.shopId !== shopId)
-      return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+      if (!existing || existing.shopId !== shopId) throw new Error("ORDER_NOT_FOUND");
 
-    // Restore stock when moving to a non-fulfillment status, but only if we haven't
-    // already restored it (i.e. don't double-restore cancelled → refunded).
-    const shouldRestoreStock =
-      STOCK_RESTORING_STATUSES.includes(status) &&
-      !STOCK_RESTORING_STATUSES.includes(existing.status);
+      // Gate the transition on the order's CURRENT status so a concurrent/duplicate
+      // transition can't restore stock twice for the same order.
+      const updated = await tx.order.updateMany({
+        where: { id: orderId, shopId, status: existing.status },
+        data: { status },
+      });
+      if (updated.count === 0) throw new Error("ORDER_NOT_FOUND");
 
-    if (shouldRestoreStock) {
-      await Promise.all(
-        existing.items.map((item) =>
-          prisma.variant.updateMany({
-            where: { id: item.variantId, trackInventory: true },
-            data: { stock: { increment: item.quantity } },
-          }),
-        ),
-      );
-    }
+      const shouldRestoreStock =
+        STOCK_RESTORING_STATUSES.includes(status) &&
+        !STOCK_RESTORING_STATUSES.includes(existing.status);
 
-    const order = await prisma.order.update({
-      where: { id: orderId },
-      data: { status },
-      include: { shop: { select: { name: true, currency: true } } },
+      if (shouldRestoreStock) {
+        await Promise.all(
+          existing.items.map((item) =>
+            tx.variant.updateMany({
+              where: { id: item.variantId, trackInventory: true },
+              data: { stock: { increment: item.quantity } },
+            }),
+          ),
+        );
+      }
+
+      return tx.order.findUniqueOrThrow({
+        where: { id: orderId },
+        include: { shop: { select: { name: true, currency: true } } },
+      });
     });
 
     if (order.customerEmail) {

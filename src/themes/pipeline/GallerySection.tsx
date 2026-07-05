@@ -32,7 +32,6 @@ const GallerySection = ({
                 alt={img.alt ?? `Gallery image ${i + 1}`}
                 fill
                 className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                unoptimized
               />
             ) : (
               <div className="w-full h-full bg-neutral-100" />

@@ -35,11 +35,17 @@ const CountdownSection = ({
   buttonUrl = "/",
   background = "dark",
 }: Props) => {
-  const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [time, setTime] = useState(() => (endDate ? getTimeLeft(endDate) : { days: 0, hours: 0, minutes: 0, seconds: 0 }));
+  const [prevEndDate, setPrevEndDate] = useState(endDate);
+
+  // Recompute immediately when endDate changes, during render rather than in an effect.
+  if (endDate !== prevEndDate) {
+    setPrevEndDate(endDate);
+    setTime(endDate ? getTimeLeft(endDate) : { days: 0, hours: 0, minutes: 0, seconds: 0 });
+  }
 
   useEffect(() => {
     if (!endDate) return;
-    setTime(getTimeLeft(endDate));
     const id = setInterval(() => setTime(getTimeLeft(endDate)), 1000);
     return () => clearInterval(id);
   }, [endDate]);

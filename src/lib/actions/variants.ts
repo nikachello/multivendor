@@ -124,16 +124,26 @@ export async function updateVariants(
 ) {
   if (!updates.length) return ok(null);
 
-  // Auth once from the first variant
-  const shopId = await shopIdForVariant(updates[0].id);
-  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  // Resolve the owning shop for EVERY variant — must all belong to one shop the caller owns.
+  const rows = await prisma.variant.findMany({
+    where: { id: { in: updates.map((u) => u.id) } },
+    select: { id: true, product: { select: { shopId: true } } },
+  });
+  if (rows.length !== updates.length)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+
+  const shopIds = new Set(rows.map((r) => r.product.shopId));
+  if (shopIds.size !== 1)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 });
+
+  const [shopId] = shopIds;
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  await Promise.all(
+  await prisma.$transaction(
     updates.map((u) =>
-      prisma.variant.update({
-        where: { id: u.id },
+      prisma.variant.updateMany({
+        where: { id: u.id, product: { shopId } },
         data: { price: u.price, stock: u.stock, sku: u.sku, trackInventory: u.trackInventory },
       }),
     ),

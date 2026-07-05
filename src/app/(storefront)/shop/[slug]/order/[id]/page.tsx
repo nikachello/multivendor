@@ -126,7 +126,7 @@ export default async function OrderConfirmationPage({
               <li key={item.id} className="flex gap-4 p-4">
                 <div className="relative w-14 h-14 flex-shrink-0 bg-neutral-100 overflow-hidden rounded">
                   {item.image ? (
-                    <Image src={item.image} alt={item.productName} fill className="object-cover" unoptimized />
+                    <Image src={item.image} alt={item.productName} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-neutral-100" />
                   )}

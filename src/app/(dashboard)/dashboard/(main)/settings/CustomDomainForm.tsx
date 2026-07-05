@@ -21,7 +21,6 @@ export default function CustomDomainForm({
   initialVerified,
   isPro,
 }: Props) {
-  const [domain, setDomain] = useState(initialDomain ?? "");
   const [connectedDomain, setConnectedDomain] = useState(initialDomain);
   const [verified, setVerified] = useState(initialVerified);
   const [input, setInput] = useState("");
@@ -41,7 +40,6 @@ export default function CustomDomainForm({
         return;
       }
       setConnectedDomain(result.data.domain);
-      setDomain(result.data.domain);
       setVerified(false);
       setInput("");
       toast.success("Domain connected. Point your CNAME record to cname.vercel-dns.com");
@@ -56,7 +54,6 @@ export default function CustomDomainForm({
         return;
       }
       setConnectedDomain(null);
-      setDomain("");
       setVerified(false);
       toast.success("Custom domain removed");
     });
@@ -182,7 +179,7 @@ export default function CustomDomainForm({
                   </>
                 )}
                 <p className="text-[11px] text-blue-600 mt-1">
-                  DNS changes can take up to 48 hours to propagate. Click "Check" once saved.
+                  DNS changes can take up to 48 hours to propagate. Click &quot;Check&quot; once saved.
                 </p>
               </div>
             );

@@ -87,7 +87,6 @@ const CategoriesSection = async ({
                     alt={cat.name}
                     fill
                     className="object-cover group-hover:opacity-90 transition-opacity duration-300"
-                    unoptimized
                   />
                 )}
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
@@ -130,7 +129,6 @@ const CategoriesSection = async ({
                     alt={cat.name}
                     fill
                     className="object-cover group-hover:opacity-80 transition-opacity duration-200"
-                    unoptimized
                   />
                 )}
               </div>

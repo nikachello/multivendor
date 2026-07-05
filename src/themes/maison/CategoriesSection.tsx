@@ -91,7 +91,6 @@ const CategoriesSection = async ({
                     alt={cat.name}
                     fill
                     className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                    unoptimized
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
@@ -138,7 +137,6 @@ const CategoriesSection = async ({
                   alt={cat.name}
                   fill
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                  unoptimized
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />

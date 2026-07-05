@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ThemeConfig } from "@/themes/types";
-import { getCategoriesByShop, getProductsByCategory } from "@/lib/db/queries";
+import { getFeaturedProducts } from "@/lib/db/queries";
 
 type Props = {
   categoryId?: string;
@@ -27,12 +27,7 @@ const FeaturedProductSection = async ({
   if (!shopId || !shopSlug || !currency || !categoryId) return null;
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
 
-  const categoriesResult = await getCategoriesByShop(shopId);
-  if (!categoriesResult.ok) return null;
-  const category = categoriesResult.data.find((c) => c.id === categoryId);
-  if (!category) return null;
-
-  const productsResult = await getProductsByCategory(shopId, categoryId);
+  const productsResult = await getFeaturedProducts(shopId, categoryId, 1);
   if (!productsResult.ok) return null;
   const product = productsResult.data[0];
   if (!product) return null;
@@ -48,16 +43,16 @@ const FeaturedProductSection = async ({
         <div className="grid grid-cols-2 gap-3">
           <div className="relative w-full overflow-hidden bg-neutral-50" style={{ aspectRatio: "4/5" }}>
             {mainImage ? (
-              <Image src={mainImage.url} alt={product.name} fill className="object-cover" unoptimized />
+              <Image src={mainImage.url} alt={product.name} fill className="object-cover" />
             ) : (
               <div className="w-full h-full bg-neutral-100" />
             )}
           </div>
           <div className="relative w-full overflow-hidden bg-neutral-50 mt-10" style={{ aspectRatio: "4/5" }}>
             {secondImage ? (
-              <Image src={secondImage.url} alt={product.name} fill className="object-cover" unoptimized />
+              <Image src={secondImage.url} alt={product.name} fill className="object-cover" />
             ) : mainImage ? (
-              <Image src={mainImage.url} alt={product.name} fill className="object-cover opacity-60" unoptimized />
+              <Image src={mainImage.url} alt={product.name} fill className="object-cover opacity-60" />
             ) : (
               <div className="w-full h-full bg-neutral-50" />
             )}

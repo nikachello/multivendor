@@ -7,7 +7,8 @@ import { Store, Users, ShoppingBag, TrendingUp } from "lucide-react";
 export default async function AdminOverviewPage() {
   await assertAdmin();
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const [
     totalShops,

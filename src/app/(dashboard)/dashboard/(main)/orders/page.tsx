@@ -1,6 +1,5 @@
 import { getShop } from "@/lib/auth/get-shop";
 import { getOrdersByShop } from "@/lib/db/queries";
-import { OrderStatus } from "@/generated/prisma/client";
 import OrdersTable from "./OrdersTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";

@@ -3,6 +3,8 @@ import { Inter, Geist, Playfair_Display, Bodoni_Moda, Plus_Jakarta_Sans, Noto_Sa
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { getLocale, getDictionary } from "@/i18n";
+import { I18nProvider } from "@/i18n/context";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const inter = Inter({ subsets: ["latin"] });
@@ -43,19 +45,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const dict = await getDictionary(locale);
+
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={cn("font-sans", geist.variable, playfair.variable, bodoni.variable, jakarta.variable, notoGeorgian.variable)}
     >
       <body className={inter.className}>
-        {children}
+        <I18nProvider dict={dict} locale={locale}>
+          {children}
+        </I18nProvider>
         <Toaster />
       </body>
     </html>

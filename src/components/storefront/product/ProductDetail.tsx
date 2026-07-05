@@ -44,6 +44,9 @@ export default function ProductDetail({
       { id: product.id, name: product.name, price: Number(product.priceFrom) },
       currency,
     );
+  // sessionId/shopId intentionally excluded — this should fire once per product view,
+  // not re-fire if the analytics session resolves after mount.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id, product.name, product.priceFrom, currency]);
 
   function getVariantOptions(
@@ -140,7 +143,6 @@ export default function ProductDetail({
                 alt={product.name}
                 fill
                 className="object-cover"
-                unoptimized
                 onError={() => handleImgError("main")}
                 priority
               />
@@ -156,6 +158,8 @@ export default function ProductDetail({
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
+                  aria-label={`View image ${i + 1}`}
+                  aria-current={activeImage === i}
                   className={`relative aspect-square bg-neutral-100 overflow-hidden transition-opacity ${
                     activeImage === i
                       ? "ring-2 ring-black ring-offset-1"
@@ -168,7 +172,6 @@ export default function ProductDetail({
                       alt=""
                       fill
                       className="object-cover"
-                      unoptimized
                       onError={() => handleImgError(i)}
                     />
                   ) : (
@@ -203,15 +206,17 @@ export default function ProductDetail({
           {/* Variant options */}
           {Object.entries(optionGroups).map(([key, values]) => (
             <div key={key} className="mt-6">
-              <p className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-2">
+              <p id={`option-label-${key}`} className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-2">
                 {key}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div role="radiogroup" aria-labelledby={`option-label-${key}`} className="flex flex-wrap gap-2">
                 {values.map((val) => {
                   const active = selectedOptions[key] === val;
                   return (
                     <button
                       key={val}
+                      role="radio"
+                      aria-checked={active}
                       onClick={() => selectOption(key, val)}
                       className={`px-4 py-2 text-sm border transition-colors ${
                         active

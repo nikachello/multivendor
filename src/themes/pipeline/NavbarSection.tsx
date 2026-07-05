@@ -68,17 +68,22 @@ const NavbarSection = ({
               if (item.type === "group") {
                 return (
                   <li key={index} className="relative group">
-                    <span className="cursor-pointer flex items-center gap-1 whitespace-nowrap">
-                      {item.href ? (
-                        <Link href={item.href}>{item.label}</Link>
-                      ) : (
-                        item.label
-                      )}
-                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </span>
-                    <div className="absolute left-0 top-full pt-3 min-w-[200px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+                    {item.href ? (
+                      <Link href={item.href} className="cursor-pointer flex items-center gap-1 whitespace-nowrap">
+                        {item.label}
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </Link>
+                    ) : (
+                      <button type="button" aria-haspopup="true" className="cursor-pointer bg-transparent border-0 p-0 flex items-center gap-1 whitespace-nowrap">
+                        {item.label}
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    )}
+                    <div className="absolute left-0 top-full pt-3 min-w-[200px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150">
                       <div className="bg-white border border-neutral-100 shadow-lg py-2">
                         {item.children.map((child, i) =>
                           child.type === "link" ? (
@@ -152,7 +157,7 @@ const NavbarSection = ({
           <button
             onClick={() => setOpen(!open)}
             className="flex flex-col justify-center items-center w-8 h-8 gap-[5px]"
-            aria-label="Toggle menu"
+            aria-label="Toggle menu" aria-expanded={open}
           >
             <span className={`block h-px w-5 transition-all origin-center ${isLight ? "bg-white" : "bg-neutral-900"} ${open ? "rotate-45 translate-y-[6px]" : ""}`} />
             <span className={`block h-px w-5 transition-all ${isLight ? "bg-white" : "bg-neutral-900"} ${open ? "opacity-0" : ""}`} />

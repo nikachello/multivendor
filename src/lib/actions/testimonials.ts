@@ -5,6 +5,7 @@ import { assertOwnsShop } from "@/lib/auth/assert-owns-shop";
 import { err, ok } from "@/lib/result";
 import { ErrorCode } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
+import { testimonialSchema } from "@/lib/validators/testimonial";
 
 export type TestimonialInput = {
   name: string;
@@ -19,15 +20,19 @@ export async function createTestimonial(shopId: string, data: TestimonialInput) 
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const parsed = testimonialSchema.safeParse(data);
+  if (!parsed.success)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid testimonial data", status: 400 });
+
   const testimonial = await prisma.testimonial.create({
     data: {
       shopId,
-      name: data.name,
-      position: data.position ?? null,
-      testimony: data.testimony,
-      rating: data.rating ?? null,
-      isActive: data.isActive ?? true,
-      productId: data.productId ?? null,
+      name: parsed.data.name,
+      position: parsed.data.position ?? null,
+      testimony: parsed.data.testimony,
+      rating: parsed.data.rating ?? null,
+      isActive: parsed.data.isActive ?? true,
+      productId: parsed.data.productId ?? null,
     },
   });
 
@@ -43,6 +48,10 @@ export async function updateTestimonial(
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const parsed = testimonialSchema.safeParse(data);
+  if (!parsed.success)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid testimonial data", status: 400 });
+
   const existing = await prisma.testimonial.findUnique({ where: { id: testimonialId } });
   if (!existing || existing.shopId !== shopId) {
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
@@ -51,12 +60,12 @@ export async function updateTestimonial(
   const testimonial = await prisma.testimonial.update({
     where: { id: testimonialId },
     data: {
-      name: data.name,
-      position: data.position ?? null,
-      testimony: data.testimony,
-      rating: data.rating ?? null,
-      isActive: data.isActive ?? true,
-      productId: data.productId ?? null,
+      name: parsed.data.name,
+      position: parsed.data.position ?? null,
+      testimony: parsed.data.testimony,
+      rating: parsed.data.rating ?? null,
+      isActive: parsed.data.isActive ?? true,
+      productId: parsed.data.productId ?? null,
     },
   });
 

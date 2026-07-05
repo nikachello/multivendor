@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCategoriesByShop, getProductWithOptions } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
-import ProductForm from "../new/ProductForm";
 import ProductEditTabs from "./ProductEditTabs";
 import Breadcrumb from "@/components/dashboard/Breadcrumb";
 

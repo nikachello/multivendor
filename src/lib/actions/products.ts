@@ -5,6 +5,7 @@ import { ErrorCode } from "../errors";
 import { err, ok } from "../result";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 import { isProShop, FREE_PRODUCT_LIMIT } from "../subscription";
+import { productSchema } from "../validators/product";
 
 async function shopIdForProduct(productId: string) {
   const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
@@ -84,12 +85,16 @@ export const createProduct = async (
   price: number,
   categoryIds: string[],
 ) => {
-  if (!shopId || !name || !slug || !price)
+  if (!shopId)
     return err({
       code: ErrorCode.GENERAL_ERROR,
       message: "Some parameters are missing",
       status: 400,
     });
+  const parsed = productSchema.safeParse({ name, slug, description, price, categoryIds });
+  if (!parsed.success)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid product data", status: 400 });
+
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
@@ -108,11 +113,11 @@ export const createProduct = async (
   const product = await prisma.product.create({
     data: {
       shopId,
-      name,
-      slug,
-      description,
-      priceFrom: price,
-      categories: categoryIds.length ? { connect: categoryIds.map((id) => ({ id })) } : undefined,
+      name: parsed.data.name,
+      slug: parsed.data.slug,
+      description: parsed.data.description,
+      priceFrom: parsed.data.price,
+      categories: parsed.data.categoryIds.length ? { connect: parsed.data.categoryIds.map((id) => ({ id })) } : undefined,
     },
   });
 
@@ -127,12 +132,15 @@ export const updateProduct = async (
   price: number,
   categoryIds: string[],
 ) => {
-  if (!id || !name || !slug || !price)
+  if (!id)
     return err({
       code: ErrorCode.GENERAL_ERROR,
       message: "Some parameters are missing",
       status: 400,
     });
+  const parsed = productSchema.safeParse({ name, slug, description, price, categoryIds });
+  if (!parsed.success)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid product data", status: 400 });
 
   const shopId = await shopIdForProduct(id);
   if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
@@ -142,11 +150,11 @@ export const updateProduct = async (
   const product = await prisma.product.update({
     where: { id },
     data: {
-      name,
-      slug,
-      description,
-      priceFrom: price,
-      categories: { set: categoryIds.map((id) => ({ id })) },
+      name: parsed.data.name,
+      slug: parsed.data.slug,
+      description: parsed.data.description,
+      priceFrom: parsed.data.price,
+      categories: { set: parsed.data.categoryIds.map((id) => ({ id })) },
     },
   });
 

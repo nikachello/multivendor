@@ -10,3 +10,27 @@ export function getStorefrontUrl(slug: string): string {
     ? `https://${slug}.${ROOT_DOMAIN}`
     : `/shop/${slug}`;
 }
+
+/** Canonical public URL for a shop, honoring a verified custom domain. */
+export function getCanonicalShopUrl(
+  shop: { slug: string; customDomain?: string | null; domainVerified?: boolean },
+  path: string = "",
+): string {
+  const base =
+    shop.customDomain && shop.domainVerified
+      ? `https://${shop.customDomain}`
+      : getStorefrontUrl(shop.slug);
+  return `${base}${path}`;
+}
+
+/** Always-absolute canonical URL — for contexts (sitemaps) that can't resolve
+ *  a relative URL against metadataBase. Falls back to APP_URL + path in dev. */
+export function getAbsoluteCanonicalShopUrl(
+  shop: { slug: string; customDomain?: string | null; domainVerified?: boolean },
+  path: string = "",
+): string {
+  if (shop.customDomain && shop.domainVerified) return `https://${shop.customDomain}${path}`;
+  return APP_URL.startsWith("https://")
+    ? `https://${shop.slug}.${ROOT_DOMAIN}${path}`
+    : `${APP_URL}/shop/${shop.slug}${path}`;
+}

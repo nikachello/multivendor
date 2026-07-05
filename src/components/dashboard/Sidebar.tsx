@@ -24,6 +24,7 @@ import { useState } from "react";
 import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { getStorefrontUrl } from "@/lib/storefront-url";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 const NAV_GROUPS = [
   {
@@ -137,6 +138,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
           <Store className="w-[15px] h-[15px] shrink-0 text-gray-400" />
           View Store
         </a>
+        <LocaleSwitcher />
         <button
           onClick={handleLogout}
           className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] text-gray-500 hover:bg-gray-100/70 hover:text-gray-900 transition-all w-full text-left"

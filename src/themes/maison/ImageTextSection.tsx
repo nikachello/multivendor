@@ -22,7 +22,7 @@ const ImageTextSection = ({
       style={{ aspectRatio: "3/4", minHeight: 400 }}
     >
       {image ? (
-        <Image src={image} alt={title ?? ""} fill className="object-cover" unoptimized />
+        <Image src={image} alt={title ?? ""} fill className="object-cover" />
       ) : (
         <div className="w-full h-full" />
       )}

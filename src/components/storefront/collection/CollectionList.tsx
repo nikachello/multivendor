@@ -45,7 +45,6 @@ export default function CollectionList({ category, products, currency, shopSlug,
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      unoptimized
                     />
                   )}
                 </div>

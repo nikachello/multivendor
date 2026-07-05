@@ -1,4 +1,5 @@
-﻿import { err, ok, Result } from "@/lib/result";
+﻿import { cache } from "react";
+import { err, ok, Result } from "@/lib/result";
 import { ErrorCode } from "@/lib/errors";
 import { ShopSection } from "@/lib/types/store-section";
 import prisma from "./prisma";
@@ -70,7 +71,7 @@ function serializeProduct(p: RawProduct): ProductWithRelations {
 // SHOP
 // ============================================
 
-export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
+export const getShopBySlug = cache(async (slug: string): Promise<Result<Shop>> => {
   if (!slug) {
     return err({
       code: ErrorCode.SHOP_SLUG_MISSING,
@@ -95,7 +96,7 @@ export async function getShopBySlug(slug: string): Promise<Result<Shop>> {
   }
 
   return ok(shop);
-}
+});
 
 export async function getShopByOwnerId(ownerId: string) {
   if (!ownerId)
@@ -123,11 +124,14 @@ export async function getShopByOwnerId(ownerId: string) {
 
 export async function getAllShops() {
   return prisma.shop.findMany({
+    where: { isActive: true },
     select: {
       slug: true,
+      customDomain: true,
+      domainVerified: true,
       updatedAt: true,
-      products: { select: { slug: true, updatedAt: true } },
-      categories: { select: { slug: true, updatedAt: true } },
+      products: { where: { isActive: true }, select: { slug: true, updatedAt: true } },
+      categories: { where: { isActive: true }, select: { slug: true, updatedAt: true } },
     },
   });
 }
@@ -392,6 +396,33 @@ export async function getProductsByCategory(
 }
 
 // ============================================
+// FEATURED PRODUCTS (homepage sections — bounded fetch)
+// ============================================
+
+export async function getFeaturedProducts(
+  shopId: string,
+  categoryId: string,
+  take: number,
+): Promise<Result<ProductWithRelations[]>> {
+  if (!shopId || !categoryId) {
+    return err({
+      code: ErrorCode.CATEGORY_ID_MISSING,
+      message: "Shop id and category id are required",
+      status: 400,
+    });
+  }
+
+  const products = await prisma.product.findMany({
+    where: { shopId, categories: { some: { id: categoryId } }, isActive: true },
+    include: productInclude,
+    take,
+    orderBy: { createdAt: "desc" },
+  });
+
+  return ok(products.map(serializeProduct));
+}
+
+// ============================================
 // SHOP OPTION TYPE NAMES (for collection config UI)
 // ============================================
 
@@ -559,7 +590,7 @@ export async function getProductsByShop(
 
 export async function getTestimonialsByShop(
   shopId: string,
-): Promise<Result<any[]>> {
+): Promise<Result<Testimonial[]>> {
   if (!shopId) {
     return err({
       code: ErrorCode.SHOP_ID_MISSING,

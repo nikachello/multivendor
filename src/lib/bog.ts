@@ -91,11 +91,18 @@ export async function createBogOrder({
 
 export function verifyBogCallback(rawBody: string, signature: string | null): boolean {
   if (!signature) return false;
+  // Node's crypto module wants OpenSSL digest names ("RSA-SHA256"), not the
+  // Java/JCA name ("SHA256withRSA") — the latter threw "Invalid digest" here,
+  // which a broad try/catch previously swallowed into "false" for every call,
+  // silently killing all subscription billing. createVerify is left outside
+  // the try so a real config/algorithm error throws loudly instead of hiding
+  // as a 401. Only malformed attacker-supplied signature bytes are caught.
+  const verify = crypto.createVerify("RSA-SHA256");
+  verify.update(rawBody, "utf8");
   try {
-    const verify = crypto.createVerify("SHA256withRSA");
-    verify.update(rawBody, "utf8");
     return verify.verify(BOG_PUBLIC_KEY, signature, "base64");
-  } catch {
+  } catch (e) {
+    console.error("[bog] malformed callback signature:", e);
     return false;
   }
 }

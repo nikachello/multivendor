@@ -1,0 +1,373 @@
+<title>MultiStore — Audit Verdict</title>
+<style>
+  :root{
+    --ground:#eceef1; --surface:#ffffff; --panel:#181b22; --panel-2:#20242d;
+    --ink:#181b22; --muted:#5b6674; --faint:#8a94a2; --hair:#d8dce2;
+    --accent:#3a53c8;
+    --crit:#b42318; --crit-bg:#fbeeec;
+    --high:#bf520c; --high-bg:#fbf1e9;
+    --med:#916a0a; --med-bg:#f8f3e6;
+    --low:#556072; --low-bg:#eef0f3;
+    --good:#2f7d43;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  .wrap{background:var(--ground);color:var(--ink);font-family:var(--sans);
+    line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 0 4rem}
+  .col{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.2rem)}
+  .mono{font-family:var(--mono)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--faint)}
+
+  /* ---- hero / verdict ---- */
+  .hero{background:var(--panel);color:#eef0f3;padding:clamp(2rem,5vw,3.4rem) 0 clamp(1.6rem,4vw,2.6rem);
+    border-bottom:1px solid #000}
+  .hero .col{display:grid;gap:1.6rem}
+  .kicker{display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;align-items:baseline}
+  .kicker .eyebrow{color:#7f8b9c}
+  .target{font-family:var(--mono);font-size:.78rem;color:#9aa6b6}
+  .target a{color:#b9c4d6;text-decoration:none;border-bottom:1px solid #3a4152}
+  .verdict{display:grid;grid-template-columns:auto 1fr;gap:clamp(1.2rem,4vw,2.6rem);align-items:center}
+  .grade{font-family:var(--mono);font-weight:600;font-size:clamp(4.4rem,13vw,7rem);
+    line-height:.82;letter-spacing:-.03em;color:#fff}
+  .grade small{display:block;font-size:.7rem;letter-spacing:.14em;color:#8b97a8;
+    margin-top:.7rem;font-weight:400}
+  .thesis h1{font-family:var(--sans);font-weight:640;font-size:clamp(1.3rem,3vw,1.72rem);
+    line-height:1.22;letter-spacing:-.015em;text-wrap:balance;margin:0 0 .55rem}
+  .thesis p{margin:0;color:#b7c1cf;font-size:.98rem;max-width:60ch}
+  .thesis b{color:#e8ebf0;font-weight:600}
+
+  /* ---- tally ---- */
+  .tally{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#2c313b;
+    border:1px solid #2c313b;border-radius:10px;overflow:hidden;margin-top:.4rem}
+  .tally div{background:var(--panel-2);padding:.9rem 1rem}
+  .tally .n{font-family:var(--mono);font-size:1.9rem;font-weight:600;line-height:1}
+  .tally .l{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#8b97a8;margin-top:.4rem}
+  .tally .c-crit{color:#ff6b5e}.tally .c-high{color:#ff9e57}.tally .c-med{color:#e7c15a}.tally .c-low{color:#a9b4c4}
+
+  /* ---- ground truth strip ---- */
+  .gt{margin-top:2.2rem}
+  .gt-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem}
+  .chip{font-family:var(--mono);font-size:.74rem;background:var(--surface);border:1px solid var(--hair);
+    border-radius:7px;padding:.42rem .7rem;display:flex;gap:.5rem;align-items:center}
+  .chip .k{color:var(--muted)}.chip .v{font-weight:600}
+  .dot{width:.5rem;height:.5rem;border-radius:50%;flex:none}
+  .dot.ok{background:var(--good)}.dot.bad{background:var(--crit)}.dot.warn{background:var(--high)}
+
+  /* ---- sections ---- */
+  section{margin-top:2.6rem}
+  .h2{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem;
+    padding-bottom:.6rem;border-bottom:2px solid var(--ink)}
+  .h2 h2{font-size:1.16rem;font-weight:640;letter-spacing:-.01em;margin:0}
+  .h2 .note{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-left:auto}
+
+  /* ---- finding cards ---- */
+  .cards{display:grid;gap:.8rem}
+  .grp-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--muted);margin:1.3rem 0 .3rem}
+  .card{background:var(--surface);border:1px solid var(--hair);border-left:4px solid var(--low);
+    border-radius:9px;padding:.95rem 1.1rem}
+  .card.crit{border-left-color:var(--crit)}
+  .card.high{border-left-color:var(--high)}
+  .card-top{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem}
+  .sev{font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.09em;
+    padding:.2rem .5rem;border-radius:5px;text-transform:uppercase;white-space:nowrap}
+  .sev.crit{color:var(--crit);background:var(--crit-bg)}
+  .sev.high{color:var(--high);background:var(--high-bg)}
+  .tag{font-family:var(--mono);font-size:.66rem;color:var(--muted);
+    border:1px solid var(--hair);border-radius:5px;padding:.2rem .45rem}
+  .tag.v{color:var(--good);border-color:#bfe0c8;background:#f0f7f1}
+  .card h3{font-size:1.01rem;font-weight:620;margin:0 0 .3rem;letter-spacing:-.01em;text-wrap:balance}
+  .card .file{font-family:var(--mono);font-size:.76rem;color:var(--accent);word-break:break-all;display:block;margin-bottom:.45rem}
+  .card p{margin:0;font-size:.9rem;color:#33383f}
+  .card p + p{margin-top:.5rem}
+  .card .fix{color:var(--muted);font-size:.86rem}
+  .card .fix b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:.78rem}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  @media(max-width:760px){.two{grid-template-columns:1fr}.tally{grid-template-columns:repeat(2,1fr)}
+    .verdict{grid-template-columns:1fr;gap:1rem}}
+
+  /* ---- grades grid ---- */
+  .grades{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.7rem}
+  .gcard{background:var(--surface);border:1px solid var(--hair);border-radius:9px;
+    padding:.75rem .85rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+  .gcard span{font-size:.86rem;font-weight:520}
+  .gletter{font-family:var(--mono);font-weight:700;font-size:1.25rem;width:2.1rem;height:2.1rem;
+    display:grid;place-items:center;border-radius:7px;flex:none}
+  .gD{color:var(--high);background:var(--high-bg)}
+  .gC{color:var(--med);background:var(--med-bg)}
+  .gB{color:var(--good);background:#eef6f0}
+
+  /* ---- action plan ---- */
+  .plan{display:grid;gap:1rem}
+  .sprint{background:var(--surface);border:1px solid var(--hair);border-radius:10px;overflow:hidden}
+  .sprint-h{display:flex;align-items:center;gap:.7rem;padding:.7rem 1rem;background:#f4f5f7;border-bottom:1px solid var(--hair)}
+  .sprint-h .idx{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:.82rem}
+  .sprint-h h3{margin:0;font-size:.98rem;font-weight:620}
+  .sprint-h .when{margin-left:auto;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted)}
+  .sprint ol{margin:0;padding:.7rem 1rem .9rem 2.4rem;display:grid;gap:.4rem}
+  .sprint li{font-size:.9rem;color:#33383f}
+  .sprint li b{font-family:var(--mono);font-size:.8rem;color:var(--crit);font-weight:700}
+  .sprint li b.h{color:var(--high)}
+
+  .foot{margin-top:2.8rem;padding-top:1.1rem;border-top:1px solid var(--hair);
+    font-size:.8rem;color:var(--muted);max-width:75ch}
+  .foot b{color:var(--ink)}
+
+  @media(prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(8px);animation:rise .6s cubic-bezier(.2,.7,.3,1) forwards}
+    .hero .verdict{animation:rise .7s cubic-bezier(.2,.7,.3,1) both}
+    @keyframes rise{to{opacity:1;transform:none}}
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="col">
+      <div class="kicker">
+        <span class="eyebrow">Full-stack security &amp; quality audit</span>
+        <span class="target">multistore.ge &nbsp;·&nbsp; <a href="https://github.com/nikachello/multivendor">nikachello/multivendor</a> @ bedbef0 &nbsp;·&nbsp; 2026-07-05</span>
+      </div>
+
+      <div class="verdict">
+        <div class="grade">C&minus;<small>OVERALL GRADE</small></div>
+        <div class="thesis">
+          <h1>A real product with solid bones — but ship-blocking security defects for a live payments app.</h1>
+          <p>The checkout path is genuinely well-built and the metadata basics are there. Yet today <b>anyone can register as a platform admin</b>, several server actions leak or mutate other merchants' data, two stored-XSS vectors ship on public storefronts, and subscription billing is silently broken. Fix the auth model and the shared tenant-check pattern first.</p>
+        </div>
+      </div>
+
+      <div class="tally" role="list" aria-label="Findings by severity">
+        <div role="listitem"><div class="n c-crit">1</div><div class="l">Critical</div></div>
+        <div role="listitem"><div class="n c-high">13</div><div class="l">High</div></div>
+        <div role="listitem"><div class="n c-med">~24</div><div class="l">Medium</div></div>
+        <div role="listitem"><div class="n c-low">~20</div><div class="l">Low</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="col">
+
+    <section class="gt reveal">
+      <span class="eyebrow">Ground truth — measured on a fresh clone</span>
+      <div class="gt-row">
+        <div class="chip"><span class="dot ok"></span><span class="k">tsc</span><span class="v">0 errors</span></div>
+        <div class="chip"><span class="dot warn"></span><span class="k">eslint</span><span class="v">25 err / 29 warn</span></div>
+        <div class="chip"><span class="dot bad"></span><span class="k">next build</span><span class="v">fails /admin/orders w/o RESEND_API_KEY</span></div>
+        <div class="chip"><span class="dot warn"></span><span class="k">npm audit</span><span class="v">14 vulns · 5 high</span></div>
+        <div class="chip"><span class="dot bad"></span><span class="k">HTTP headers</span><span class="v">none (no CSP/HSTS/XFO)</span></div>
+        <div class="chip"><span class="dot ok"></span><span class="k">checkout txn</span><span class="v">atomic · server-priced</span></div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="h2"><h2>Critical</h2><span class="note">fix before next deploy</span></div>
+      <div class="cards">
+        <div class="card crit">
+          <div class="card-top">
+            <span class="sev crit">Critical</span>
+            <span class="tag v">verified</span>
+            <span class="tag">Privilege escalation</span>
+          </div>
+          <h3>Anyone can register as a platform admin (mass assignment on sign-up)</h3>
+          <span class="file">src/lib/auth/index.ts:49 — role: {"{ input: true }"}</span>
+          <p>The better-auth <span class="mono">role</span> field is declared user-writable, so <span class="mono">POST /api/auth/sign-up/email</span> with <span class="mono">{"{ role: \"admin\" }"}</span> creates a platform admin. <span class="mono">assertAdmin</span> trusts <span class="mono">session.user.role</span> verbatim → full access to every shop, user and order.</p>
+          <p class="fix"><b>Fix →</b> set <span class="mono">input:false</span>; assign roles only via an admin-gated action; add a create hook forcing non-privileged roles; <b>scan the User table for rogue admins now.</b></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="h2"><h2>High</h2><span class="note">13 findings · grouped by theme</span></div>
+
+      <div class="grp-label">Tenant isolation — server actions trust a client-supplied shopId</div>
+      <div class="cards two">
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>saveTheme — no ownership check at all</h3>
+          <span class="file">src/lib/actions/theme.ts:15</span>
+          <p>Public <span class="mono">"use server"</span> RPC; pass any <span class="mono">shopId</span> to overwrite that shop's colors/fonts → storefront defacement.</p>
+          <p class="fix"><b>Fix →</b> <span class="mono">assertOwnsShop(shopId)</span> before update.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>updateOrderStatus — trusts client shopId</h3>
+          <span class="file">src/lib/actions/order.ts:204</span>
+          <p>Only guard is <span class="mono">existing.shopId !== shopId</span> — two client values. Flip any order's status, restore its stock, email its customer.</p>
+          <p class="fix"><b>Fix →</b> derive shopId from session / <span class="mono">assertOwnsShop</span>.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>updateVariants — checks only updates[0]</h3>
+          <span class="file">src/lib/actions/variants.ts:122</span>
+          <p>Authorizes the first array element, then writes every id unscoped → overwrite any merchant's price/stock/SKU.</p>
+          <p class="fix"><b>Fix →</b> scope each write with <span class="mono">product: {"{ shopId }"}</span>.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>getCouponsByShop — cross-tenant read</h3>
+          <span class="file">src/lib/actions/coupons.ts:9</span>
+          <p>No auth on the read path; enumerate any merchant's codes, discounts, usage and expiry.</p>
+          <p class="fix"><b>Fix →</b> <span class="mono">assertOwnsShop</span> before findMany. Build a shared shopAction() wrapper.</p>
+        </div>
+      </div>
+
+      <div class="grp-label">Injection / XSS &amp; input validation</div>
+      <div class="cards two">
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Stored XSS via unvalidated analytics IDs</h3>
+          <span class="file">components/storefront/tracking/StorefrontGA4.tsx:24</span>
+          <p>Merchant <span class="mono">ga4/pixel/ads</span> IDs flow unvalidated into inline <span class="mono">gtag()</span> inside <span class="mono">dangerouslySetInnerHTML</span> → arbitrary JS on every shopper.</p>
+          <p class="fix"><b>Fix →</b> regex-validate IDs in updateShop; don't interpolate into script.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Stored XSS via product JSON-LD</h3>
+          <span class="file">…/product/[productSlug]/page.tsx:109</span>
+          <p><span class="mono">JSON.stringify(jsonLd)</span> doesn't escape <span class="mono">&lt;/script&gt;</span>; a crafted product name breaks out of the ld+json block.</p>
+          <p class="fix"><b>Fix →</b> escape <span class="mono">&lt; &gt; &amp;</span> to unicode; enforce productSchema.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Unauthenticated file uploads</h3>
+          <span class="file">src/lib/uploadthing.ts:7</span>
+          <p>All three routes have empty middleware — anyone can upload to the platform's uploadthing account; no tenant scoping.</p>
+          <p class="fix"><b>Fix →</b> require session + assertOwnsShop in each middleware.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>13 of 14 action files skip schema validation</h3>
+          <span class="file">src/lib/actions/*.ts</span>
+          <p>Only order.ts uses zod; existing validators are never imported server-side. Root enabler of the XSS + data-integrity bugs.</p>
+          <p class="fix"><b>Fix →</b> safeParse a zod schema at the top of every action.</p>
+        </div>
+      </div>
+
+      <div class="grp-label">Payments (Bank of Georgia)</div>
+      <div class="cards two">
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Billing is silently broken — no one can go Pro</h3>
+          <span class="file">src/lib/bog.ts:95 — createVerify("SHA256withRSA")</span>
+          <p>That's a Java algorithm name; Node throws <span class="mono">Invalid digest</span> (reproduced), swallowed by <span class="mono">catch{"{ return false }"}</span> → every callback rejected → paid merchants never activate.</p>
+          <p class="fix"><b>Fix →</b> use <span class="mono">"RSA-SHA256"</span>; log config errors as 500 not 401.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Callback has no idempotency or amount check</h3>
+          <span class="file">src/app/api/bog-callback/route.ts:42</span>
+          <p>Sets <span class="mono">now + 30d</span> on any signed <span class="mono">sub_</span> callback — no dedup, no amount/currency check. Once billing is fixed, one captured callback = permanent free Pro.</p>
+          <p class="fix"><b>Fix →</b> store BOG payment id + reject repeats; verify amount; extend additively.</p>
+        </div>
+      </div>
+
+      <div class="grp-label">Platform hardening &amp; discoverability</div>
+      <div class="cards two">
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified live</span></div>
+          <h3>No HTTP security headers</h3>
+          <span class="file">next.config.ts — no headers()</span>
+          <p>Live check: no CSP, HSTS, X-Frame-Options (clickjacking on checkout/dashboard), nosniff, or Referrer-Policy on any host.</p>
+          <p class="fix"><b>Fix →</b> add an <span class="mono">async headers()</span> block.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified live</span></div>
+          <h3>No canonical → duplicate content on 3 hosts</h3>
+          <span class="file">storefront generateMetadata (all pages)</span>
+          <p>Same store on apex-path, subdomain and custom domain with zero canonical; og:url + sitemap point to the wrong (apex) host. Suppresses every merchant's rankings.</p>
+          <p class="fix"><b>Fix →</b> absolute <span class="mono">alternates.canonical</span> via getStorefrontUrl.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag v">verified</span></div>
+          <h3>Storefront over-fetch + unoptimized images</h3>
+          <span class="file">themes/*/FeaturedProductSection.tsx · next.config.ts:5</span>
+          <p>Whole category loaded to show 1–4 products (no React.cache; shop fetched 3×); 55/60 images ship <span class="mono">unoptimized</span> (~1.2MB, ~6.6s load).</p>
+          <p class="fix"><b>Fix →</b> slim take:N queries + cache; whitelist *.ufs.sh, drop unoptimized.</p>
+        </div>
+        <div class="card high">
+          <div class="card-top"><span class="sev high">High</span><span class="tag">risk multiplier</span></div>
+          <h3>Zero tests, no CI on a payments/multi-tenant app</h3>
+          <span class="file">package.json — no test runner, no .github/workflows</span>
+          <p>Nothing guards the IDOR boundaries or the pricing math against regressions; lint never gates the build.</p>
+          <p class="fix"><b>Fix →</b> Vitest + a CI gate (tsc, eslint, audit, tests).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="h2"><h2>Where the time went</h2><span class="note">Medium &amp; Low, by area</span></div>
+      <div class="cards two">
+        <div class="card"><div class="card-top"><span class="sev" style="color:var(--med);background:var(--med-bg)">Medium ×8</span></div>
+          <h3>Correctness &amp; concurrency</h3>
+          <p>Coupon usage-limit TOCTOU race; non-transactional stock restore double-inflates inventory; <span class="mono">updateCoupon</span> wipes limits when toggling active; coupon silently dropped at checkout (customer overcharged).</p></div>
+        <div class="card"><div class="card-top"><span class="sev" style="color:var(--med);background:var(--med-bg)">Medium ×6</span></div>
+          <h3>Performance &amp; data layer</h3>
+          <p><span class="mono">Order</span> table has no indexes (seq scans); collection page filters in JS; storefront fully dynamic (no cache); N+1 variant inserts; analytics aggregated in Node.</p></div>
+        <div class="card"><div class="card-top"><span class="sev" style="color:var(--med);background:var(--med-bg)">Medium ×7</span></div>
+          <h3>Accessibility (WCAG)</h3>
+          <p>Checkout's 8 fields have no labels/autocomplete <span class="mono">(verified live)</span>; nav dropdowns keyboard-inaccessible; cart drawer no dialog/focus-trap; errors not announced; systemic low contrast.</p></div>
+        <div class="card"><div class="card-top"><span class="sev" style="color:var(--low);background:var(--low-bg)">Low ×20</span></div>
+          <h3>Hardening &amp; cleanup</h3>
+          <p>Weak password policy; 30-day sessions; float money math; env has no validation; <span class="mono">migrate deploy</span> in build; English-only checkout on a Georgian store; default README + committed .zip cruft.</p></div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="h2"><h2>Dimension grades</h2></div>
+      <div class="grades">
+        <div class="gcard"><span>Tenant isolation</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Authentication</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Payments (BOG)</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Injection / XSS</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Accessibility</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Dependencies / DevOps</span><span class="gletter gD">D</span></div>
+        <div class="gcard"><span>Correctness</span><span class="gletter gC">C</span></div>
+        <div class="gcard"><span>Performance</span><span class="gletter gC">C</span></div>
+        <div class="gcard"><span>SEO</span><span class="gletter gC">C</span></div>
+        <div class="gcard"><span>Code quality</span><span class="gletter gC">C</span></div>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <div class="h2"><h2>For your Claude Code — ordered plan</h2><span class="note">do Sprint 0 first</span></div>
+      <div class="plan">
+        <div class="sprint">
+          <div class="sprint-h"><span class="idx">00</span><h3>Security — ship-blocking</h3><span class="when">before deploy</span></div>
+          <ol>
+            <li><b>C1</b> — <span class="mono">input:false</span> on role; scan User table for rogue admins.</li>
+            <li>Build one <span class="mono">shopAction(schema, handler)</span> wrapper (session-derived shop + zod) and migrate <b class="h">H1–H4</b> (theme, order-status, variants, coupons) + every action taking client <span class="mono">shopId</span>.</li>
+            <li><b class="h">H7</b> auth on uploadthing; <b class="h">H5/H6/H8</b> validate inputs + escape JSON-LD.</li>
+            <li><b class="h">H9/H10</b> fix RSA-SHA256 + callback idempotency/amount; <b class="h">H11</b> security headers.</li>
+          </ol>
+        </div>
+        <div class="sprint">
+          <div class="sprint-h"><span class="idx">01</span><h3>Correctness · SEO · performance</h3><span class="when">next</span></div>
+          <ol>
+            <li>Coupon TOCTOU + null-wipe + transactional stock restore.</li>
+            <li><b class="h">H12</b> canonical URLs, absolute og:url/sitemap, <span class="mono">lang="ka"</span>, filter inactive.</li>
+            <li><b class="h">H13</b> slim queries + React.cache + whitelist <span class="mono">*.ufs.sh</span>; add Order indexes; cache storefront.</li>
+            <li>Lazy Resend; drop <span class="mono">migrate deploy</span> from build; env validation; npm <span class="mono">overrides</span>.</li>
+          </ol>
+        </div>
+        <div class="sprint">
+          <div class="sprint-h"><span class="idx">02</span><h3>Quality &amp; accessibility</h3><span class="when">then</span></div>
+          <ol>
+            <li>Vitest + CI gate; test createOrder pricing/stock &amp; each auth boundary first.</li>
+            <li>Label association, Radix Dialog cart, keyboard nav, role="alert", contrast, skip link.</li>
+            <li>Localize storefront/checkout to Georgian; fix the 25 ESLint errors; delete cruft; real README + .env.example.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <p class="foot">
+      <b>Method.</b> Ground-truth build/lint/audit on a fresh clone, a 37-agent multi-perspective code audit, live probing (Chrome + curl), and manual re-verification of every Critical/High security finding directly against the source — the file:line citations are real. The run's automated verifier misfired on some items (searched the wrong directory and wrongly flagged real bugs as "not found"), so each security-High was re-checked by hand. Active exploitation on production was intentionally avoided (real merchants &amp; payments); tenant isolation was proven from source. Full detail with exact fixes is in <b>AUDIT_REPORT.md</b>.
+    </p>
+
+  </div>
+</div>

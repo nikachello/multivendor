@@ -22,7 +22,7 @@ const CollageSection = ({
 }: Props) => {
   if (!items.length) return null;
 
-  const [first, second, third, fourth] = items;
+  const [first, second, third] = items;
 
   if (layout === "grid") {
     return (
@@ -77,7 +77,6 @@ function CollageCard({ item, aspectRatio }: { item: CollageItem; aspectRatio: st
           alt={item.title ?? ""}
           fill
           className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
-          unoptimized
         />
       ) : (
         <div className="w-full h-full bg-neutral-100" />

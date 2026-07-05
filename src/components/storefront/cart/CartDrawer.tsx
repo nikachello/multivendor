@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useId, useRef } from "react";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useCart } from "@/hooks/useCart";
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopId: string;
@@ -14,11 +16,24 @@ type Props = {
 
 export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
+  const t = useT();
+  const titleId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const cartOpen = useCartStore((s) => s.cartOpen);
   const setCartOpen = useCartStore((s) => s.setCartOpen);
   const { cart, remove, setQuantity } = useCart(shopId);
 
   const items = cart?.items ?? [];
+
+  useEffect(() => {
+    if (!cartOpen) return;
+    closeButtonRef.current?.focus();
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setCartOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [cartOpen, setCartOpen]);
 
   return (
     <>
@@ -34,19 +49,24 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
 
       {/* Drawer panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        inert={!cartOpen}
         className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${
           cartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-neutral-100">
-          <h2 className="text-sm font-semibold tracking-widest uppercase">
-            Your Cart
+          <h2 id={titleId} className="text-sm font-semibold tracking-widest uppercase">
+            {t("cart.title")}
           </h2>
           <button
+            ref={closeButtonRef}
             onClick={() => setCartOpen(false)}
             className="text-neutral-400 hover:text-black transition-colors"
-            aria-label="Close cart"
+            aria-label={t("cart.close")}
           >
             <svg
               className="w-5 h-5"
@@ -81,7 +101,7 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
                   d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
                 />
               </svg>
-              <p className="text-sm">Your cart is empty</p>
+              <p className="text-sm">{t("cart.empty")}</p>
             </div>
           ) : (
             <ul className="flex flex-col gap-5">
@@ -95,7 +115,6 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
                         alt={item.productName}
                         fill
                         className="object-cover"
-                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-neutral-300">
@@ -161,9 +180,10 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
                       </div>
                       <button
                         onClick={() => remove(item.variantId)}
+                        aria-label={`${t("cart.remove_item")}: ${item.productName}`}
                         className="text-xs text-neutral-400 hover:text-red-500 transition-colors"
                       >
-                        Remove
+                        {t("checkout.remove")}
                       </button>
                     </div>
                   </div>
@@ -177,7 +197,7 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
         {items.length > 0 && (
           <div className="px-5 py-5 border-t border-neutral-100 space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-neutral-500">Subtotal</span>
+              <span className="text-neutral-500">{t("cart.subtotal")}</span>
               <span className="font-semibold text-neutral-900">
                 {currency} {cart?.total.toFixed(2)}
               </span>
@@ -188,7 +208,7 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
               className="block w-full py-3.5 text-center text-sm tracking-widest uppercase hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
             >
-              Checkout
+              {t("cart.checkout")}
             </Link>
           </div>
         )}

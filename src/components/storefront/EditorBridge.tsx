@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const EditorBridge = () => {
   // Notify parent editor which page is currently loaded in the iframe

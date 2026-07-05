@@ -44,7 +44,7 @@ const MultiColumnSection = ({
             <div key={i} className="flex flex-col">
               {item.image && (
                 <div className="relative w-full mb-6 overflow-hidden bg-neutral-50" style={{ aspectRatio: "4/5" }}>
-                  <Image src={item.image} alt={item.title ?? ""} fill className="object-cover" unoptimized />
+                  <Image src={item.image} alt={item.title ?? ""} fill className="object-cover" />
                 </div>
               )}
               {item.title && (

@@ -61,7 +61,7 @@ const HighlightsSection = ({ items = [], variant = "icons-row", themeConfig }: P
             <div className="w-full border-t border-neutral-900 mb-6" />
             {item.imageUrl ? (
               <div className="relative w-6 h-6 mb-5 shrink-0">
-                <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" unoptimized />
+                <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" />
               </div>
             ) : (
               <span className="text-[10px] font-semibold tracking-widest uppercase text-neutral-300 mb-5">

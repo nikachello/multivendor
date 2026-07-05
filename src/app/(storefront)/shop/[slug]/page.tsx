@@ -8,6 +8,7 @@ import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import EditorBridge from "@/components/storefront/EditorBridge";
 import { getThemeConfig } from "@/themes";
 import { getShopBase } from "@/lib/shop-base";
+import { getCanonicalShopUrl } from "@/lib/storefront-url";
 
 export async function generateMetadata({
   params,
@@ -18,13 +19,15 @@ export async function generateMetadata({
   const result = await getShopBySlug(slug);
   if (!result.ok) return { title: "Not Found" };
   const shop = result.data;
+  const canonicalUrl = getCanonicalShopUrl(shop);
   return {
     title: shop.name,
     description: shop.description ?? undefined,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: shop.name,
       description: shop.description ?? undefined,
-      url: `/shop/${slug}`,
+      url: canonicalUrl,
       siteName: shop.name,
       type: "website",
     },

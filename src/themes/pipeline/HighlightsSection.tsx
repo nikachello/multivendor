@@ -21,7 +21,6 @@ const HighlightsSection = ({ items = [], variant = "icons-row", themeConfig }: P
                   alt={item.title ?? ""}
                   fill
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full bg-neutral-100" />
@@ -73,7 +72,7 @@ const HighlightsSection = ({ items = [], variant = "icons-row", themeConfig }: P
             <div className="w-full border-t-2 border-neutral-900 mb-8" />
             {item.imageUrl ? (
               <div className="relative w-5 h-5 mb-5 shrink-0">
-                <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" unoptimized />
+                <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" />
               </div>
             ) : (
               <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-neutral-300 mb-5">

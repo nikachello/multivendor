@@ -72,17 +72,17 @@ const NavbarSection = ({
                     {chevron}
                   </Link>
                 ) : (
-                  <span className={`cursor-pointer ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
+                  <button type="button" aria-haspopup="true" className={`cursor-pointer bg-transparent border-0 p-0 ${hoverColor} transition-colors duration-200 flex items-center gap-1 whitespace-nowrap`}>
                     {item.label}
                     {chevron}
-                  </span>
+                  </button>
                 );
 
                 if (hasMegaMenu) {
                   return (
                     <li key={index} className="relative group">
                       {trigger}
-                      <div className="absolute left-0 top-full pt-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                      <div className="absolute left-0 top-full pt-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                         <div className="bg-white border border-gray-100 shadow-xl rounded-sm flex divide-x divide-gray-100">
                           {standaloneLinks.length > 0 && (
                             <div className="min-w-[150px] py-3">
@@ -157,7 +157,7 @@ const NavbarSection = ({
                 return (
                   <li key={index} className="relative group">
                     {trigger}
-                    <div className="absolute left-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                    <div className="absolute left-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
                       <div className="bg-white border border-gray-100 shadow-xl rounded-sm overflow-hidden">
                         {item.children.map((child, i) =>
                           child.type === "link" ? (
@@ -222,7 +222,7 @@ const NavbarSection = ({
         <button
           onClick={() => setOpen(!open)}
           className="flex flex-col justify-center items-center w-8 h-8 gap-[5px] z-50"
-          aria-label="Toggle menu"
+          aria-label="Toggle menu" aria-expanded={open}
         >
           <span
             className={`block h-[1.5px] w-6 transition-all duration-300 origin-center ${

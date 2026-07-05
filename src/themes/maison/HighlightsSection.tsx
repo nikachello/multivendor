@@ -23,7 +23,7 @@ const HighlightsSection = ({ items = [], variant = "numbered", themeConfig }: Pr
               </p>
               {item.imageUrl && (
                 <div className="relative w-8 h-8 mb-6">
-                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" unoptimized />
+                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" />
                 </div>
               )}
               <h3 className={`${themeConfig.type.displayFont} text-lg font-light text-[var(--primary)] leading-snug`}>
@@ -48,7 +48,7 @@ const HighlightsSection = ({ items = [], variant = "numbered", themeConfig }: Pr
             <div key={i} className="flex flex-col py-10 md:py-0 md:px-12 first:pl-0 last:pr-0">
               {item.imageUrl ? (
                 <div className="relative w-8 h-8 mb-6">
-                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" unoptimized />
+                  <Image src={item.imageUrl} alt={item.title ?? ""} fill className="object-contain" />
                 </div>
               ) : (
                 <p className={`text-[11px] tracking-[0.18em] uppercase text-[var(--muted)] mb-6`}>

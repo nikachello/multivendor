@@ -13,6 +13,30 @@ type Props = {
   onSaved: () => void;
 };
 
+function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${on ? "bg-neutral-900" : "bg-neutral-200"}`}
+    >
+      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${on ? "translate-x-4" : "translate-x-1"}`} />
+    </button>
+  );
+}
+
+function Row({ label, hint, on, onToggle }: { label: string; hint: string; on: boolean; onToggle: () => void }) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-neutral-100 last:border-0">
+      <div>
+        <p className="text-xs font-medium text-neutral-800">{label}</p>
+        <p className="text-[11px] text-neutral-400 mt-0.5">{hint}</p>
+      </div>
+      <Toggle on={on} onToggle={onToggle} />
+    </div>
+  );
+}
+
 export default function CollectionPageSettings({ shopId, shopSlug, optionTypeNames, initial, onSaved }: Props) {
   const [showSort, setShowSort] = useState(initial.showSort);
   const [showPrice, setShowPrice] = useState(initial.showPrice);
@@ -25,7 +49,9 @@ export default function CollectionPageSettings({ shopId, shopSlug, optionTypeNam
 
   const isFirst = useRef(true);
   const onSavedRef = useRef(onSaved);
-  onSavedRef.current = onSaved;
+  useEffect(() => {
+    onSavedRef.current = onSaved;
+  });
 
   const configKey = JSON.stringify({
     showSort,
@@ -58,26 +84,6 @@ export default function CollectionPageSettings({ shopId, shopSlug, optionTypeNam
       return next;
     });
   }
-
-  const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${on ? "bg-neutral-900" : "bg-neutral-200"}`}
-    >
-      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${on ? "translate-x-4" : "translate-x-1"}`} />
-    </button>
-  );
-
-  const Row = ({ label, hint, on, onToggle }: { label: string; hint: string; on: boolean; onToggle: () => void }) => (
-    <div className="flex items-center justify-between py-3 border-b border-neutral-100 last:border-0">
-      <div>
-        <p className="text-xs font-medium text-neutral-800">{label}</p>
-        <p className="text-[11px] text-neutral-400 mt-0.5">{hint}</p>
-      </div>
-      <Toggle on={on} onToggle={onToggle} />
-    </div>
-  );
 
   return (
     <div className="flex flex-col gap-0 p-5">

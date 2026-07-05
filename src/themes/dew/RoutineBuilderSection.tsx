@@ -20,7 +20,8 @@ export default function RoutineBuilderSection({
   function toggle(i: number) {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
       return next;
     });
   }
@@ -76,7 +77,7 @@ export default function RoutineBuilderSection({
                     }}
                   >
                     {item.image && (
-                      <Image src={item.image} alt={item.name} width={56} height={56} className="w-full h-full object-cover" unoptimized />
+                      <Image src={item.image} alt={item.name} width={56} height={56} className="w-full h-full object-cover" />
                     )}
                   </div>
 

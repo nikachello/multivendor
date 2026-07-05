@@ -17,6 +17,7 @@ import { ShopSection } from "@/lib/types/store-section";
 import Section from "@/components/storefront/layout/Section";
 import EditorBridge from "@/components/storefront/EditorBridge";
 import { getShopBase } from "@/lib/shop-base";
+import { getCanonicalShopUrl } from "@/lib/storefront-url";
 
 const KNOWN_PARAMS = new Set(["sort", "page", "minPrice", "maxPrice", "inStock"]);
 const PAGE_SIZE = 24;
@@ -33,13 +34,15 @@ export async function generateMetadata({
   if (!categoryResult.ok) return { title: "Not Found" };
   const category = categoryResult.data;
   const shop = shopResult.data;
+  const canonicalUrl = getCanonicalShopUrl(shop, `/collections/${categorySlug}`);
   return {
     title: `${category.name} — ${shop.name}`,
     description: category.description ?? undefined,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${category.name} — ${shop.name}`,
       description: category.description ?? undefined,
-      url: `/shop/${slug}/collections/${categorySlug}`,
+      url: canonicalUrl,
       siteName: shop.name,
       type: "website",
       ...(category.image && { images: [{ url: category.image, alt: category.name }] }),

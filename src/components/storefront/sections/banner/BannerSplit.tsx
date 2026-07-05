@@ -31,7 +31,6 @@ export default function BannerSplit({
             fill
             className="object-cover"
             style={{ objectPosition: imagePosition }}
-            unoptimized
           />
         )}
       </div>

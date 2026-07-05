@@ -43,7 +43,6 @@ const LogoListSection = ({
                 alt={logo.alt ?? `Logo ${i + 1}`}
                 fill
                 className="object-contain"
-                unoptimized
               />
             </div>
           ))}

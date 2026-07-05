@@ -22,7 +22,7 @@ const ImageTextSection = ({
       style={{ aspectRatio: "4/5", borderRadius: "var(--radius)" }}
     >
       {image ? (
-        <Image src={image} alt={title ?? ""} fill className="object-cover" unoptimized />
+        <Image src={image} alt={title ?? ""} fill className="object-cover" />
       ) : (
         <div className="w-full h-full bg-[var(--subtle)]" />
       )}

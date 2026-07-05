@@ -23,7 +23,6 @@ import {
 
 import { ShopSection } from "@/lib/types/store-section";
 import { getThemeSectionMeta } from "@/themes/editorMeta";
-import { SectionMeta } from "@/themes/types";
 import SortableSectionRow from "./SortableSectionRow";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import StorefrontPreview from "./StorefrontPreview";
@@ -127,7 +126,6 @@ export default function SectionEditor({
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePage, shopSlug]);
 
   useEffect(() => {

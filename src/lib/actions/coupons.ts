@@ -7,6 +7,9 @@ import { assertOwnsShop } from "../auth/assert-owns-shop";
 import { CouponType } from "@/generated/prisma/client";
 
 export async function getCouponsByShop(shopId: string) {
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
   const coupons = await prisma.coupon.findMany({
     where: { shopId },
     orderBy: { createdAt: "desc" },
@@ -62,14 +65,20 @@ export async function updateCoupon(
   try { await assertOwnsShop(coupon.shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const patch: {
+    isActive?: boolean;
+    maxUses?: number | null;
+    expiresAt?: Date | null;
+    minOrderAmount?: number | null;
+  } = {};
+  if (data.isActive !== undefined) patch.isActive = data.isActive;
+  if (data.maxUses !== undefined) patch.maxUses = data.maxUses;
+  if (data.expiresAt !== undefined) patch.expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
+  if (data.minOrderAmount !== undefined) patch.minOrderAmount = data.minOrderAmount;
+
   const updated = await prisma.coupon.update({
     where: { id: couponId },
-    data: {
-      isActive: data.isActive,
-      maxUses: data.maxUses ?? null,
-      expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-      minOrderAmount: data.minOrderAmount ?? null,
-    },
+    data: patch,
   });
   return ok(updated);
 }

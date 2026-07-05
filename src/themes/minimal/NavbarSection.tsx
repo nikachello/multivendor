@@ -67,18 +67,18 @@ const NavbarSection = ({
                       </svg>
                     </Link>
                   ) : (
-                    <span className={`cursor-pointer ${hoverColor} transition-colors flex items-center gap-1 whitespace-nowrap`}>
+                    <button type="button" aria-haspopup="true" className={`cursor-pointer bg-transparent border-0 p-0 ${hoverColor} transition-colors flex items-center gap-1 whitespace-nowrap`}>
                       {item.label}
                       <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
-                    </span>
+                    </button>
                   );
 
                   return (
                     <li key={index} className="relative group">
                       {trigger}
-                      <div className="absolute right-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                      <div className="absolute right-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
                         <div className={`${dropdownBg} py-1`}>
                           {item.children.map((child, i) =>
                             child.type === "link" ? (
@@ -166,7 +166,7 @@ const NavbarSection = ({
           <button
             onClick={() => setOpen(!open)}
             className="flex flex-col justify-center items-center w-8 h-8 gap-[5px]"
-            aria-label="Toggle menu"
+            aria-label="Toggle menu" aria-expanded={open}
           >
             <span className={`block h-px w-5 transition-all origin-center ${transparent ? "bg-white" : "bg-zinc-900"} ${open ? "rotate-45 translate-y-[6px]" : ""}`} />
             <span className={`block h-px w-5 transition-all ${transparent ? "bg-white" : "bg-zinc-900"} ${open ? "opacity-0" : ""}`} />

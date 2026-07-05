@@ -247,7 +247,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Remove "{ot?.name}" option?</h2>
+                <h2 className="text-sm font-semibold text-gray-900">Remove &quot;{ot?.name}&quot; option?</h2>
                 <p className="text-sm text-gray-500 mt-1">
                   This removes the option from this product. Existing variants may become inconsistent and should be regenerated.
                 </p>

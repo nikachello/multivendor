@@ -47,10 +47,10 @@ const NavbarSection = ({
               if (item.type === "group") {
                 return (
                   <li key={i} className="relative group">
-                    <span className="font-jakarta text-[14px] font-medium text-[#2C2530] hover:text-[var(--accent)] transition-colors cursor-pointer">
+                    <button type="button" aria-haspopup="true" className="font-jakarta text-[14px] font-medium text-[#2C2530] hover:text-[var(--accent)] transition-colors cursor-pointer bg-transparent border-0 p-0">
                       {item.label}
-                    </span>
-                    <div className="absolute left-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                    </button>
+                    <div className="absolute left-0 top-full pt-2 min-w-[180px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
                       <div className="bg-[var(--page-bg)] border border-[var(--subtle)] rounded-xl overflow-hidden shadow-sm">
                         {item.children.map((child, j) =>
                           child.type === "link" ? (
@@ -143,6 +143,7 @@ const NavbarSection = ({
             onClick={() => setOpen(!open)}
             className="flex flex-col justify-center items-center gap-[5px]"
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
             <span className={`block h-[1.5px] w-5 bg-[#2C2530] transition-all origin-center ${open ? "rotate-45 translate-y-[6.5px]" : ""}`} />
             <span className={`block h-[1.5px] w-5 bg-[#2C2530] transition-all ${open ? "opacity-0" : ""}`} />
@@ -175,6 +176,7 @@ const NavbarSection = ({
                   <button
                     onClick={() => setOpenGroup(isGroupOpen ? null : i)}
                     className="w-full flex items-center justify-between py-4 font-jakarta text-[14px] font-medium text-[#2C2530]"
+                    aria-expanded={isGroupOpen}
                   >
                     {item.label}
                     <span className={`text-[var(--muted)] transition-transform text-xl leading-none ${isGroupOpen ? "rotate-45" : ""}`}>+</span>
