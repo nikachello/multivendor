@@ -103,8 +103,8 @@ export const createProduct = async (
     const count = await prisma.product.count({ where: { shopId } });
     if (count >= FREE_PRODUCT_LIMIT) {
       return err({
-        code: ErrorCode.GENERAL_ERROR,
-        message: `Free plan is limited to ${FREE_PRODUCT_LIMIT} products. Upgrade to Pro to add more.`,
+        code: ErrorCode.PLAN_LIMIT_REACHED,
+        message: String(FREE_PRODUCT_LIMIT),
         status: 403,
       });
     }

@@ -27,6 +27,9 @@ type Props = {
   testimonials: Testimonial[];
   products: Product[];
   shopId: string;
+  atLimit: boolean;
+  isPro: boolean;
+  freeLimit: number;
 };
 
 const EMPTY_FORM: TestimonialInput & { id?: string } = {
@@ -80,6 +83,9 @@ export default function TestimonialsClient({
   testimonials: initial,
   products,
   shopId,
+  atLimit,
+  isPro,
+  freeLimit,
 }: Props) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(initial);
   const [modalOpen, setModalOpen] = useState(false);
@@ -187,13 +193,24 @@ export default function TestimonialsClient({
 
   return (
     <>
-      <div className="flex justify-end">
-        <button
-          onClick={openAdd}
-          className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
-        >
-          {t("dashboard.testimonials.add")}
-        </button>
+      <div className="flex items-center justify-between gap-4">
+        {atLimit && (
+          <p className="text-xs text-gray-500">
+            {t("dashboard.testimonials.limit_reached").replace("{limit}", String(freeLimit))}{" "}
+            <a href="/dashboard/billing" className="underline font-medium text-gray-700 hover:text-gray-900">
+              {t("dashboard.testimonials.upgrade_prompt")}
+            </a>
+          </p>
+        )}
+        <div className="ml-auto">
+          <button
+            onClick={atLimit ? undefined : openAdd}
+            disabled={atLimit}
+            className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {t("dashboard.testimonials.add")}
+          </button>
+        </div>
       </div>
 
       {testimonials.length === 0 ? (

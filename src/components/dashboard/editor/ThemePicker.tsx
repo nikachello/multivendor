@@ -9,6 +9,7 @@ type Props = {
   shopId: string;
   activeThemeId: string;
   onSwitch: (newThemeId: string) => void;
+  isPro: boolean;
 };
 
 function ThemePreview({ themeId }: { themeId: string }) {
@@ -80,20 +81,23 @@ function ThemePreview({ themeId }: { themeId: string }) {
   return <div className="w-full h-full bg-neutral-100" />;
 }
 
-export default function ThemePicker({ shopId, activeThemeId, onSwitch }: Props) {
+export default function ThemePicker({ shopId, activeThemeId, onSwitch, isPro }: Props) {
   const [pending, setPending] = useState<string | null>(null);
 
   async function handleSelect(themeId: string) {
     if (themeId === activeThemeId || pending) return;
-    setPending(themeId);
-    try {
-      await updateShopTheme(shopId, themeId);
-      onSwitch(themeId);
-    } catch {
-      toast.error("Failed to switch theme");
-    } finally {
-      setPending(null);
+    if (!isPro && themeId !== "minimal") {
+      toast.error("Upgrade to Pro to use this theme.");
+      return;
     }
+    setPending(themeId);
+    const result = await updateShopTheme(shopId, themeId);
+    setPending(null);
+    if (!result || !result.ok) {
+      toast.error("Failed to switch theme");
+      return;
+    }
+    onSwitch(themeId);
   }
 
   return (
@@ -105,6 +109,7 @@ export default function ThemePicker({ shopId, activeThemeId, onSwitch }: Props) 
         {THEMES_META.map((theme) => {
           const isActive = theme.id === activeThemeId;
           const isSaving = pending === theme.id;
+          const isLocked = !isPro && theme.id !== "minimal" && theme.available;
 
           return (
             <button
@@ -132,7 +137,17 @@ export default function ThemePicker({ shopId, activeThemeId, onSwitch }: Props) 
                 {!theme.available && (
                   <p className="text-[9px] text-neutral-400 mt-0.5">Coming soon</p>
                 )}
+                {isLocked && (
+                  <p className="text-[9px] text-neutral-400 mt-0.5">Pro</p>
+                )}
               </div>
+
+              {/* PRO badge overlay */}
+              {isLocked && (
+                <div className="absolute top-1.5 right-1.5">
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 bg-neutral-900 text-white rounded-full">PRO</span>
+                </div>
+              )}
 
               {/* Active checkmark */}
               {isActive && (

@@ -189,15 +189,14 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
       return;
     }
     setPending(themeId);
-    try {
-      await updateShopTheme(shopId, themeId);
-      setCurrentThemeId(themeId);
-      toast.success(t("dashboard.themes.activated"));
-    } catch {
+    const result = await updateShopTheme(shopId, themeId);
+    setPending(null);
+    if (!result || !result.ok) {
       toast.error(t("dashboard.themes.activate_failed"));
-    } finally {
-      setPending(null);
+      return;
     }
+    setCurrentThemeId(themeId);
+    toast.success(t("dashboard.themes.activated"));
   }
 
   return (

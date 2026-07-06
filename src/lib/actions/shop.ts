@@ -31,7 +31,16 @@ export async function updateShipping(
 ) {
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
-  await prisma.shop.update({ where: { id: shopId }, data });
+
+  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  const isPro = isProShop(shopData?.subscriptionPaidUntil);
+
+  if (!isPro && data.shippingZones.length > 0) {
+    return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: "City rate overrides require a Pro subscription.", status: 403 });
+  }
+
+  await prisma.shop.update({ where: { id: shopId }, data: { ...data, shippingZones: isPro ? data.shippingZones : [] } });
+  return ok(null);
 }
 
 export async function updateShopTheme(shopId: string, themeId: string) {
@@ -40,11 +49,12 @@ export async function updateShopTheme(shopId: string, themeId: string) {
   if (themeId !== FREE_THEME) {
     const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
     if (!isProShop(shopData?.subscriptionPaidUntil)) {
-      throw new Error("Pro subscription required to use this theme.");
+      return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: "Pro subscription required to use this theme.", status: 403 });
     }
   }
   const { defaults } = getThemeConfig(themeId);
   await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
+  return ok(null);
 }
 
 const GA4_ID_RE = /^G-[A-Z0-9]{4,12}$/;

@@ -10,6 +10,7 @@ import { productSchema } from "@/lib/validators/product";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import { createCategory } from "@/lib/actions/categories";
 import { useT } from "@/i18n/context";
+import { ErrorCode } from "@/lib/errors";
 
 type Category = { id: string; name: string };
 
@@ -93,7 +94,19 @@ export default function ProductForm({
         );
 
     if (!result || !result.ok) {
-      toast.error(isEditing ? t("dashboard.product_form.update_failed") : t("dashboard.product_form.create_failed"));
+      if (result?.error?.code === ErrorCode.PLAN_LIMIT_REACHED) {
+        const limit = result.error.message;
+        toast.error(
+          <span>
+            {t("dashboard.products.limit_reached").replace("{limit}", limit)}{" "}
+            <a href="/dashboard/billing" className="underline font-medium">
+              {t("dashboard.products.upgrade_prompt")}
+            </a>
+          </span>,
+        );
+      } else {
+        toast.error(isEditing ? t("dashboard.product_form.update_failed") : t("dashboard.product_form.create_failed"));
+      }
       return;
     }
     toast.success(isEditing ? t("dashboard.product_form.updated") : t("dashboard.product_form.created"));

@@ -4,4 +4,5 @@ export function isProShop(subscriptionPaidUntil: Date | null | undefined): boole
 }
 
 export const FREE_PRODUCT_LIMIT = 5;
+export const FREE_TESTIMONIAL_LIMIT = 5;
 export const FREE_THEME = "minimal";

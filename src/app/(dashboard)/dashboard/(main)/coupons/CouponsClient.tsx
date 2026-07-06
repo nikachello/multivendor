@@ -14,6 +14,7 @@ type Props = {
   shopId: string;
   currency: string;
   coupons: Coupon[];
+  isPro: boolean;
 };
 
 const EMPTY_FORM = {
@@ -46,6 +47,7 @@ export default function CouponsClient({
   shopId,
   currency,
   coupons: initial,
+  isPro,
 }: Props) {
   const [coupons, setCoupons] = useState<Coupon[]>(initial);
   const [showForm, setShowForm] = useState(false);
@@ -115,6 +117,23 @@ export default function CouponsClient({
     }
     setCoupons((prev) => prev.filter((c) => c.id !== id));
     toast.success(t("dashboard.coupons.deleted"));
+  }
+
+  if (!isPro) {
+    return (
+      <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-4 bg-gray-50">
+        <div>
+          <p className="text-sm font-medium text-gray-700">{t("dashboard.coupons.pro_feature")}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{t("dashboard.coupons.pro_locked")}</p>
+        </div>
+        <a
+          href="/dashboard/billing"
+          className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap"
+        >
+          {t("dashboard.coupons.upgrade")}
+        </a>
+      </div>
+    );
   }
 
   return (

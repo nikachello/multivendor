@@ -120,7 +120,9 @@
       "total": "total",
       "new_product": "+ New product",
       "search_placeholder": "Search products…",
-      "no_products": "No products found."
+      "no_products": "No products found.",
+      "limit_reached": "Free plan is limited to {limit} products.",
+      "upgrade_prompt": "Upgrade to Pro to add more."
     },
     "billing": {
       "title": "Billing",
@@ -290,7 +292,11 @@
       "percent_max": "Percentage cannot exceed 100",
       "update_failed": "Failed to update",
       "delete_failed": "Failed to delete",
-      "deleted": "Coupon deleted"
+      "deleted": "Coupon deleted",
+      "subtitle": "Create discount codes for your customers",
+      "pro_feature": "Coupons & Discounts",
+      "pro_locked": "Discount codes require a Pro subscription.",
+      "upgrade": "Upgrade to Pro →"
     },
     "shipping": {
       "title": "Shipping",
@@ -307,7 +313,9 @@
       "free_above": "Free above {currency} {threshold}",
       "saving": "Saving…",
       "save": "Save",
-      "saved": "Shipping settings saved"
+      "saved": "Shipping settings saved",
+      "city_rates_locked": "City rate overrides require the Pro plan.",
+      "city_rates_upgrade": "Upgrade to Pro →"
     },
     "themes": {
       "title": "Themes",
@@ -372,7 +380,10 @@
       "deleted": "Testimonial deleted",
       "update_failed": "Failed to update",
       "no_rating": "No rating",
-      "unknown_product": "Unknown product"
+      "unknown_product": "Unknown product",
+      "total": "total",
+      "limit_reached": "Free plan is limited to {limit} testimonials.",
+      "upgrade_prompt": "Upgrade to Pro to add more."
     },
     "settings_form": {
       "name_required": "Name is required",

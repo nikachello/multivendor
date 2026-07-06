@@ -6,6 +6,7 @@ import { err, ok } from "@/lib/result";
 import { ErrorCode } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 import { testimonialSchema } from "@/lib/validators/testimonial";
+import { isProShop, FREE_TESTIMONIAL_LIMIT } from "@/lib/subscription";
 
 export type TestimonialInput = {
   name: string;
@@ -19,6 +20,14 @@ export type TestimonialInput = {
 export async function createTestimonial(shopId: string, data: TestimonialInput) {
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  if (!isProShop(shopData?.subscriptionPaidUntil)) {
+    const count = await prisma.testimonial.count({ where: { shopId } });
+    if (count >= FREE_TESTIMONIAL_LIMIT) {
+      return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: String(FREE_TESTIMONIAL_LIMIT), status: 403 });
+    }
+  }
 
   const parsed = testimonialSchema.safeParse(data);
   if (!parsed.success)

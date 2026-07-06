@@ -4,6 +4,7 @@ import prisma from "../db/prisma";
 import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
+import { isProShop } from "../subscription";
 import { CouponType } from "@/generated/prisma/client";
 
 export async function getCouponsByShop(shopId: string) {
@@ -30,6 +31,11 @@ export async function createCoupon(
 ) {
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  if (!isProShop(shopData?.subscriptionPaidUntil)) {
+    return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: "Coupons require a Pro subscription.", status: 403 });
+  }
 
   const code = data.code.trim().toUpperCase();
   if (!code) return err({ code: ErrorCode.GENERAL_ERROR, message: "Code is required", status: 400 });

@@ -12,6 +12,7 @@ type Props = {
   initialThreshold: number;
   initialZones: ShippingZone[];
   currency: string;
+  isPro: boolean;
 };
 
 export default function ShippingForm({
@@ -20,6 +21,7 @@ export default function ShippingForm({
   initialThreshold,
   initialZones,
   currency,
+  isPro,
 }: Props) {
   const [defaultRate, setDefaultRate] = useState(initialRate);
   const [threshold, setThreshold] = useState(initialThreshold);
@@ -107,66 +109,83 @@ export default function ShippingForm({
           {t("dashboard.shipping.city_rates_desc")}
         </p>
 
-        {zones.length > 0 && (
-          <div className="border border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden shadow-sm">
-            {zones.map((zone) => (
-              <div
-                key={zone.city_en}
-                className="flex items-center gap-3 px-4 py-2.5"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-neutral-900">
-                    {zone.city_ka}
-                  </p>
-                  <p className="text-xs text-neutral-400">{zone.city_en}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={zone.rate}
-                    onChange={(e) =>
-                      updateZoneRate(zone.city_en, Number(e.target.value))
-                    }
-                    className="border border-gray-200 rounded-md px-2 py-1 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm w-24 text-right bg-white"
-                  />
-                  <span className="text-xs text-neutral-400 w-6">
-                    {currency}
-                  </span>
-                </div>
-                <button
-                  onClick={() => removeZone(zone.city_en)}
-                  className="text-neutral-300 hover:text-red-400 transition-colors text-lg leading-none ml-1"
-                >
-                  Ã—
-                </button>
-              </div>
-            ))}
+        {!isPro ? (
+          <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-4 bg-gray-50">
+            <div>
+              <p className="text-sm font-medium text-gray-700">{t("dashboard.shipping.city_rates")}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{t("dashboard.shipping.city_rates_locked")}</p>
+            </div>
+            <a
+              href="/dashboard/billing"
+              className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap"
+            >
+              {t("dashboard.shipping.city_rates_upgrade")}
+            </a>
           </div>
-        )}
+        ) : (
+          <>
+            {zones.length > 0 && (
+              <div className="border border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden shadow-sm">
+                {zones.map((zone) => (
+                  <div
+                    key={zone.city_en}
+                    className="flex items-center gap-3 px-4 py-2.5"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-neutral-900">
+                        {zone.city_ka}
+                      </p>
+                      <p className="text-xs text-neutral-400">{zone.city_en}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        value={zone.rate}
+                        onChange={(e) =>
+                          updateZoneRate(zone.city_en, Number(e.target.value))
+                        }
+                        className="border border-gray-200 rounded-md px-2 py-1 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm w-24 text-right bg-white"
+                      />
+                      <span className="text-xs text-neutral-400 w-6">
+                        {currency}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => removeZone(zone.city_en)}
+                      className="text-neutral-300 hover:text-red-400 transition-colors text-lg leading-none ml-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
-        <div className="flex items-center gap-2">
-          <select
-            value={addingCity}
-            onChange={(e) => setAddingCity(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm flex-1 bg-white"
-          >
-            <option value="">{t("dashboard.shipping.select_city")}</option>
-            {availableCities.map((c) => (
-              <option key={c.name_en} value={c.name_en}>
-                {c.name_ka} {c.name_en}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={addZone}
-            disabled={!addingCity}
-            className="px-3 py-1.5 text-[13px] font-medium border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white"
-          >
-            {t("dashboard.shipping.add")}
-          </button>
-        </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={addingCity}
+                onChange={(e) => setAddingCity(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm flex-1 bg-white"
+              >
+                <option value="">{t("dashboard.shipping.select_city")}</option>
+                {availableCities.map((c) => (
+                  <option key={c.name_en} value={c.name_en}>
+                    {c.name_ka} {c.name_en}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={addZone}
+                disabled={!addingCity}
+                className="px-3 py-1.5 text-[13px] font-medium border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white"
+              >
+                {t("dashboard.shipping.add")}
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
       {/* Free threshold */}
