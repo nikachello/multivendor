@@ -4,6 +4,7 @@ import { useState } from "react";
 import { THEMES_META } from "@/themes/meta";
 import { updateShopTheme } from "@/lib/actions/shop";
 import { toast } from "sonner";
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopId: string;
@@ -179,20 +180,21 @@ function ThemePreview({ themeId }: { themeId: string }) {
 export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
   const [currentThemeId, setCurrentThemeId] = useState(activeThemeId);
   const [pending, setPending] = useState<string | null>(null);
+  const t = useT();
 
   async function handleActivate(themeId: string) {
     if (themeId === currentThemeId || pending) return;
     if (!isPro && themeId !== "minimal") {
-      toast.error("Upgrade to Pro to unlock all themes.");
+      toast.error(t("dashboard.themes.locked_toast"));
       return;
     }
     setPending(themeId);
     try {
       await updateShopTheme(shopId, themeId);
       setCurrentThemeId(themeId);
-      toast.success("Theme activated");
+      toast.success(t("dashboard.themes.activated"));
     } catch {
-      toast.error("Failed to activate theme");
+      toast.error(t("dashboard.themes.activate_failed"));
     } finally {
       setPending(null);
     }
@@ -222,7 +224,7 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
               {isLocked && (
                 <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                   <span className="text-[10px] font-semibold px-2 py-1 bg-gray-900 text-white rounded-full tracking-wide">
-                    PRO
+                    {t("dashboard.themes.badge_pro")}
                   </span>
                 </div>
               )}
@@ -237,17 +239,17 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
                   </p>
                   {isActive && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-900 text-white rounded">
-                      Active
+                      {t("dashboard.themes.badge_active")}
                     </span>
                   )}
                   {isLocked && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
-                      Pro
+                      {t("dashboard.themes.badge_pro_label")}
                     </span>
                   )}
                   {!theme.available && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded">
-                      Coming soon
+                      {t("dashboard.themes.badge_soon")}
                     </span>
                   )}
                 </div>
@@ -262,14 +264,14 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
                     href="/dashboard/editor"
                     className="px-3 py-1.5 text-xs font-medium border border-gray-200 text-gray-700 hover:border-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
                   >
-                    Customize
+                    {t("dashboard.themes.btn_customize")}
                   </a>
                 ) : isLocked ? (
                   <a
                     href="/dashboard/billing"
                     className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors whitespace-nowrap text-center"
                   >
-                    Upgrade
+                    {t("dashboard.themes.btn_upgrade")}
                   </a>
                 ) : theme.available ? (
                   <button
@@ -277,7 +279,7 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
                     disabled={!!pending}
                     className="px-3 py-1.5 text-xs font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
-                    {isSaving ? "Activating..." : "Activate"}
+                    {isSaving ? t("dashboard.themes.activating") : t("dashboard.themes.btn_activate")}
                   </button>
                 ) : null}
               </div>

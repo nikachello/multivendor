@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { categorySchema } from "@/lib/validators/category";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
 import ImageUploader from "@/components/ui/ImageUploader";
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopId: string;
@@ -21,6 +22,7 @@ type FormInput = z.input<typeof categorySchema>;
 export default function CategoryForm({ shopId, categoryId, defaultValues }: Props) {
   const router = useRouter();
   const isEditing = !!categoryId;
+  const t = useT();
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormInput>({
     resolver: zodResolver(categorySchema),
@@ -40,48 +42,48 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
       : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image);
 
     if (!result || !result.ok) {
-      toast.error(isEditing ? "Failed to update category" : "Failed to create category");
+      toast.error(isEditing ? t("dashboard.category_form.update_failed") : t("dashboard.category_form.create_failed"));
       return;
     }
-    toast.success(isEditing ? "Category updated" : "Category created");
+    toast.success(isEditing ? t("dashboard.category_form.updated") : t("dashboard.category_form.created"));
     router.push("/dashboard/categories");
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-xl">
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Name</label>
+        <label className="text-sm font-medium text-gray-700">{t("dashboard.category_form.name")}</label>
         <input
           {...register("name")}
           className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
-          placeholder="Category name"
+          placeholder={t("dashboard.category_form.name_placeholder")}
         />
         {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Slug</label>
+        <label className="text-sm font-medium text-gray-700">{t("dashboard.category_form.slug")}</label>
         <input
           {...register("slug")}
           className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm font-mono"
-          placeholder="category-slug"
+          placeholder={t("dashboard.category_form.slug_placeholder")}
         />
-        {isEditing && <p className="text-xs text-gray-400">Changing the slug will break any existing links to this category.</p>}
+        {isEditing && <p className="text-xs text-gray-400">{t("dashboard.category_form.slug_hint")}</p>}
         {errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className="text-sm font-medium text-gray-700">{t("dashboard.category_form.description")}</label>
         <textarea
           {...register("description")}
           rows={3}
           className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm resize-none"
-          placeholder="Optional description"
+          placeholder={t("dashboard.category_form.description_placeholder")}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">Image</label>
+        <label className="text-sm font-medium text-gray-700">{t("dashboard.category_form.image")}</label>
         {watch("image") && (
           <div className="relative w-32 h-32 group">
             <img
@@ -109,7 +111,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
 
       <div className="flex items-center gap-2">
         <input {...register("isActive")} type="checkbox" id="isActive" className="w-4 h-4" />
-        <label htmlFor="isActive" className="text-sm font-medium text-gray-700">Active (visible in store)</label>
+        <label htmlFor="isActive" className="text-sm font-medium text-gray-700">{t("dashboard.category_form.active")}</label>
       </div>
 
       <button
@@ -117,7 +119,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
         disabled={isSubmitting}
         className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 self-start"
       >
-        {isSubmitting ? "Saving..." : isEditing ? "Save Changes" : "Create Category"}
+        {isSubmitting ? t("dashboard.category_form.saving") : isEditing ? t("dashboard.category_form.save_changes") : t("dashboard.category_form.create")}
       </button>
     </form>
   );

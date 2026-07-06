@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getShop } from "@/lib/auth/get-shop";
 import { getOrderById } from "@/lib/db/queries";
+import { getDict } from "@/i18n";
 import OrderStatusSelect from "./OrderStatusSelect";
 import CopyButton from "./CopyButton";
 
@@ -31,7 +32,7 @@ export default async function OrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [shop, orderResult] = await Promise.all([getShop(), getOrderById(id)]);
+  const [shop, orderResult, d] = await Promise.all([getShop(), getOrderById(id), getDict()]);
 
   if (!orderResult.ok) notFound();
   const order = orderResult.data;
@@ -39,6 +40,7 @@ export default async function OrderDetailPage({
   if (order.shopId !== shop.id) notFound();
 
   const address = order.shippingAddress as ShippingAddress;
+  const t = d.dashboard.order_detail;
 
   return (
     <div className="max-w-3xl flex flex-col gap-8">
@@ -49,10 +51,10 @@ export default async function OrderDetailPage({
             href="/dashboard/orders"
             className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
           >
-            ← Orders
+            {t.back}
           </Link>
           <h1 className="text-xl font-semibold text-gray-900 mt-2 flex items-center">
-            Order <span className="font-mono text-gray-400 ml-1.5">#{order.id.slice(-8).toUpperCase()}</span>
+            {t.title} <span className="font-mono text-gray-400 ml-1.5">#{order.id.slice(-8).toUpperCase()}</span>
             <CopyButton text={order.id} />
           </h1>
           <p className="text-sm text-gray-400 mt-0.5">{formatDate(order.createdAt)}</p>
@@ -62,14 +64,14 @@ export default async function OrderDetailPage({
 
       {/* Customer */}
       <section className="border border-gray-100 rounded-lg p-5">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-4">Customer</h2>
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-4">{t.customer}</h2>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-400 text-xs mb-0.5">Email</p>
+            <p className="text-gray-400 text-xs mb-0.5">{t.email}</p>
             <p className="text-gray-900">{order.customerEmail ?? "—"}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs mb-0.5">Phone</p>
+            <p className="text-gray-400 text-xs mb-0.5">{t.phone}</p>
             <p className="text-gray-900">{order.customerPhone ?? "—"}</p>
           </div>
         </div>
@@ -77,7 +79,7 @@ export default async function OrderDetailPage({
 
       {/* Shipping address */}
       <section className="border border-gray-100 rounded-lg p-5">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-4">Shipping address</h2>
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-4">{t.shipping_address}</h2>
         <div className="text-sm text-gray-600 space-y-0.5">
           <p className="font-medium text-gray-900">{address.name}</p>
           <p>{address.line1}</p>
@@ -90,7 +92,7 @@ export default async function OrderDetailPage({
       {/* Delivery note */}
       {order.notes && (
         <section className="border border-gray-100 rounded-lg p-5">
-          <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Delivery note</h2>
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t.delivery_note}</h2>
           <p className="text-sm text-gray-600">{order.notes}</p>
         </section>
       )}
@@ -99,7 +101,7 @@ export default async function OrderDetailPage({
       <section className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
-            Items ({order.items.length})
+            {t.items} ({order.items.length})
           </h2>
         </div>
         <ul className="divide-y divide-gray-100">
@@ -119,7 +121,7 @@ export default async function OrderDetailPage({
                     {Object.values(item.variantOptions as Record<string, string>).join(" · ")}
                   </p>
                 )}
-                <p className="text-xs text-gray-400 mt-0.5">Qty: {item.quantity}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{t.qty}{item.quantity}</p>
               </div>
               <p className="text-sm font-medium text-gray-900 whitespace-nowrap">
                 {shop.currency} {(Number(item.price) * item.quantity).toFixed(2)}
@@ -128,7 +130,7 @@ export default async function OrderDetailPage({
           ))}
         </ul>
         <div className="px-5 py-4 border-t border-gray-100 flex justify-between text-sm">
-          <span className="text-gray-400">Total</span>
+          <span className="text-gray-400">{t.total}</span>
           <span className="font-semibold text-gray-900">{shop.currency} {Number(order.total).toFixed(2)}</span>
         </div>
       </section>

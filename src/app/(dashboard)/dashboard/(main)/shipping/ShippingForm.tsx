@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateShipping, ShippingZone } from "@/lib/actions/shop";
 import { GEORGIA_CITIES } from "@/lib/constants/georgia-cities";
 import { toast } from "sonner";
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopId: string;
@@ -25,6 +26,7 @@ export default function ShippingForm({
   const [zones, setZones] = useState<ShippingZone[]>(initialZones);
   const [addingCity, setAddingCity] = useState("");
   const [saving, setSaving] = useState(false);
+  const t = useT();
 
   const availableCities = GEORGIA_CITIES.filter(
     (c) => !zones.some((z) => z.city_en === c.name_en),
@@ -58,25 +60,25 @@ export default function ShippingForm({
       shippingZones: zones,
     });
     setSaving(false);
-    toast.success("Shipping settings saved");
+    toast.success(t("dashboard.shipping.saved"));
   }
 
   return (
     <div className="max-w-xl space-y-10">
       <div>
-        <h1 className="text-lg font-semibold text-neutral-900">Shipping</h1>
+        <h1 className="text-lg font-semibold text-neutral-900">{t("dashboard.shipping.title")}</h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Set default rates and per-city overrides for Georgia.
+          {t("dashboard.shipping.subtitle")}
         </p>
       </div>
 
       {/* Default rate */}
       <section className="space-y-3">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-          Default rate
+          {t("dashboard.shipping.default_rate")}
         </h2>
         <p className="text-xs text-neutral-400 -mt-1">
-          Applied to any city without a specific override.
+          {t("dashboard.shipping.default_rate_desc")}
         </p>
         <div className="flex items-center gap-3">
           <input
@@ -90,7 +92,7 @@ export default function ShippingForm({
           <span className="text-sm text-neutral-500">{currency}</span>
           {defaultRate === 0 && (
             <span className="text-xs text-green-600 font-medium">
-              Free shipping
+              {t("dashboard.shipping.free_shipping")}
             </span>
           )}
         </div>
@@ -99,10 +101,10 @@ export default function ShippingForm({
       {/* City overrides */}
       <section className="space-y-3">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-          City rates
+          {t("dashboard.shipping.city_rates")}
         </h2>
         <p className="text-xs text-neutral-400 -mt-1">
-          Override the default for specific cities.
+          {t("dashboard.shipping.city_rates_desc")}
         </p>
 
         {zones.length > 0 && (
@@ -150,7 +152,7 @@ export default function ShippingForm({
             onChange={(e) => setAddingCity(e.target.value)}
             className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm flex-1 bg-white"
           >
-            <option value="">Select city€¦</option>
+            <option value="">{t("dashboard.shipping.select_city")}</option>
             {availableCities.map((c) => (
               <option key={c.name_en} value={c.name_en}>
                 {c.name_ka} {c.name_en}
@@ -162,7 +164,7 @@ export default function ShippingForm({
             disabled={!addingCity}
             className="px-3 py-1.5 text-[13px] font-medium border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white"
           >
-            + Add
+            {t("dashboard.shipping.add")}
           </button>
         </div>
       </section>
@@ -170,11 +172,10 @@ export default function ShippingForm({
       {/* Free threshold */}
       <section className="space-y-3">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-          Free shipping threshold
+          {t("dashboard.shipping.free_threshold")}
         </h2>
         <p className="text-xs text-neutral-400 -mt-1">
-          Orders above this amount always get free shipping. Set to 0 to
-          disable.
+          {t("dashboard.shipping.free_threshold_desc")}
         </p>
         <div className="flex items-center gap-3">
           <input
@@ -188,7 +189,7 @@ export default function ShippingForm({
           <span className="text-sm text-neutral-500">{currency}</span>
           {threshold > 0 && (
             <span className="text-xs text-neutral-400">
-              Free above {currency} {threshold.toFixed(2)}
+              {t("dashboard.shipping.free_above").replace("{currency}", currency).replace("{threshold}", threshold.toFixed(2))}
             </span>
           )}
         </div>
@@ -199,7 +200,7 @@ export default function ShippingForm({
         disabled={saving}
         className="px-3 py-1.5 text-[13px] font-medium bg-gray-900 text-white rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
       >
-        {saving ? "Saving€¦" : "Save"}
+        {saving ? t("dashboard.shipping.saving") : t("dashboard.shipping.save")}
       </button>
     </div>
   );

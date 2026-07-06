@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { productSchema } from "@/lib/validators/product";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import { createCategory } from "@/lib/actions/categories";
+import { useT } from "@/i18n/context";
 
 type Category = { id: string; name: string };
 
@@ -31,6 +32,7 @@ export default function ProductForm({
 }: Props) {
   const router = useRouter();
   const isEditing = !!productId;
+  const t = useT();
 
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [showModal, setShowModal] = useState(false);
@@ -91,12 +93,10 @@ export default function ProductForm({
         );
 
     if (!result || !result.ok) {
-      toast.error(
-        isEditing ? "Failed to update product" : "Failed to create product",
-      );
+      toast.error(isEditing ? t("dashboard.product_form.update_failed") : t("dashboard.product_form.create_failed"));
       return;
     }
-    toast.success(isEditing ? "Product updated" : "Product created");
+    toast.success(isEditing ? t("dashboard.product_form.updated") : t("dashboard.product_form.created"));
     if (!isEditing) {
       router.push(`/dashboard/products/${result.data.id}`);
     }
@@ -114,7 +114,7 @@ export default function ProductForm({
     );
     setCatCreating(false);
     if (!result.ok) {
-      toast.error("Failed to create category");
+      toast.error(t("dashboard.product_form.category_create_failed"));
       return;
     }
     const created = { id: result.data.id, name: result.data.name };
@@ -124,7 +124,7 @@ export default function ProductForm({
     setShowModal(false);
     setNewCatName("");
     setNewCatSlug("");
-    toast.success(`Category "${created.name}" created`);
+    toast.success(t("dashboard.product_form.category_created", { name: created.name }));
   }
 
   return (
@@ -135,12 +135,12 @@ export default function ProductForm({
       >
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Name <span className="text-red-400">*</span>
+            {t("dashboard.product_form.name")} <span className="text-red-400">*</span>
           </label>
           <input
             {...register("name")}
             className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
-            placeholder="Product name"
+            placeholder={t("dashboard.product_form.name_placeholder")}
           />
           {errors.name && (
             <p className="text-xs text-red-500">{errors.name.message}</p>
@@ -149,16 +149,16 @@ export default function ProductForm({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Slug <span className="text-red-400">*</span>
+            {t("dashboard.product_form.slug")} <span className="text-red-400">*</span>
           </label>
           <input
             {...register("slug")}
             className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm font-mono"
-            placeholder="product-slug"
+            placeholder={t("dashboard.product_form.slug_placeholder")}
           />
           {isEditing && (
             <p className="text-xs text-gray-400">
-              Changing the slug will break existing links to this product.
+              {t("dashboard.product_form.slug_hint")}
             </p>
           )}
           {errors.slug && (
@@ -168,22 +168,22 @@ export default function ProductForm({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Description{" "}
+            {t("dashboard.product_form.description")}{" "}
             <span className="text-gray-400 font-normal text-xs">
-              (optional)
+              {t("dashboard.product_form.description_optional")}
             </span>
           </label>
           <textarea
             {...register("description")}
             rows={4}
             className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm resize-none"
-            placeholder="Describe your product  materials, dimensions, care instructions€¦"
+            placeholder={t("dashboard.product_form.description_placeholder")}
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Price <span className="text-red-400">*</span>
+            {t("dashboard.product_form.price")} <span className="text-red-400">*</span>
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none select-none">
@@ -206,21 +206,21 @@ export default function ProductForm({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-700">
-              Categories
+              {t("dashboard.product_form.categories")}
             </label>
             <button
               type="button"
               onClick={() => setShowModal(true)}
               className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
             >
-              + New category
+              {t("dashboard.product_form.new_category")}
             </button>
           </div>
           <div className="relative">
             <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-48 overflow-y-auto">
               {categories.length === 0 && (
                 <p className="px-3 py-2 text-sm text-gray-400">
-                  No categories yet
+                  {t("dashboard.product_form.no_categories")}
                 </p>
               )}
               {categories.map((c) => {
@@ -264,7 +264,7 @@ export default function ProductForm({
             htmlFor="isActive"
             className="text-sm font-medium text-gray-700"
           >
-            Active (visible in store)
+            {t("dashboard.product_form.active")}
           </label>
         </div>
 
@@ -275,21 +275,20 @@ export default function ProductForm({
         >
           {isSubmitting
             ? isEditing
-              ? "Saving..."
-              : "Creating..."
+              ? t("dashboard.product_form.saving")
+              : t("dashboard.product_form.creating")
             : isEditing
-              ? "Save Changes"
-              : "Create Product"}
+              ? t("dashboard.product_form.save_changes")
+              : t("dashboard.product_form.create")}
         </button>
       </form>
 
-      {/* ”€ Inline category creation modal ”€ */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900">
-                New category
+                {t("dashboard.product_form.new_category_modal")}
               </h2>
               <button
                 onClick={() => {
@@ -299,29 +298,29 @@ export default function ProductForm({
                 }}
                 className="text-gray-400 hover:text-gray-700 text-lg leading-none"
               >
-                Ã—
+                ×
               </button>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-gray-700">Name</label>
+              <label className="text-xs font-medium text-gray-700">{t("dashboard.product_form.name")}</label>
               <input
                 autoFocus
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
-                placeholder="Category name"
+                placeholder={t("dashboard.product_form.name_placeholder")}
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-gray-700">Slug</label>
+              <label className="text-xs font-medium text-gray-700">{t("dashboard.product_form.slug")}</label>
               <input
                 value={newCatSlug}
                 onChange={(e) => setNewCatSlug(e.target.value)}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm font-mono"
-                placeholder="category-slug"
+                placeholder={t("dashboard.product_form.slug_placeholder")}
               />
             </div>
 
@@ -334,14 +333,14 @@ export default function ProductForm({
                 }}
                 className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleCreateCategory}
                 disabled={catCreating || !newCatName.trim()}
                 className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
               >
-                {catCreating ? "Creating..." : "Create"}
+                {catCreating ? t("dashboard.product_form.creating") : t("dashboard.product_form.create")}
               </button>
             </div>
           </div>

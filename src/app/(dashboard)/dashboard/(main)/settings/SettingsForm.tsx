@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { updateShop } from "@/lib/actions/shop";
 import ImageUploader from "@/components/ui/ImageUploader";
+import { useT } from "@/i18n/context";
 
 const CURRENCIES = [
   { code: "USD", label: "USD  US Dollar" },
@@ -50,11 +51,12 @@ export default function SettingsForm({
     defaultValues.googleAdsConversionLabel,
   );
   const [saving, setSaving] = useState(false);
+  const t = useT();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("dashboard.settings_form.name_required"));
       return;
     }
     setSaving(true);
@@ -70,10 +72,10 @@ export default function SettingsForm({
     });
     setSaving(false);
     if (!result || !result.ok) {
-      toast.error("Failed to save settings");
+      toast.error(t("dashboard.settings_form.save_failed"));
       return;
     }
-    toast.success("Settings saved");
+    toast.success(t("dashboard.settings_form.saved"));
   }
 
   const inputCls =
@@ -84,24 +86,24 @@ export default function SettingsForm({
       {/* General */}
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
-          General
+          {t("dashboard.settings_form.general")}
         </h2>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Store name
+            {t("dashboard.settings_form.store_name")}
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={inputCls}
-            placeholder="My Store"
+            placeholder={t("dashboard.settings_form.store_name_placeholder")}
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Store URL slug
+            {t("dashboard.settings_form.store_slug")}
           </label>
           <input
             value={shopSlug}
@@ -109,20 +111,20 @@ export default function SettingsForm({
             className={`${inputCls} bg-gray-50 text-gray-400 cursor-not-allowed`}
           />
           <p className="text-xs text-gray-400">
-            URL slug cannot be changed after creation.
+            {t("dashboard.settings_form.store_slug_hint")}
           </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Description
+            {t("dashboard.settings_form.description")}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             className={`${inputCls} resize-none`}
-            placeholder="Tell customers about your store"
+            placeholder={t("dashboard.settings_form.description_placeholder")}
           />
         </div>
       </section>
@@ -130,11 +132,11 @@ export default function SettingsForm({
       {/* Currency */}
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
-          Commerce
+          {t("dashboard.settings_form.commerce")}
         </h2>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Currency</label>
+          <label className="text-sm font-medium text-gray-700">{t("dashboard.settings_form.currency")}</label>
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
@@ -152,11 +154,11 @@ export default function SettingsForm({
       {/* Logo */}
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
-          Branding
+          {t("dashboard.settings_form.branding")}
         </h2>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Logo</label>
+          <label className="text-sm font-medium text-gray-700">{t("dashboard.settings_form.logo")}</label>
           {logo ? (
             <div className="relative w-32 h-16 group">
               <img
@@ -185,12 +187,12 @@ export default function SettingsForm({
       {/* Tracking */}
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
-          Tracking & Analytics
+          {t("dashboard.settings_form.tracking")}
         </h2>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Meta Pixel ID
+            {t("dashboard.settings_form.meta_pixel")}
           </label>
           <input
             value={metaPixelId}
@@ -205,7 +207,7 @@ export default function SettingsForm({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Google Analytics 4 Measurement ID
+            {t("dashboard.settings_form.ga4")}
           </label>
           <input
             value={ga4MeasurementId}
@@ -213,14 +215,11 @@ export default function SettingsForm({
             className={inputCls}
             placeholder="G-XXXXXXXXXX"
           />
-          <p className="text-xs text-gray-400">
-            Found in GA4 Admin Data Streams your stream Measurement ID.
-          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Google Ads ID
+            {t("dashboard.settings_form.google_ads")}
           </label>
           <input
             value={googleAdsId}
@@ -228,14 +227,11 @@ export default function SettingsForm({
             className={inputCls}
             placeholder="AW-123456789"
           />
-          <p className="text-xs text-gray-400">
-            Found in Google Ads Tools Tag setup your tag ID.
-          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
-            Google Ads Conversion Label
+            {t("dashboard.settings_form.google_ads_label")}
           </label>
           <input
             value={googleAdsConversionLabel}
@@ -243,10 +239,6 @@ export default function SettingsForm({
             className={inputCls}
             placeholder="AbCdEfGhIjKlMnOp"
           />
-          <p className="text-xs text-gray-400">
-            Found in Google Ads Goals Conversions your purchase conversion Tag
-            setup.
-          </p>
         </div>
       </section>
 
@@ -255,7 +247,7 @@ export default function SettingsForm({
         disabled={saving}
         className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 self-start"
       >
-        {saving ? "Saving..." : "Save settings"}
+        {saving ? t("dashboard.settings_form.saving") : t("dashboard.settings_form.save")}
       </button>
     </form>
   );

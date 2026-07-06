@@ -29,6 +29,7 @@ import StorefrontPreview from "./StorefrontPreview";
 import AddSectionPanel from "./AddSectionPanel";
 import { saveSections } from "@/lib/actions/sections";
 import { toast } from "sonner";
+import { useT } from "@/i18n/context";
 import ThemePanel from "./ThemePanel";
 import CollectionPageSettings from "./CollectionPageSettings";
 import { ThemeData } from "@/lib/actions/theme";
@@ -53,13 +54,6 @@ type Props = {
   optionTypeNames: string[];
 };
 
-const PAGE_TABS: { label: string; value: PageType }[] = [
-  { label: "Home", value: "home" },
-  { label: "Collection", value: "collection" },
-  { label: "Product", value: "product" },
-  { label: "Search", value: "search" },
-];
-
 export default function SectionEditor({
   initialPagesSections,
   shopId,
@@ -81,6 +75,14 @@ export default function SectionEditor({
   const [iframeLoading, setIframeLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+  const t = useT();
+
+  const PAGE_TABS: { label: string; value: PageType }[] = [
+    { label: t("dashboard.editor.page_home"), value: "home" },
+    { label: t("dashboard.editor.page_collection"), value: "collection" },
+    { label: t("dashboard.editor.page_product"), value: "product" },
+    { label: t("dashboard.editor.page_search"), value: "search" },
+  ];
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const justSwitchedPage = useRef(false);
@@ -268,7 +270,7 @@ export default function SectionEditor({
       <div className="w-64 flex-shrink-0 bg-white border-r border-neutral-200 flex flex-col">
         <div className="px-4 py-4 border-b border-neutral-100 flex items-center justify-between">
           <div>
-            <h1 className="text-sm font-semibold text-neutral-800">Editor</h1>
+            <h1 className="text-sm font-semibold text-neutral-800">{t("dashboard.editor.title")}</h1>
             <p className="text-xs text-neutral-400 mt-0.5">{shopSlug}</p>
           </div>
           <a
@@ -277,14 +279,14 @@ export default function SectionEditor({
             rel="noreferrer"
             className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-2"
           >
-            Live ↗
+            {t("dashboard.editor.live")}
           </a>
         </div>
 
         {/* Page picker */}
         <div className="px-3 pt-3 pb-2 border-b border-neutral-100">
           <p className="text-[10px] font-medium tracking-widest uppercase text-neutral-400 mb-2">
-            Page
+            {t("dashboard.editor.page_label")}
           </p>
           <div className="grid grid-cols-2 gap-1">
             {PAGE_TABS.map(({ label, value }) => (
@@ -306,20 +308,20 @@ export default function SectionEditor({
         <Tabs defaultValue="sections" className="flex flex-col flex-1 min-h-0">
           <div className="px-3 pt-3 pb-0">
             <TabsList className="w-full">
-              <TabsTrigger value="sections" className="flex-1">Sections</TabsTrigger>
-              <TabsTrigger value="theme" className="flex-1">Theme</TabsTrigger>
+              <TabsTrigger value="sections" className="flex-1">{t("dashboard.editor.tab_sections")}</TabsTrigger>
+              <TabsTrigger value="theme" className="flex-1">{t("dashboard.editor.tab_theme")}</TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="sections" className="flex flex-col flex-1 min-h-0 mt-0">
             {activePage === "collection" && !firstCategorySlug && (
               <p className="mx-3 mt-3 px-3 py-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded">
-                No categories yet — preview unavailable. You can still add sections.
+                {t("dashboard.editor.no_categories")}
               </p>
             )}
             {activePage === "product" && !firstProductSlug && (
               <p className="mx-3 mt-3 px-3 py-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded">
-                No products yet — preview unavailable. You can still add sections.
+                {t("dashboard.editor.no_products")}
               </p>
             )}
             <div className="flex-1 overflow-y-auto p-3">
@@ -336,7 +338,7 @@ export default function SectionEditor({
                   <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                   </svg>
-                  Filter bar settings
+                  {t("dashboard.editor.filter_settings")}
                 </button>
               )}
 
@@ -371,7 +373,7 @@ export default function SectionEditor({
 
               {sections.length === 0 && (
                 <p className="text-xs text-neutral-400 text-center py-6">
-                  No sections yet — add one below
+                  {t("dashboard.editor.no_sections")}
                 </p>
               )}
             </div>
@@ -398,7 +400,7 @@ export default function SectionEditor({
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Add section
+                {t("dashboard.editor.add_section")}
               </button>
             </div>
           </TabsContent>
@@ -421,13 +423,13 @@ export default function SectionEditor({
               onClick={() => setViewMode("desktop")}
               className={`px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === "desktop" ? "bg-neutral-900 text-white" : "text-neutral-500 hover:text-neutral-900"}`}
             >
-              Desktop
+              {t("dashboard.editor.desktop")}
             </button>
             <button
               onClick={() => setViewMode("mobile")}
               className={`px-3 py-1.5 text-xs font-medium transition-colors border-l border-neutral-200 ${viewMode === "mobile" ? "bg-neutral-900 text-white" : "text-neutral-500 hover:text-neutral-900"}`}
             >
-              Mobile
+              {t("dashboard.editor.mobile")}
             </button>
           </div>
         </div>
@@ -444,7 +446,7 @@ export default function SectionEditor({
       <div className="w-72 flex-shrink-0 bg-white border-l border-neutral-200 flex flex-col overflow-y-auto">
         <div className="px-5 py-4 border-b border-neutral-100">
           <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
-            Settings
+            {t("dashboard.editor.settings")}
           </p>
         </div>
         {pageSettingsOpen ? (
@@ -468,7 +470,7 @@ export default function SectionEditor({
           />
         ) : (
           <div className="flex-1 flex items-center justify-center text-neutral-400 text-sm p-8 text-center">
-            Click a section in the preview or sidebar to edit it
+            {t("dashboard.editor.click_hint")}
           </div>
         )}
       </div>

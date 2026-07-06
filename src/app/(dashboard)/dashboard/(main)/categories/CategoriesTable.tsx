@@ -6,6 +6,7 @@ import { CategoryWithCount } from "@/lib/db/queries";
 import { DataTable } from "@/components/ui/data-table";
 import { createColumns } from "./columns";
 import { deleteCategory } from "@/lib/actions/categories";
+import { useT } from "@/i18n/context";
 
 export default function CategoriesTable({
   categories: initial,
@@ -17,6 +18,7 @@ export default function CategoriesTable({
   const [deleting, setDeleting] = useState(false);
 
   const pendingCategory = categories.find((c) => c.id === pendingDeleteId);
+  const t = useT();
 
   async function handleDelete() {
     if (!pendingDeleteId) return;
@@ -25,12 +27,12 @@ export default function CategoriesTable({
     const result = await deleteCategory(idToDelete);
     setDeleting(false);
     if (!result.ok) {
-      toast.error("Failed to delete category");
+      toast.error(t("dashboard.categories.delete_failed"));
       return;
     }
     setCategories((prev) => prev.filter((c) => c.id !== idToDelete));
     setPendingDeleteId(null);
-    toast.success("Category deleted");
+    toast.success(t("dashboard.categories.deleted"));
   }
 
   return (
@@ -38,16 +40,15 @@ export default function CategoriesTable({
       <DataTable
         columns={createColumns(setPendingDeleteId)}
         data={categories}
-        emptyMessage="No categories found."
+        emptyMessage={t("dashboard.categories.no_categories")}
       />
 
-      {/* Confirmation dialog */}
       {pendingDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-5">
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
-                Delete category?
+                {t("dashboard.categories.delete_confirm")}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
                 <span className="font-medium text-gray-900">
@@ -56,9 +57,7 @@ export default function CategoriesTable({
                 {pendingCategory && pendingCategory._count.products > 0 && (
                   <span className="text-red-500">
                     {" "}
-                    {pendingCategory._count.products} product
-                    {pendingCategory._count.products !== 1 ? "s" : ""} will be
-                    uncategorized.
+                    {pendingCategory._count.products}{t("dashboard.categories.delete_warning")}
                   </span>
                 )}
               </p>
@@ -69,14 +68,14 @@ export default function CategoriesTable({
                 disabled={deleting}
                 className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
                 className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all disabled:opacity-60"
               >
-                {deleting ? "Deleting€¦" : "Delete"}
+                {deleting ? t("dashboard.categories.deleting") : t("common.delete")}
               </button>
             </div>
           </div>

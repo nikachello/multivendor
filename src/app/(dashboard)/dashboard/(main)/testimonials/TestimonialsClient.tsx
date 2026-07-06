@@ -9,6 +9,7 @@ import {
   toggleTestimonialActive,
   type TestimonialInput,
 } from "@/lib/actions/testimonials";
+import { useT } from "@/i18n/context";
 
 type Testimonial = {
   id: string;
@@ -60,8 +61,8 @@ function StarRow({
   );
 }
 
-function Stars({ value }: { value: number | null }) {
-  if (!value) return <span className="text-gray-300 text-xs">No rating</span>;
+function Stars({ value, noRating }: { value: number | null; noRating?: string }) {
+  if (!value) return <span className="text-gray-300 text-xs">{noRating ?? "No rating"}</span>;
   return (
     <span className="text-yellow-400 text-sm">
       {"˜…".repeat(value)}
@@ -88,21 +89,22 @@ export default function TestimonialsClient({
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const t = useT();
 
   function openAdd() {
     setForm(EMPTY_FORM);
     setModalOpen(true);
   }
 
-  function openEdit(t: Testimonial) {
+  function openEdit(item: Testimonial) {
     setForm({
-      id: t.id,
-      name: t.name,
-      position: t.position ?? "",
-      testimony: t.testimony,
-      rating: t.rating ?? 5,
-      isActive: t.isActive,
-      productId: t.productId ?? null,
+      id: item.id,
+      name: item.name,
+      position: item.position ?? "",
+      testimony: item.testimony,
+      rating: item.rating ?? 5,
+      isActive: item.isActive,
+      productId: item.productId ?? null,
     });
     setModalOpen(true);
   }
@@ -115,7 +117,7 @@ export default function TestimonialsClient({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.testimony.trim()) {
-      toast.error("Name and testimony are required");
+      toast.error(t("dashboard.testimonials.required_error"));
       return;
     }
     setSaving(true);
@@ -134,18 +136,18 @@ export default function TestimonialsClient({
 
     setSaving(false);
     if (!result.ok) {
-      toast.error("Failed to save testimonial");
+      toast.error(t("dashboard.testimonials.save_failed"));
       return;
     }
     const saved = result.data;
     if (form.id) {
       setTestimonials((prev) =>
-        prev.map((t) => (t.id === saved.id ? saved : t)),
+        prev.map((row) => (row.id === saved.id ? saved : row)),
       );
     } else {
       setTestimonials((prev) => [...prev, saved]);
     }
-    toast.success(form.id ? "Testimonial updated" : "Testimonial added");
+    toast.success(form.id ? t("dashboard.testimonials.updated") : t("dashboard.testimonials.added"));
     closeModal();
   }
 
@@ -155,29 +157,29 @@ export default function TestimonialsClient({
     setDeleteId(null);
     const result = await deleteTestimonial(shopId, idToDelete);
     if (!result.ok) {
-      toast.error("Failed to delete");
+      toast.error(t("dashboard.testimonials.delete_failed"));
       return;
     }
-    setTestimonials((prev) => prev.filter((t) => t.id !== idToDelete));
-    toast.success("Testimonial deleted");
+    setTestimonials((prev) => prev.filter((row) => row.id !== idToDelete));
+    toast.success(t("dashboard.testimonials.deleted"));
   }
 
-  async function handleToggle(t: Testimonial) {
-    setTogglingId(t.id);
+  async function handleToggle(item: Testimonial) {
+    setTogglingId(item.id);
     setTestimonials((prev) =>
       prev.map((row) =>
-        row.id === t.id ? { ...row, isActive: !t.isActive } : row,
+        row.id === item.id ? { ...row, isActive: !item.isActive } : row,
       ),
     );
-    const result = await toggleTestimonialActive(shopId, t.id, !t.isActive);
+    const result = await toggleTestimonialActive(shopId, item.id, !item.isActive);
     setTogglingId(null);
     if (!result.ok) {
       setTestimonials((prev) =>
         prev.map((row) =>
-          row.id === t.id ? { ...row, isActive: t.isActive } : row,
+          row.id === item.id ? { ...row, isActive: item.isActive } : row,
         ),
       );
-      toast.error("Failed to update");
+      toast.error(t("dashboard.testimonials.update_failed"));
     }
   }
 
@@ -190,18 +192,17 @@ export default function TestimonialsClient({
           onClick={openAdd}
           className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
-          + Add testimonial
+          {t("dashboard.testimonials.add")}
         </button>
       </div>
 
       {testimonials.length === 0 ? (
         <div className="border border-dashed border-gray-200 rounded-lg py-14 text-center">
           <p className="text-sm font-medium text-gray-500">
-            No testimonials yet
+            {t("dashboard.testimonials.no_data")}
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            Add shop-level testimonials for your homepage, or link them to
-            specific products.
+            {t("dashboard.testimonials.no_data_desc")}
           </p>
         </div>
       ) : (
@@ -210,62 +211,62 @@ export default function TestimonialsClient({
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-left">
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Name
+                  {t("dashboard.testimonials.col_name")}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Testimony
+                  {t("dashboard.testimonials.col_testimony")}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Rating
+                  {t("dashboard.testimonials.col_rating")}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Product
+                  {t("dashboard.testimonials.col_product")}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Active
+                  {t("dashboard.testimonials.col_active")}
                 </th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {testimonials.map((t) => (
-                <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+              {testimonials.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
                     <p className="font-medium text-gray-900 text-sm">
-                      {t.name}
+                      {item.name}
                     </p>
-                    {t.position && (
-                      <p className="text-xs text-gray-400">{t.position}</p>
+                    {item.position && (
+                      <p className="text-xs text-gray-400">{item.position}</p>
                     )}
                   </td>
                   <td className="px-4 py-3 max-w-xs">
                     <p className="text-gray-600 text-sm line-clamp-2">
-                      {t.testimony}
+                      {item.testimony}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <Stars value={t.rating} />
+                    <Stars value={item.rating} noRating={t("dashboard.testimonials.no_rating")} />
                   </td>
                   <td className="px-4 py-3">
-                    {t.productId ? (
+                    {item.productId ? (
                       <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                        {productName(t.productId, products)}
+                        {productName(item.productId, products)}
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">Shop-level</span>
+                      <span className="text-xs text-gray-400">{t("dashboard.testimonials.shop_level")}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => handleToggle(t)}
-                      disabled={togglingId === t.id}
+                      onClick={() => handleToggle(item)}
+                      disabled={togglingId === item.id}
                       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                        t.isActive ? "bg-gray-900" : "bg-gray-200"
-                      } ${togglingId === t.id ? "opacity-50" : ""}`}
+                        item.isActive ? "bg-gray-900" : "bg-gray-200"
+                      } ${togglingId === item.id ? "opacity-50" : ""}`}
                     >
                       <span
                         className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-                          t.isActive ? "translate-x-4" : "translate-x-1"
+                          item.isActive ? "translate-x-4" : "translate-x-1"
                         }`}
                       />
                     </button>
@@ -273,16 +274,16 @@ export default function TestimonialsClient({
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
                       <button
-                        onClick={() => openEdit(t)}
+                        onClick={() => openEdit(item)}
                         className="text-xs text-gray-500 hover:text-gray-900 transition-colors px-2 py-1 rounded hover:bg-gray-100"
                       >
-                        Edit
+                        {t("dashboard.testimonials.edit")}
                       </button>
                       <button
-                        onClick={() => setDeleteId(t.id)}
+                        onClick={() => setDeleteId(item.id)}
                         className="text-xs text-red-400 hover:text-red-600 transition-colors px-2 py-1 rounded hover:bg-red-50"
                       >
-                        Delete
+                        {t("dashboard.testimonials.delete")}
                       </button>
                     </div>
                   </td>
@@ -299,13 +300,13 @@ export default function TestimonialsClient({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-lg flex flex-col gap-0 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-900">
-                {form.id ? "Edit testimonial" : "Add testimonial"}
+                {form.id ? t("dashboard.testimonials.modal_edit") : t("dashboard.testimonials.modal_add")}
               </h2>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 text-lg leading-none"
               >
-                Ã—
+                ×
               </button>
             </div>
             <form
@@ -315,28 +316,28 @@ export default function TestimonialsClient({
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-medium text-gray-700">
-                    Name *
+                    {t("dashboard.testimonials.label_name")}
                   </label>
                   <input
                     value={form.name}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, name: e.target.value }))
                     }
-                    placeholder="Jane Doe"
+                    placeholder={t("dashboard.testimonials.placeholder_name")}
                     className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm"
                     required
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-medium text-gray-700">
-                    Position / Title
+                    {t("dashboard.testimonials.label_position")}
                   </label>
                   <input
                     value={form.position ?? ""}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, position: e.target.value }))
                     }
-                    placeholder="CEO, Example Corp"
+                    placeholder={t("dashboard.testimonials.placeholder_position")}
                     className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm"
                   />
                 </div>
@@ -344,14 +345,14 @@ export default function TestimonialsClient({
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">
-                  Testimony *
+                  {t("dashboard.testimonials.label_testimony")}
                 </label>
                 <textarea
                   value={form.testimony}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, testimony: e.target.value }))
                   }
-                  placeholder="Amazing product, highly recommend!"
+                  placeholder={t("dashboard.testimonials.placeholder_testimony")}
                   rows={3}
                   className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm resize-none"
                   required
@@ -360,7 +361,7 @@ export default function TestimonialsClient({
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">
-                  Rating
+                  {t("dashboard.testimonials.label_rating")}
                 </label>
                 <StarRow
                   value={form.rating ?? 5}
@@ -370,7 +371,7 @@ export default function TestimonialsClient({
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">
-                  Link to product (optional)
+                  {t("dashboard.testimonials.label_product")}
                 </label>
                 <select
                   value={form.productId ?? ""}
@@ -383,7 +384,7 @@ export default function TestimonialsClient({
                   className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-gray-400 shadow-sm bg-white"
                 >
                   <option value="">
-                    Shop-level (homepage testimonials section)
+                    {t("dashboard.testimonials.option_shop")}
                   </option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -392,9 +393,7 @@ export default function TestimonialsClient({
                   ))}
                 </select>
                 <p className="text-[11px] text-gray-400">
-                  Shop-level testimonials appear in your homepage Testimonials
-                  section. Product-linked testimonials appear on that
-                  product&apos;s page.
+                  {t("dashboard.testimonials.hint")}
                 </p>
               </div>
 
@@ -415,7 +414,7 @@ export default function TestimonialsClient({
                   />
                 </button>
                 <span className="text-sm text-gray-600">
-                  {form.isActive ? "Visible" : "Hidden"}
+                  {form.isActive ? t("dashboard.testimonials.visible") : t("dashboard.testimonials.hidden")}
                 </span>
               </div>
 
@@ -425,7 +424,7 @@ export default function TestimonialsClient({
                   onClick={closeModal}
                   className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -433,10 +432,10 @@ export default function TestimonialsClient({
                   className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
                 >
                   {saving
-                    ? "Saving€¦"
+                    ? t("dashboard.testimonials.saving")
                     : form.id
-                      ? "Save changes"
-                      : "Add testimonial"}
+                      ? t("dashboard.testimonials.save_changes")
+                      : t("dashboard.testimonials.add_btn")}
                 </button>
               </div>
             </form>
@@ -450,14 +449,13 @@ export default function TestimonialsClient({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 flex flex-col gap-5">
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
-                Delete testimonial?
+                {t("dashboard.testimonials.delete_confirm")}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                From{" "}
                 <span className="font-medium text-gray-900">
                   {deleteTarget?.name}
                 </span>{" "}
-                this cannot be undone.
+                {t("dashboard.testimonials.delete_body")}
               </p>
             </div>
             <div className="flex gap-3 justify-end">
@@ -465,13 +463,13 @@ export default function TestimonialsClient({
                 onClick={() => setDeleteId(null)}
                 className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleDelete}
                 className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
               >
-                Delete
+                {t("common.delete")}
               </button>
             </div>
           </div>

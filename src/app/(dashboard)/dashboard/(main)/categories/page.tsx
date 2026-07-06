@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCategoriesWithCount } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
+import { getDict } from "@/i18n";
 import CategoriesTable from "./CategoriesTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";
@@ -20,23 +21,25 @@ export default async function CategoriesPage({
   const result = await getCategoriesWithCount(shop.id, { q, page, pageSize: PAGE_SIZE });
   const { data: categories, total } = result.ok ? result.data : { data: [], total: 0 };
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const d = await getDict();
+  const t = d.dashboard.categories;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Categories</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{total} total</p>
+          <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{total} {t.total}</p>
         </div>
         <Link
           href="/dashboard/categories/new"
           className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
-          + New category
+          {t.new}
         </Link>
       </div>
 
-      <SearchInput defaultValue={q} placeholder="Search categories…" className="max-w-xs" />
+      <SearchInput defaultValue={q} placeholder={t.search_placeholder} className="max-w-xs" />
 
       <CategoriesTable categories={categories} />
 

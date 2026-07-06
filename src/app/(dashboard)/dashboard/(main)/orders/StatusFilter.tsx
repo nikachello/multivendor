@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { OrderStatus } from "@/generated/prisma/client";
+import { useT } from "@/i18n/context";
 
 const ALL_STATUSES = [
   "pending", "confirmed", "processing", "shipped",
@@ -11,6 +12,7 @@ const ALL_STATUSES = [
 export default function StatusFilter({ value }: { value: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useT();
 
   function onChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const params = new URLSearchParams(window.location.search);
@@ -25,10 +27,10 @@ export default function StatusFilter({ value }: { value: string }) {
       onChange={onChange}
       className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm bg-white"
     >
-      <option value="">All statuses</option>
+      <option value="">{t("dashboard.status_filter.all")}</option>
       {ALL_STATUSES.map((s) => (
         <option key={s} value={s}>
-          {s.charAt(0).toUpperCase() + s.slice(1)}
+          {t(`dashboard.orders.status_${s}`)}
         </option>
       ))}
     </select>

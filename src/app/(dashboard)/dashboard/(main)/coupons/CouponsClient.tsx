@@ -8,6 +8,7 @@ import {
   deleteCoupon,
   updateCoupon,
 } from "@/lib/actions/coupons";
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopId: string;
@@ -53,6 +54,7 @@ export default function CouponsClient({
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const t = useT();
 
   function patch(field: keyof typeof EMPTY_FORM, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -61,10 +63,10 @@ export default function CouponsClient({
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     const val = Number(form.value);
-    if (!form.code.trim()) return toast.error("Code is required");
-    if (!val || val <= 0) return toast.error("Value must be greater than 0");
+    if (!form.code.trim()) return toast.error(t("dashboard.coupons.code_required"));
+    if (!val || val <= 0) return toast.error(t("dashboard.coupons.value_required"));
     if (form.type === "percentage" && val > 100)
-      return toast.error("Percentage cannot exceed 100");
+      return toast.error(t("dashboard.coupons.percent_max"));
 
     setCreating(true);
     const result = await createCoupon(shopId, {
@@ -84,7 +86,7 @@ export default function CouponsClient({
     setCoupons((prev) => [result.data as unknown as Coupon, ...prev]);
     setForm(EMPTY_FORM);
     setShowForm(false);
-    toast.success("Coupon created");
+    toast.success(t("dashboard.coupons.created"));
   }
 
   async function handleToggle(c: Coupon) {
@@ -92,7 +94,7 @@ export default function CouponsClient({
     const result = await updateCoupon(c.id, { isActive: !c.isActive });
     setTogglingId(null);
     if (!result.ok) {
-      toast.error("Failed to update");
+      toast.error(t("dashboard.coupons.update_failed"));
       return;
     }
     setCoupons((prev) =>
@@ -108,11 +110,11 @@ export default function CouponsClient({
     const result = await deleteCoupon(id);
     setDeletingId(null);
     if (!result.ok) {
-      toast.error("Failed to delete");
+      toast.error(t("dashboard.coupons.delete_failed"));
       return;
     }
     setCoupons((prev) => prev.filter((c) => c.id !== id));
-    toast.success("Coupon deleted");
+    toast.success(t("dashboard.coupons.deleted"));
   }
 
   return (
@@ -122,7 +124,7 @@ export default function CouponsClient({
           onClick={() => setShowForm((s) => !s)}
           className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
-          {showForm ? "Cancel" : "+ New Coupon"}
+          {showForm ? t("dashboard.coupons.cancel") : t("dashboard.coupons.new")}
         </button>
       </div>
 
@@ -131,38 +133,38 @@ export default function CouponsClient({
           onSubmit={handleCreate}
           className="border border-gray-200 rounded-lg p-5 flex flex-col gap-4 bg-gray-50"
         >
-          <p className="text-sm font-medium text-gray-900">New coupon</p>
+          <p className="text-sm font-medium text-gray-900">{t("dashboard.coupons.form_title")}</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Code <span className="text-red-400">*</span>
+                {t("dashboard.coupons.code")} <span className="text-red-400">*</span>
               </label>
               <input
                 value={form.code}
                 onChange={(e) => patch("code", e.target.value.toUpperCase())}
-                placeholder="SUMMER20"
+                placeholder={t("dashboard.coupons.code_placeholder")}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] font-mono outline-none focus:border-gray-400 transition-all shadow-sm bg-white"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Type <span className="text-red-400">*</span>
+                {t("dashboard.coupons.type")} <span className="text-red-400">*</span>
               </label>
               <select
                 value={form.type}
                 onChange={(e) => patch("type", e.target.value)}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm bg-white"
               >
-                <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed amount ({currency})</option>
+                <option value="percentage">{t("dashboard.coupons.type_percent")}</option>
+                <option value="fixed">{t("dashboard.coupons.type_fixed").replace("{currency}", currency)}</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Value <span className="text-red-400">*</span>
+                {t("dashboard.coupons.value")} <span className="text-red-400">*</span>
                 <span className="text-gray-400 font-normal ml-1">
                   {form.type === "percentage" ? "%" : currency}
                 </span>
@@ -181,9 +183,9 @@ export default function CouponsClient({
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Min order{" "}
+                {t("dashboard.coupons.min_order")}{" "}
                 <span className="text-gray-400 font-normal">
-                  ({currency}, optional)
+                  {t("dashboard.coupons.min_order_suffix").replace("{currency}", currency)}
                 </span>
               </label>
               <input
@@ -199,8 +201,7 @@ export default function CouponsClient({
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Max uses{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
+                {t("dashboard.coupons.max_uses")}{" "}
               </label>
               <input
                 type="number"
@@ -208,15 +209,14 @@ export default function CouponsClient({
                 step="1"
                 value={form.maxUses}
                 onChange={(e) => patch("maxUses", e.target.value)}
-                placeholder="Unlimited"
+                placeholder={t("dashboard.coupons.max_uses_unlimited")}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm bg-white"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-700">
-                Expires{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
+                {t("dashboard.coupons.expires")}
               </label>
               <input
                 type="date"
@@ -233,7 +233,7 @@ export default function CouponsClient({
               disabled={creating}
               className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
             >
-              {creating ? "Creating€¦" : "Create Coupon"}
+              {creating ? t("dashboard.coupons.creating") : t("dashboard.coupons.create")}
             </button>
           </div>
         </form>
@@ -244,19 +244,19 @@ export default function CouponsClient({
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50 text-left">
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Code
+                {t("dashboard.coupons.col_code")}
               </th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Discount
+                {t("dashboard.coupons.col_discount")}
               </th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Uses
+                {t("dashboard.coupons.col_uses")}
               </th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Expires
+                {t("dashboard.coupons.col_expires")}
               </th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Status
+                {t("dashboard.coupons.col_status")}
               </th>
               <th className="px-4 py-3" />
             </tr>
@@ -268,7 +268,7 @@ export default function CouponsClient({
                   colSpan={6}
                   className="px-4 py-10 text-center text-sm text-gray-400"
                 >
-                  No coupons yet create one above.
+                  {t("dashboard.coupons.no_coupons")}
                 </td>
               </tr>
             ) : (
@@ -284,11 +284,11 @@ export default function CouponsClient({
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {c.type === "percentage"
-                        ? `${Number(c.value)}% off`
-                        : `${currency} ${Number(c.value).toFixed(2)} off`}
+                        ? `${Number(c.value)}${t("dashboard.coupons.percent_off")}`
+                        : `${currency} ${Number(c.value).toFixed(2)}${t("dashboard.coupons.amount_off")}`}
                       {c.minOrderAmount !== null && (
                         <span className="text-gray-400 text-xs ml-1">
-                          (min {currency} {Number(c.minOrderAmount).toFixed(2)})
+                          {t("dashboard.coupons.min_order_note").replace("{currency}", currency).replace("{amount}", Number(c.minOrderAmount).toFixed(2))}
                         </span>
                       )}
                     </td>
@@ -302,13 +302,13 @@ export default function CouponsClient({
                           {formatDate(c.expiresAt)}
                         </span>
                       ) : (
-                        "Never"
+                        t("dashboard.coupons.never")
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {expired || exhausted ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-400">
-                          {expired ? "Expired" : "Exhausted"}
+                          {expired ? t("dashboard.coupons.status_expired") : t("dashboard.coupons.status_exhausted")}
                         </span>
                       ) : (
                         <button
@@ -321,10 +321,10 @@ export default function CouponsClient({
                           }`}
                         >
                           {togglingId === c.id
-                            ? "€¦"
+                            ? "…"
                             : effectivelyActive
-                              ? "Active"
-                              : "Inactive"}
+                              ? t("dashboard.coupons.status_active")
+                              : t("dashboard.coupons.status_inactive")}
                         </button>
                       )}
                     </td>
@@ -363,14 +363,13 @@ export default function CouponsClient({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-5">
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
-                Delete coupon?
+                {t("dashboard.coupons.delete_confirm")}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
                 <span className="font-mono font-medium text-gray-900">
                   {coupons.find((c) => c.id === confirmDeleteId)?.code}
                 </span>{" "}
-                will be permanently removed and can no longer be used at
-                checkout.
+                {t("dashboard.coupons.delete_body")}
               </p>
             </div>
             <div className="flex gap-3 justify-end">
@@ -378,13 +377,13 @@ export default function CouponsClient({
                 onClick={() => setConfirmDeleteId(null)}
                 className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleDelete}
                 className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
               >
-                Delete
+                {t("common.delete")}
               </button>
             </div>
           </div>

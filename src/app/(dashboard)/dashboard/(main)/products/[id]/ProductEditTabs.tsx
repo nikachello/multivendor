@@ -9,15 +9,9 @@ import ProductForm from "../new/ProductForm";
 import OptionsEditor from "./OptionsEditor";
 import VariantsEditor from "./VariantsEditor";
 import ImagesEditor from "./ImagesEditor";
+import { useT } from "@/i18n/context";
 
 type Tab = "details" | "images" | "options" | "variants";
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: "details", label: "Details" },
-  { id: "images", label: "Images" },
-  { id: "options", label: "Options" },
-  { id: "variants", label: "Variants" },
-];
 
 type Props = {
   product: ProductWithRelations & { optionTypes: ProductOptionType[] };
@@ -29,6 +23,14 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<Tab>("details");
+  const t = useT();
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "details", label: t("dashboard.product_tabs.details") },
+    { id: "images", label: t("dashboard.product_tabs.images") },
+    { id: "options", label: t("dashboard.product_tabs.options") },
+    { id: "variants", label: t("dashboard.product_tabs.variants") },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,7 +80,7 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
       {activeTab === "options" && (
         <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-400">
-            Define options like Size or Color. Variants are generated from all combinations.
+            {t("dashboard.product_tabs.variants_hint")}
           </p>
           <OptionsEditor
             productId={product.id}
