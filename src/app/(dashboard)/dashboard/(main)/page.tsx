@@ -1,5 +1,6 @@
 ﻿import { getShop } from "@/lib/auth/get-shop";
 import { getDashboardStats } from "@/lib/db/queries";
+import { getDict } from "@/i18n";
 import {
   Package,
   Tag,
@@ -33,28 +34,30 @@ function formatDate(date: Date) {
 export default async function DashboardPage() {
   const shop = await getShop();
   const stats = await getDashboardStats(shop.id);
+  const d = await getDict();
+  const t = d.dashboard;
 
   const cards = [
     {
-      label: "Products",
+      label: t.overview.products,
       value: stats.productCount,
       icon: Package,
       href: "/dashboard/products",
     },
     {
-      label: "Categories",
+      label: t.overview.categories,
       value: stats.categoryCount,
       icon: Tag,
       href: "/dashboard/categories",
     },
     {
-      label: "Orders",
+      label: t.overview.orders,
       value: stats.orderCount,
       icon: ShoppingBag,
       href: "/dashboard/orders",
     },
     {
-      label: "Revenue",
+      label: t.overview.revenue,
       value: `${shop.currency} ${stats.revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: TrendingUp,
       href: "/dashboard/orders",
@@ -67,7 +70,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">{shop.name}</h1>
         <p className="text-sm text-gray-400 mt-1">
-          Here&apos;s what&apos;s going on with your store.
+          {t.overview.subtitle}
         </p>
       </div>
 
@@ -97,19 +100,19 @@ export default async function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[11px] font-medium tracking-widest uppercase text-gray-400">
-            Recent orders
+            {t.overview.recent_orders}
           </p>
           <Link
             href="/dashboard/orders"
             className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
           >
-            View all
+            {t.overview.view_all}
           </Link>
         </div>
 
         {stats.recentOrders.length === 0 ? (
           <div className="border border-dashed border-gray-200 rounded-lg py-10 text-center">
-            <p className="text-sm text-gray-400">No orders yet.</p>
+            <p className="text-sm text-gray-400">{t.overview.no_orders}</p>
           </div>
         ) : (
           <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
@@ -117,19 +120,19 @@ export default async function DashboardPage() {
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50 text-left">
                   <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                    Order
+                    {t.overview.col_order}
                   </th>
                   <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                    Customer
+                    {t.overview.col_customer}
                   </th>
                   <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                    Total
+                    {t.overview.col_total}
                   </th>
                   <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                    Status
+                    {t.overview.col_status}
                   </th>
                   <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-                    Date
+                    {t.overview.col_date}
                   </th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -167,7 +170,7 @@ export default async function DashboardPage() {
                         href={`/dashboard/orders/${order.id}`}
                         className="text-xs text-gray-400 hover:text-gray-900 transition-colors"
                       >
-                        View
+                        {t.overview.view}
                       </Link>
                     </td>
                   </tr>
@@ -181,20 +184,20 @@ export default async function DashboardPage() {
       {/* Quick actions */}
       <div>
         <p className="text-[11px] font-medium tracking-widest uppercase text-gray-400 mb-3">
-          Quick actions
+          {t.overview.quick_actions}
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
             href="/dashboard/products/new"
             className="px-3 py-1.5 text-[13px] font-medium bg-gray-900 text-white rounded-lg shadow-sm hover:bg-gray-800 transition-all"
           >
-            + New product
+            {t.overview.new_product}
           </Link>
           <Link
             href="/dashboard/categories/new"
             className="px-3 py-1.5 text-[13px] font-medium bg-white border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
           >
-            + New category
+            {t.overview.new_category}
           </Link>
           <a
             href={getStorefrontUrl(shop.slug)}
@@ -202,7 +205,7 @@ export default async function DashboardPage() {
             rel="noopener noreferrer"
             className="px-3 py-1.5 text-[13px] font-medium bg-white border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
           >
-            View store †—
+            {t.overview.view_store}
           </a>
         </div>
       </div>

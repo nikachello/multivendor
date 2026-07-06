@@ -25,36 +25,7 @@ import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { getStorefrontUrl } from "@/lib/storefront-url";
 import LocaleSwitcher from "./LocaleSwitcher";
-
-const NAV_GROUPS = [
-  {
-    label: "Manage",
-    items: [
-      { label: "Products", href: "/dashboard/products", icon: Package },
-      { label: "Categories", href: "/dashboard/categories", icon: Tag },
-      { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
-      { label: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
-    ],
-  },
-  {
-    label: "Store",
-    items: [
-      { label: "Themes", href: "/dashboard/themes", icon: Paintbrush },
-      { label: "Editor", href: "/dashboard/editor", icon: Layout },
-      { label: "Navigation", href: "/dashboard/navigation", icon: Navigation },
-      { label: "Shipping", href: "/dashboard/shipping", icon: Earth },
-    ],
-  },
-  {
-    label: "More",
-    items: [
-      { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
-      { label: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquare },
-      { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-      { label: "Settings", href: "/dashboard/settings", icon: Settings },
-    ],
-  },
-];
+import { useT } from "@/i18n/context";
 
 type Props = {
   shopName: string;
@@ -64,7 +35,38 @@ type Props = {
 export default function Sidebar({ shopName, shopSlug }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const NAV_GROUPS = [
+    {
+      label: t("dashboard.sidebar.group_manage"),
+      items: [
+        { label: t("dashboard.sidebar.products"), href: "/dashboard/products", icon: Package },
+        { label: t("dashboard.sidebar.categories"), href: "/dashboard/categories", icon: Tag },
+        { label: t("dashboard.sidebar.orders"), href: "/dashboard/orders", icon: ShoppingBag },
+        { label: t("dashboard.sidebar.analytics"), href: "/dashboard/analytics", icon: BarChart2 },
+      ],
+    },
+    {
+      label: t("dashboard.sidebar.group_store"),
+      items: [
+        { label: t("dashboard.sidebar.themes"), href: "/dashboard/themes", icon: Paintbrush },
+        { label: t("dashboard.sidebar.editor"), href: "/dashboard/editor", icon: Layout },
+        { label: t("dashboard.sidebar.navigation"), href: "/dashboard/navigation", icon: Navigation },
+        { label: t("dashboard.sidebar.shipping"), href: "/dashboard/shipping", icon: Earth },
+      ],
+    },
+    {
+      label: t("dashboard.sidebar.group_more"),
+      items: [
+        { label: t("dashboard.sidebar.coupons"), href: "/dashboard/coupons", icon: Ticket },
+        { label: t("dashboard.sidebar.testimonials"), href: "/dashboard/testimonials", icon: MessageSquare },
+        { label: t("dashboard.sidebar.billing"), href: "/dashboard/billing", icon: CreditCard },
+        { label: t("dashboard.sidebar.settings"), href: "/dashboard/settings", icon: Settings },
+      ],
+    },
+  ];
 
   async function handleLogout() {
     await signOut();
@@ -84,7 +86,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
           <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">{shopName}</p>
-              <p className="text-[10px] text-gray-400">Dashboard</p>
+              <p className="text-[10px] text-gray-400">{t("dashboard.sidebar.label")}</p>
             </div>
           </Link>
         </div>
@@ -136,7 +138,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
           className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] text-gray-500 hover:bg-gray-100/70 hover:text-gray-900 transition-all"
         >
           <Store className="w-[15px] h-[15px] shrink-0 text-gray-400" />
-          View Store
+          {t("dashboard.sidebar.view_store")}
         </a>
         <LocaleSwitcher />
         <button
@@ -144,7 +146,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
           className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] text-gray-500 hover:bg-gray-100/70 hover:text-gray-900 transition-all w-full text-left"
         >
           <LogOut className="w-[15px] h-[15px] shrink-0 text-gray-400" />
-          Sign out
+          {t("dashboard.sidebar.sign_out")}
         </button>
       </div>
     </>

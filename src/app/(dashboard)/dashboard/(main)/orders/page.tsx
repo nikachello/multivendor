@@ -1,5 +1,6 @@
 import { getShop } from "@/lib/auth/get-shop";
 import { getOrdersByShop } from "@/lib/db/queries";
+import { getDict } from "@/i18n";
 import OrdersTable from "./OrdersTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";
@@ -21,16 +22,18 @@ export default async function OrdersPage({
   const result = await getOrdersByShop(shop.id, { q, status, page, pageSize: PAGE_SIZE });
   const { data: orders, total } = result.ok ? result.data : { data: [], total: 0 };
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const d = await getDict();
+  const t = d.dashboard.orders;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Orders</h1>
-        <p className="text-sm text-gray-400 mt-0.5">{total} total</p>
+        <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{total} {t.total}</p>
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        <SearchInput defaultValue={q} placeholder="Search by order ID or email…" className="flex-1 min-w-48" />
+        <SearchInput defaultValue={q} placeholder={t.search_placeholder} className="flex-1 min-w-48" />
         <StatusFilter value={status ?? ""} />
       </div>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { OrderStatus } from "@/generated/prisma/client";
+import { useT } from "@/i18n/context";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   pending: "bg-yellow-50 text-yellow-700",
@@ -39,17 +40,18 @@ function formatDate(date: Date) {
 }
 
 export default function OrdersTable({ orders, currency }: Props) {
+  const t = useT();
   return (
     <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50 text-left">
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Order</th>
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Customer</th>
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Items</th>
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Total</th>
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Status</th>
-            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">Date</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_order")}</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_customer")}</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_items")}</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_total")}</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_status")}</th>
+            <th className="px-4 py-3 text-[11px] font-medium text-gray-400 uppercase tracking-wider">{t("dashboard.orders.col_date")}</th>
             <th className="px-4 py-3" />
           </tr>
         </thead>
@@ -57,7 +59,7 @@ export default function OrdersTable({ orders, currency }: Props) {
           {orders.length === 0 ? (
             <tr>
               <td colSpan={7} className="px-4 py-10 text-center text-sm text-gray-400">
-                No orders found.
+                {t("dashboard.orders.no_orders")}
               </td>
             </tr>
           ) : (
@@ -70,14 +72,14 @@ export default function OrdersTable({ orders, currency }: Props) {
                   {order.customerEmail ?? order.customerPhone ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-500">
-                  {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                  {order.items.length} {order.items.length === 1 ? t("dashboard.orders.item") : t("dashboard.orders.items")}
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-900">
                   {currency} {Number(order.total).toFixed(2)}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${STATUS_STYLES[order.status]}`}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    {t(`dashboard.orders.status_${order.status}`)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
@@ -85,7 +87,7 @@ export default function OrdersTable({ orders, currency }: Props) {
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/dashboard/orders/${order.id}`} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-                    View
+                    {t("dashboard.orders.view")}
                   </Link>
                 </td>
               </tr>

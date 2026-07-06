@@ -1,8 +1,11 @@
 import { getShop } from "@/lib/auth/get-shop";
 import BillingClient from "./BillingClient";
+import { getDict } from "@/i18n";
 
 export default async function BillingPage() {
   const shop = await getShop();
+  const d = await getDict();
+  const t = d.dashboard.billing;
 
   const paidUntil = shop.subscriptionPaidUntil;
   const isActive = paidUntil ? new Date(paidUntil) > new Date() : false;
@@ -10,16 +13,16 @@ export default async function BillingPage() {
   return (
     <div className="flex flex-col gap-6 max-w-xl">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Billing</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Manage your platform subscription.</p>
+        <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t.subtitle}</p>
       </div>
 
       <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6 flex flex-col gap-6">
         {/* Status */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-700">Subscription</p>
-            <p className="text-xs text-gray-400 mt-0.5">29 GEL / month</p>
+            <p className="text-sm font-medium text-gray-700">{t.subscription}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t.price}</p>
           </div>
           {isActive ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-medium text-green-700">
@@ -37,7 +40,7 @@ export default async function BillingPage() {
         {/* Expiry */}
         {paidUntil && (
           <div className="text-xs text-gray-400">
-            {isActive ? "Renews" : "Expired"} on{" "}
+            {isActive ? t.renews : t.expired}{t.on ? ` ${t.on} ` : " "}
             <span className="font-medium text-gray-700">
               {new Intl.DateTimeFormat("en-US", {
                 month: "long",

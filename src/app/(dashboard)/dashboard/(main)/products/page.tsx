@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getProductsByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import { notFound } from "next/navigation";
+import { getDict } from "@/i18n";
 import ProductsTable from "./ProductsTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";
@@ -23,23 +24,25 @@ export default async function ProductsPage({
 
   const { data: products, total } = result.data;
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const d = await getDict();
+  const t = d.dashboard.products;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Products</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{total} total</p>
+          <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{total} {t.total}</p>
         </div>
         <Link
           href="/dashboard/products/new"
           className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all"
         >
-          + New product
+          {t.new_product}
         </Link>
       </div>
 
-      <SearchInput defaultValue={q} placeholder="Search products…" className="max-w-xs" />
+      <SearchInput defaultValue={q} placeholder={t.search_placeholder} className="max-w-xs" />
 
       <ProductsTable products={products} currency={shop.currency} />
 

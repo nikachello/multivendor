@@ -1,17 +1,20 @@
 import { getShop } from "@/lib/auth/get-shop";
 import { isProShop } from "@/lib/subscription";
+import { getDict } from "@/i18n";
 import SettingsForm from "./SettingsForm";
 import CustomDomainForm from "./CustomDomainForm";
 
 export default async function SettingsPage() {
   const shop = await getShop();
   const isPro = isProShop(shop.subscriptionPaidUntil);
+  const d = await getDict();
+  const t = d.dashboard.settings;
 
   return (
     <div className="flex flex-col gap-6 max-w-xl">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Manage your store details and preferences.</p>
+        <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t.subtitle}</p>
       </div>
 
       <SettingsForm
