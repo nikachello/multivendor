@@ -235,7 +235,7 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold text-gray-900">
-                    {theme.name}
+                    {t(`dashboard.themes.name_${theme.id}`)}
                   </p>
                   {isActive && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-900 text-white rounded">
@@ -254,7 +254,7 @@ export default function ThemesClient({ shopId, activeThemeId, isPro }: Props) {
                   )}
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                  {theme.description}
+                  {t(`dashboard.themes.desc_${theme.id}`)}
                 </p>
               </div>
 

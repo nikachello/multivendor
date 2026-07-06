@@ -5,10 +5,12 @@ import { FieldDef, FlatFieldDef } from "@/lib/editor-schema";
 import { SectionMeta } from "@/themes/types";
 import { useUploadThing } from "@/lib/uploadthing-client";
 import { useRef } from "react";
+import { useT } from "@/i18n/context";
 
 function ImageUploadField({ label, value, onChange }: { label: string; value: unknown; onChange: (val: unknown) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const current = typeof value === "string" ? value : "";
+  const t = useT();
 
   const { startUpload, isUploading } = useUploadThing("sectionImage", {
     onClientUploadComplete: (res) => {
@@ -33,7 +35,11 @@ function ImageUploadField({ label, value, onChange }: { label: string; value: un
         disabled={isUploading}
         className="w-full border border-neutral-200 hover:border-neutral-500 py-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-50"
       >
-        {isUploading ? "Uploading…" : current ? "Replace image" : "Upload image"}
+        {isUploading
+          ? t("dashboard.section_panel.uploading")
+          : current
+            ? t("dashboard.section_panel.replace_image")
+            : t("dashboard.section_panel.upload_image")}
       </button>
     </div>
   );
@@ -150,6 +156,8 @@ function Field({
   categories: ShopCategory[];
   onChange: (val: unknown) => void;
 }) {
+  const t = useT();
+
   if (
     field.type === "text" ||
     field.type === "textarea" ||
@@ -169,7 +177,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           className="w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors bg-white"
         >
-          <option value="">— Select a category —</option>
+          <option value="">{t("dashboard.section_panel.select_category")}</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
@@ -184,7 +192,7 @@ function Field({
       <div>
         <label className="block text-xs font-medium text-neutral-600 mb-1.5">{field.label}</label>
         {categories.length === 0 ? (
-          <p className="text-xs text-neutral-400">No categories yet.</p>
+          <p className="text-xs text-neutral-400">{t("dashboard.section_panel.no_categories")}</p>
         ) : (
           <div className="border border-neutral-200 divide-y divide-neutral-100 max-h-48 overflow-y-auto">
             {categories.map((cat) => {
@@ -214,7 +222,7 @@ function Field({
             onClick={() => onChange([])}
             className="mt-1.5 text-[10px] text-neutral-400 hover:text-neutral-700 transition-colors"
           >
-            Clear selection (show all)
+            {t("dashboard.section_panel.clear_selection")}
           </button>
         )}
       </div>
@@ -231,13 +239,13 @@ function Field({
             onClick={() => onChange([...items, { ...field.itemDefault, _id: crypto.randomUUID() }])}
             className="text-xs border border-neutral-200 hover:border-neutral-400 px-2 py-0.5 text-neutral-500 hover:text-neutral-900 transition-colors"
           >
-            + Add
+            {t("dashboard.section_panel.add_item")}
           </button>
         </div>
 
         {items.length === 0 && (
           <p className="text-xs text-neutral-400 text-center py-3 border border-dashed border-neutral-200">
-            No items yet
+            {t("dashboard.section_panel.no_items")}
           </p>
         )}
 
@@ -270,7 +278,7 @@ function Field({
                   onClick={() => onChange(items.filter((_, i) => i !== idx))}
                   className="text-xs text-red-400 hover:text-red-600 transition-colors"
                 >
-                  Remove
+                  {t("dashboard.section_panel.remove_item")}
                 </button>
               </div>
             </details>
@@ -285,6 +293,7 @@ function Field({
 
 export default function SectionSettingsPanel({ section, shopId, categories, sectionMeta, onChange }: Props) {
   void shopId;
+  const t = useT();
   const meta = sectionMeta.find((m) => m.type === section.type);
   const fields = meta?.fieldSchema ?? [];
   const label = meta?.label ?? section.type;
@@ -297,13 +306,13 @@ export default function SectionSettingsPanel({ section, shopId, categories, sect
         <p>
           {section.type === "navbar" ? (
             <>
-              Edit navigation links in the{" "}
+              {t("dashboard.section_panel.nav_edit")}{" "}
               <a href="/dashboard/navigation" className="underline hover:text-neutral-900 transition-colors">
-                Navigation editor
+                {t("dashboard.section_panel.nav_editor")}
               </a>
               .
             </>
-          ) : "This section has no editable settings yet."}
+          ) : t("dashboard.section_panel.no_settings")}
         </p>
       </div>
     );

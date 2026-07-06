@@ -1,20 +1,22 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+import { getShop } from "@/lib/auth/get-shop";
 import { isProShop } from "@/lib/subscription";
+import { getDict } from "@/i18n";
 import ThemesClient from "./ThemesClient";
 
 export default async function ThemesPage() {
-  const shop = await getShop();
+  const [shop, d] = await Promise.all([getShop(), getDict()]);
   const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
   const isPro = isProShop(shop.subscriptionPaidUntil);
+  const t = d.dashboard.themes;
 
   return (
     <div className="p-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-gray-900">Themes</h1>
+        <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Choose a design system for your store. Customize colors and fonts in the{" "}
+          {t.subtitle}{" "}
           <a href="/dashboard/editor" className="underline hover:text-gray-700 transition-colors">
-            Editor
+            {d.dashboard.editor.title}
           </a>
           .
         </p>

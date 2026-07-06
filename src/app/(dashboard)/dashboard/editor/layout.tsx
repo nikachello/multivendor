@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { getShop } from "@/lib/auth/get-shop";
 import { getStorefrontUrl } from "@/lib/storefront-url";
+import { getDict } from "@/i18n";
 
 export default async function EditorLayout({ children }: { children: React.ReactNode }) {
-  const shop = await getShop();
+  const [shop, d] = await Promise.all([getShop(), getDict()]);
+  const t = d.dashboard.editor;
 
   return (
     <div className="flex flex-col h-screen">
@@ -12,7 +14,7 @@ export default async function EditorLayout({ children }: { children: React.React
           href="/dashboard"
           className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors"
         >
-          ← Dashboard
+          {t.back}
         </Link>
         <span className="font-medium text-gray-900">{shop.name}</span>
         <a
@@ -21,7 +23,7 @@ export default async function EditorLayout({ children }: { children: React.React
           rel="noopener noreferrer"
           className="text-gray-500 hover:text-gray-900 transition-colors"
         >
-          View Store ↗
+          {t.view_store}
         </a>
       </header>
       <div className="flex-1 min-h-0">{children}</div>

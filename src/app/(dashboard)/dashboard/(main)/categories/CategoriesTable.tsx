@@ -38,7 +38,16 @@ export default function CategoriesTable({
   return (
     <>
       <DataTable
-        columns={createColumns(setPendingDeleteId)}
+        columns={createColumns(setPendingDeleteId, {
+          name: t("dashboard.categories.col_name"),
+          slug: t("dashboard.categories.col_slug"),
+          products: t("dashboard.categories.col_products"),
+          status: t("dashboard.categories.col_status"),
+          active: t("dashboard.categories.col_active"),
+          inactive: t("dashboard.categories.col_inactive"),
+          edit: t("dashboard.categories.col_edit"),
+          delete: t("common.delete"),
+        })}
         data={categories}
         emptyMessage={t("dashboard.categories.no_categories")}
       />

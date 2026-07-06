@@ -1,6 +1,7 @@
 "use client";
 
 import { SectionMeta } from "@/themes/types";
+import { useT } from "@/i18n/context";
 
 // Generic fallback icon for unknown section types
 const genericIcon = (
@@ -123,11 +124,12 @@ type Props = {
 };
 
 export default function AddSectionPanel({ addableMeta, onAdd, onAddNavbar, hasNavbar, onClose }: Props) {
+  const t = useT();
   return (
     <div className="border-t border-neutral-100 bg-neutral-50 overflow-scroll">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-100">
         <span className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-          Add section
+          {t("dashboard.add_section.title")}
         </span>
         <button
           onClick={onClose}
@@ -148,8 +150,8 @@ export default function AddSectionPanel({ addableMeta, onAdd, onAddNavbar, hasNa
             >
               <span className="mt-0.5 text-neutral-400 flex-shrink-0">{navbarIcon}</span>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-neutral-700">Navbar</p>
-                <p className="text-xs text-neutral-400 mt-0.5">Site navigation — always pinned to top</p>
+                <p className="text-sm font-medium text-neutral-700">{t("dashboard.add_section.navbar_label")}</p>
+                <p className="text-xs text-neutral-400 mt-0.5">{t("dashboard.add_section.navbar_desc")}</p>
               </div>
             </button>
           </li>

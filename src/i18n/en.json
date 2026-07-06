@@ -151,7 +151,14 @@
       "delete_warning": " product will be uncategorized.",
       "deleting": "Deleting…",
       "deleted": "Category deleted",
-      "delete_failed": "Failed to delete category"
+      "delete_failed": "Failed to delete category",
+      "col_name": "Name",
+      "col_slug": "Slug",
+      "col_products": "Products",
+      "col_status": "Status",
+      "col_active": "Active",
+      "col_inactive": "Inactive",
+      "col_edit": "Edit"
     },
     "category_form": {
       "name": "Name",
@@ -304,6 +311,7 @@
     },
     "themes": {
       "title": "Themes",
+      "subtitle": "Choose a design system for your store. Customize colors and fonts in the",
       "locked_toast": "Upgrade to Pro to unlock all themes.",
       "activated": "Theme activated",
       "activate_failed": "Failed to activate theme",
@@ -314,7 +322,15 @@
       "btn_customize": "Customize",
       "btn_upgrade": "Upgrade",
       "activating": "Activating...",
-      "btn_activate": "Activate"
+      "btn_activate": "Activate",
+      "name_minimal": "Minimal",
+      "name_maison": "Maison",
+      "name_dew": "Dew",
+      "name_pipeline": "Pipeline",
+      "desc_minimal": "Clean, whitespace-first design with sharp typography",
+      "desc_maison": "Luxury editorial with display headings and warm parchment tones",
+      "desc_dew": "Soft beauty & wellness theme with periwinkle accents and warm blush tones",
+      "desc_pipeline": "Editorial black & white with image rollover, portrait cards, and generous whitespace"
     },
     "testimonials": {
       "title": "Testimonials",
@@ -384,6 +400,8 @@
     "editor": {
       "title": "Editor",
       "live": "Live ↗",
+      "back": "← Dashboard",
+      "view_store": "View Store ↗",
       "page_label": "Page",
       "tab_sections": "Sections",
       "tab_theme": "Theme",
@@ -400,6 +418,49 @@
       "mobile": "Mobile",
       "settings": "Settings",
       "click_hint": "Click a section in the preview or sidebar to edit it"
+    },
+    "custom_domain": {
+      "title": "Custom Domain",
+      "connect_own": "Connect your own domain",
+      "pro_only": "Available on the Pro plan.",
+      "upgrade": "Upgrade to Pro",
+      "domain_label": "Domain",
+      "verified": "Verified",
+      "pending": "Pending",
+      "check": "Check",
+      "remove": "Remove",
+      "dns_title": "DNS Setup Required",
+      "dns_a_intro": "Add an A record to point your domain to Vercel:",
+      "dns_cname_intro": "Add a CNAME record to point your subdomain to Vercel:",
+      "dns_propagate": "DNS changes can take up to 48 hours to propagate. Click \"Check\" once saved.",
+      "connecting": "Connecting...",
+      "connect": "Connect",
+      "hint": "Works with apex domains and subdomains. Instructions will appear after connecting.",
+      "connected_toast": "Domain connected. Point your CNAME record to cname.vercel-dns.com",
+      "removed_toast": "Custom domain removed",
+      "remove_failed": "Failed to remove domain",
+      "check_failed": "Could not check verification status",
+      "not_verified": "Not verified yet. Make sure your CNAME record is saved.",
+      "verified_toast": "Domain verified!"
+    },
+    "section_panel": {
+      "no_settings": "This section has no editable settings yet.",
+      "nav_edit": "Edit navigation links in the",
+      "nav_editor": "Navigation editor",
+      "select_category": "— Select a category —",
+      "no_categories": "No categories yet.",
+      "clear_selection": "Clear selection (show all)",
+      "add_item": "+ Add",
+      "no_items": "No items yet",
+      "remove_item": "Remove",
+      "uploading": "Uploading…",
+      "replace_image": "Replace image",
+      "upload_image": "Upload image"
+    },
+    "add_section": {
+      "title": "Add section",
+      "navbar_label": "Navbar",
+      "navbar_desc": "Site navigation — always pinned to top"
     }
   },
   "landing": {
