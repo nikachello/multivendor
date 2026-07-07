@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://*.ufs.sh https://utfs.io https://images.unsplash.com https://www.google-analytics.com https://www.facebook.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://api.bog.ge https://www.google-analytics.com https://oauth2.bog.ge https://vitals.vercel-insights.com",
+              "connect-src 'self' https://api.bog.ge https://www.google-analytics.com https://oauth2.bog.ge https://vitals.vercel-insights.com https://uploadthing.com https://*.uploadthing.com https://*.ufs.sh https://*.ingest.uploadthing.com",
               "frame-ancestors 'self'",
             ].join("; "),
           },
