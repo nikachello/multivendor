@@ -97,6 +97,8 @@ export default function TestimonialsClient({
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const t = useT();
 
+  const isAtLimit = !isPro && testimonials.length >= freeLimit;
+
   function openAdd() {
     setForm(EMPTY_FORM);
     setModalOpen(true);
@@ -194,7 +196,7 @@ export default function TestimonialsClient({
   return (
     <>
       <div className="flex items-center justify-between gap-4">
-        {atLimit && (
+        {isAtLimit && (
           <p className="text-xs text-gray-500">
             {t("dashboard.testimonials.limit_reached").replace("{limit}", String(freeLimit))}{" "}
             <a href="/dashboard/billing" className="underline font-medium text-gray-700 hover:text-gray-900">
@@ -204,8 +206,8 @@ export default function TestimonialsClient({
         )}
         <div className="ml-auto">
           <button
-            onClick={atLimit ? undefined : openAdd}
-            disabled={atLimit}
+            onClick={isAtLimit ? undefined : openAdd}
+            disabled={isAtLimit}
             className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t("dashboard.testimonials.add")}

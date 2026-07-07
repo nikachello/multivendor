@@ -40,6 +40,13 @@ export async function createCoupon(
   const code = data.code.trim().toUpperCase();
   if (!code) return err({ code: ErrorCode.GENERAL_ERROR, message: "Code is required", status: 400 });
 
+  if (typeof data.value !== "number" || data.value <= 0)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Coupon value must be a positive number", status: 400 });
+  if (data.maxUses !== undefined && data.maxUses !== null && (!Number.isInteger(data.maxUses) || data.maxUses < 1))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Max uses must be a positive integer", status: 400 });
+  if (data.minOrderAmount !== undefined && data.minOrderAmount !== null && data.minOrderAmount < 0)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Minimum order amount cannot be negative", status: 400 });
+
   const existing = await prisma.coupon.findUnique({ where: { shopId_code: { shopId, code } } });
   if (existing) return err({ code: ErrorCode.GENERAL_ERROR, message: "Coupon code already exists", status: 409 });
 

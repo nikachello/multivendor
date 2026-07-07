@@ -169,9 +169,9 @@ export default function CartDrawer({ shopId, shopSlug, shopBase, currency }: Pro
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() =>
-                            setQuantity(item.variantId, item.quantity + 1)
-                          }
+                          onClick={() => {
+                            if (item.quantity < 99) setQuantity(item.variantId, item.quantity + 1);
+                          }}
                           aria-label="Increase quantity"
                           className="w-7 h-7 flex items-center justify-center text-neutral-500 hover:text-black transition-colors"
                         >

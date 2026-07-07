@@ -2,7 +2,7 @@
 
 import prisma from "../db/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { err } from "../result";
+import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
 import { ShopSection } from "../types/store-section";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
@@ -37,4 +37,5 @@ export async function saveSections(
       })),
     }),
   ]);
+  return ok(null);
 }

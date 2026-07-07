@@ -423,6 +423,9 @@ export default function CheckoutForm({
               <span>{t("checkout.total")}</span>
               <span>{currency} {total.toFixed(2)}</span>
             </div>
+            <p className="text-[11px] text-zinc-400 mt-1">
+              Final prices are confirmed when your order is placed.
+            </p>
           </div>
         </div>
       </aside>

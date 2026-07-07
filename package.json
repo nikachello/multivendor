@@ -15,7 +15,8 @@
   "overrides": {
     "hono": "^4.12.25",
     "js-yaml": "^4.2.0",
-    "esbuild": "^0.28.1"
+    "esbuild": "^0.28.1",
+    "effect": "3.20.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

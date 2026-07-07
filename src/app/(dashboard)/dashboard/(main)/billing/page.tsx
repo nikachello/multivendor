@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { getShop } from "@/lib/auth/get-shop";
 import BillingClient from "./BillingClient";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.billing.title };
+}
 
 export default async function BillingPage() {
   const shop = await getShop();

@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { getShop } from "@/lib/auth/get-shop";
 import { getAnalyticsData } from "@/lib/db/queries";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.analytics.title };
+}
 import RevenueChart from "./RevenueChart";
 import DateRangePicker from "./DateRangePicker";
 

@@ -1,5 +1,22 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getShopBySlug(slug);
+  if (!result.ok) return {};
+  return {
+    title: {
+      template: `%s | ${result.data.name}`,
+      default: result.data.name,
+    },
+  };
+}
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
 import StorefrontFooter from "@/components/storefront/layout/StorefrontFooter";
 import StorefrontPixel from "@/components/storefront/tracking/StorefrontPixel";

@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
   if (currency !== undefined && currency !== "GEL") {
     return NextResponse.json({ error: "Unexpected currency" }, { status: 400 });
   }
-  if (paidAmount !== undefined && paidAmount < SUBSCRIPTION_PRICE_GEL) {
-    return NextResponse.json({ error: "Amount below subscription price" }, { status: 400 });
+  if (paidAmount === undefined || paidAmount < SUBSCRIPTION_PRICE_GEL) {
+    return NextResponse.json({ error: "Insufficient payment amount" }, { status: 400 });
   }
 
   const shopId = external_order_id.slice(4);

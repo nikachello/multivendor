@@ -1,6 +1,17 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+﻿import type { Metadata } from "next";
+import { getShop } from "@/lib/auth/get-shop";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Link from "next/link";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const shop = await getShop();
+  return {
+    title: {
+      template: `%s | ${shop.name}`,
+      default: shop.name,
+    },
+  };
+}
 
 function getSubscriptionBanner(
   paidUntil: Date | null,

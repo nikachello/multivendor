@@ -1,8 +1,14 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+﻿import type { Metadata } from "next";
+import { getShop } from "@/lib/auth/get-shop";
 import { getCouponsByShop } from "@/lib/actions/coupons";
 import CouponsClient from "./CouponsClient";
 import { isProShop } from "@/lib/subscription";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.coupons.title };
+}
 
 export default async function CouponsPage() {
   const shop = await getShop();

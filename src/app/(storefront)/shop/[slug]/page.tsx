@@ -49,7 +49,7 @@ export default async function ShopPage({
   const sectionsResult = await getShopSections(shop.id);
 
   if (!sectionsResult.ok) {
-    return null; // or fallback UI TODO
+    throw new Error("Failed to load shop sections");
   }
 
   const sections = sectionsResult.data;

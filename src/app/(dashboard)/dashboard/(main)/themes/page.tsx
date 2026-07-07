@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { getShop } from "@/lib/auth/get-shop";
 import { isProShop } from "@/lib/subscription";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.themes.title };
+}
 import ThemesClient from "./ThemesClient";
 
 export default async function ThemesPage() {

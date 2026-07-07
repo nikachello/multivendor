@@ -37,7 +37,7 @@ export async function proxy(req: NextRequest) {
   if (!isRootDomain) {
     try {
       const shop = await prisma.shop.findFirst({
-        where: { customDomain: host },
+        where: { customDomain: host, domainVerified: true },
         select: { slug: true },
       });
       if (shop && !pathname.startsWith(`/shop/${shop.slug}`)) {

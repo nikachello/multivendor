@@ -107,7 +107,7 @@ export default function ProductDetail({
       variantOptions: getVariantOptions(selectedVariant),
       price: Number(selectedVariant.price),
       quantity,
-      image: selectedVariant.image ?? product.images[0].url,
+      image: selectedVariant.image ?? product.images[0]?.url ?? null,
     });
     trackAddToCart(
       { id: product.id, name: product.name, price: Number(selectedVariant.price), quantity },

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, signUp } from "@/lib/auth/client";
+import { useT } from "@/i18n/context";
 
 function GoogleIcon() {
   return (
@@ -18,6 +19,7 @@ function GoogleIcon() {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,9 +36,9 @@ export default function RegisterPage() {
   })();
 
   const strengthConfig = {
-    weak:   { label: "Weak",   color: "bg-red-400",    width: "w-1/3" },
-    fair:   { label: "Fair",   color: "bg-yellow-400", width: "w-2/3" },
-    strong: { label: "Strong", color: "bg-green-500",  width: "w-full" },
+    weak:   { color: "bg-red-400",    width: "w-1/3" },
+    fair:   { color: "bg-yellow-400", width: "w-2/3" },
+    strong: { color: "bg-green-500",  width: "w-full" },
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -44,15 +46,15 @@ export default function RegisterPage() {
     setError(null);
 
     if (!name.trim()) {
-      setError("Name is required.");
+      setError(t("auth.register.name_required"));
       return;
     }
     if (!email.includes("@")) {
-      setError("Enter a valid email address.");
+      setError(t("auth.invalid_email"));
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("auth.password_min"));
       return;
     }
 
@@ -84,14 +86,14 @@ export default function RegisterPage() {
         <div className="space-y-6">
           <div className="space-y-1">
             <p className="text-zinc-200 text-2xl font-light leading-snug">
-              Your store, your rules.
+              {t("auth.register.panel_title")}
             </p>
             <p className="text-zinc-500 text-sm leading-relaxed">
-              Set up your products, categories, and storefront in minutes. No code required.
+              {t("auth.register.panel_desc")}
             </p>
           </div>
           <ul className="space-y-3 text-sm text-zinc-400">
-            {["Full product & variant management", "Custom storefront themes", "Category & navigation editor"].map((f) => (
+            {[t("auth.register.feature_1"), t("auth.register.feature_2"), t("auth.register.feature_3")].map((f) => (
               <li key={f} className="flex items-center gap-2.5">
                 <svg className="w-4 h-4 text-zinc-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -112,45 +114,42 @@ export default function RegisterPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-zinc-900">Check your email</h2>
+            <h2 className="text-lg font-semibold text-zinc-900">{t("auth.register.verify_title")}</h2>
             <p className="text-sm text-zinc-500">
-              We sent a verification link to <span className="font-medium text-zinc-900">{email}</span>. Click it to activate your account.
+              {t("auth.register.verify_desc", { email })}
             </p>
-            <p className="text-xs text-zinc-400">Didn&apos;t receive it? Check your spam folder.</p>
+            <p className="text-xs text-zinc-400">{t("auth.register.verify_spam")}</p>
           </div>
         ) : (
         <div className="w-full max-w-sm space-y-8">
-          {/* Header */}
           <div className="space-y-1">
             <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">
-              Create your account
+              {t("auth.register.title")}
             </h1>
             <p className="text-sm text-zinc-500">
-              Start building your store today.
+              {t("auth.register.subtitle")}
             </p>
           </div>
 
-          {/* Google */}
           <button
             type="button"
             onClick={() => signIn.social({ provider: "google", callbackURL: "/dashboard" })}
             className="w-full flex items-center justify-center gap-3 border border-zinc-200 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors rounded-sm"
           >
             <GoogleIcon />
-            Continue with Google
+            {t("auth.google")}
           </button>
 
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-zinc-100" />
-            <span className="text-[11px] text-zinc-400">or</span>
+            <span className="text-[11px] text-zinc-400">{t("auth.or")}</span>
             <div className="flex-1 h-px bg-zinc-100" />
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-                Full name
+                {t("auth.register.name")}
               </label>
               <input
                 type="text"
@@ -160,13 +159,13 @@ export default function RegisterPage() {
                 autoComplete="name"
                 autoFocus
                 className="w-full border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-900 transition-colors rounded-sm"
-                placeholder="Jane Smith"
+                placeholder={t("auth.register.name_placeholder")}
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-                Email
+                {t("auth.email")}
               </label>
               <input
                 type="email"
@@ -175,13 +174,13 @@ export default function RegisterPage() {
                 required
                 autoComplete="email"
                 className="w-full border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-900 transition-colors rounded-sm"
-                placeholder="you@example.com"
+                placeholder={t("auth.register.email_placeholder")}
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-                Password
+                {t("auth.password")}
               </label>
               <div className="relative">
                 <input
@@ -191,7 +190,7 @@ export default function RegisterPage() {
                   required
                   autoComplete="new-password"
                   className="w-full border border-zinc-200 px-3 py-2.5 pr-10 text-sm text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-900 transition-colors rounded-sm"
-                  placeholder="Min. 8 characters"
+                  placeholder={t("auth.register.password_placeholder")}
                 />
                 <button
                   type="button"
@@ -212,7 +211,6 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              {/* Password strength */}
               {passwordStrength && (
                 <div className="space-y-1">
                   <div className="h-0.5 bg-zinc-100 rounded-full overflow-hidden">
@@ -222,7 +220,7 @@ export default function RegisterPage() {
                     passwordStrength === "weak" ? "text-red-400" :
                     passwordStrength === "fair" ? "text-yellow-500" : "text-green-600"
                   }`}>
-                    {strengthConfig[passwordStrength].label} password
+                    {t(`auth.register.strength_${passwordStrength}`)}
                   </p>
                 </div>
               )}
@@ -242,21 +240,21 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full py-2.5 text-[11px] tracking-widest uppercase font-medium bg-zinc-900 text-white hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? t("auth.register.submitting") : t("auth.register.submit")}
             </button>
 
             <p className="text-[10px] text-center text-zinc-400 leading-relaxed">
-              By creating an account, you agree to our{" "}
-              <span className="text-zinc-600 hover:underline cursor-pointer underline-offset-4">Terms of Service</span>{" "}
-              and{" "}
-              <span className="text-zinc-600 hover:underline cursor-pointer underline-offset-4">Privacy Policy</span>.
+              {t("auth.register.terms")}{" "}
+              <span className="text-zinc-600 hover:underline cursor-pointer underline-offset-4">{t("auth.register.terms_tos")}</span>{" "}
+              {t("auth.register.terms_and")}{" "}
+              <span className="text-zinc-600 hover:underline cursor-pointer underline-offset-4">{t("auth.register.terms_privacy")}</span>.
             </p>
           </form>
 
           <p className="text-[11px] text-center text-zinc-400">
-            Already have an account?{" "}
+            {t("auth.register.have_account")}{" "}
             <Link href="/login" className="text-zinc-900 font-medium hover:underline underline-offset-4">
-              Sign in
+              {t("auth.register.sign_in")}
             </Link>
           </p>
         </div>

@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { getShop } from "@/lib/auth/get-shop";
 import { getOrdersByShop } from "@/lib/db/queries";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.orders.title };
+}
 import OrdersTable from "./OrdersTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";

@@ -51,8 +51,10 @@ export const useCartStore = create<CartStore>()(
             total: 0,
           };
 
+          if (Object.keys(cart.items).length >= 50) return state;
+
           const existingIndex = cart.items.findIndex(
-            (i) => i.variantId === item.variantId
+            (i) => i.variantId === item.variantId,
           );
 
           let updatedItems: CartItem[];
@@ -62,7 +64,7 @@ export const useCartStore = create<CartStore>()(
             updatedItems = cart.items.map((i, idx) =>
               idx === existingIndex
                 ? { ...i, quantity: i.quantity + item.quantity }
-                : i
+                : i,
             );
           } else {
             // New item — append
@@ -88,7 +90,7 @@ export const useCartStore = create<CartStore>()(
           if (!cart) return state;
 
           const updatedItems = cart.items.filter(
-            (i) => i.variantId !== variantId
+            (i) => i.variantId !== variantId,
           );
 
           return {
@@ -115,7 +117,7 @@ export const useCartStore = create<CartStore>()(
           if (!cart) return state;
 
           const updatedItems = cart.items.map((i) =>
-            i.variantId === variantId ? { ...i, quantity } : i
+            i.variantId === variantId ? { ...i, quantity } : i,
           );
 
           return {
@@ -153,6 +155,6 @@ export const useCartStore = create<CartStore>()(
       name: "cart",
       // Only persist cart data — not UI state like cartOpen
       partialize: (state) => ({ carts: state.carts }),
-    }
-  )
+    },
+  ),
 );

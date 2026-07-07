@@ -4,11 +4,13 @@ import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "@/lib/auth/client";
+import { useT } from "@/i18n/context";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: sessionData, isPending } = useSession();
+  const t = useT();
 
   useEffect(() => {
     if (!isPending && sessionData?.session) {
@@ -27,11 +29,11 @@ function LoginForm() {
     setError(null);
 
     if (!email.includes("@")) {
-      setError("Enter a valid email address.");
+      setError(t("auth.invalid_email"));
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("auth.password_min"));
       return;
     }
 
@@ -45,9 +47,9 @@ function LoginForm() {
 
     if (result?.error) {
       if (result.error.status === 403) {
-        setError("Please verify your email first. Check your inbox for a verification link.");
+        setError(t("auth.login.verify_email"));
       } else {
-        setError("Invalid email or password.");
+        setError(t("auth.login.invalid_credentials"));
       }
     } else {
       router.push("/dashboard");
@@ -57,13 +59,13 @@ function LoginForm() {
   return (
     <div className="w-full max-w-sm space-y-8">
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">Welcome back</h1>
-        <p className="text-sm text-zinc-500">Sign in to your account to continue.</p>
+        <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">{t("auth.login.title")}</h1>
+        <p className="text-sm text-zinc-500">{t("auth.login.subtitle")}</p>
       </div>
 
       {wasReset && (
         <div className="bg-green-50 border border-green-100 px-3 py-2.5 rounded-sm text-[11px] text-green-700">
-          Password updated — sign in with your new password.
+          {t("auth.login.reset_success")}
         </div>
       )}
 
@@ -73,19 +75,19 @@ function LoginForm() {
         className="w-full flex items-center justify-center gap-3 border border-zinc-200 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors rounded-sm"
       >
         <GoogleIcon />
-        Continue with Google
+        {t("auth.google")}
       </button>
 
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-zinc-100" />
-        <span className="text-[11px] text-zinc-400">or</span>
+        <span className="text-[11px] text-zinc-400">{t("auth.or")}</span>
         <div className="flex-1 h-px bg-zinc-100" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-            Email
+            {t("auth.email")}
           </label>
           <input
             type="email"
@@ -102,13 +104,13 @@ function LoginForm() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-              Password
+              {t("auth.password")}
             </label>
             <Link
               href="/forgot-password"
               className="text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors"
             >
-              Forgot password?
+              {t("auth.login.forgot_password")}
             </Link>
           </div>
           <div className="relative">
@@ -155,14 +157,14 @@ function LoginForm() {
           disabled={loading}
           className="w-full py-2.5 text-[11px] tracking-widest uppercase font-medium bg-zinc-900 text-white hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </button>
       </form>
 
       <p className="text-[11px] text-center text-zinc-400">
-        Don&apos;t have an account?{" "}
+        {t("auth.login.no_account")}{" "}
         <Link href="/register" className="text-zinc-900 font-medium hover:underline underline-offset-4">
-          Create one
+          {t("auth.login.create_one")}
         </Link>
       </p>
     </div>

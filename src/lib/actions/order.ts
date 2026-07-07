@@ -38,6 +38,12 @@ export const createOrder = async (
   if (!shopId || items.length === 0)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
 
+  if (items.length > 50)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Too many items in cart", status: 400 });
+
+  if (items.some((i) => !Number.isInteger(i.quantity) || i.quantity < 1 || i.quantity > 100))
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid item quantity", status: 400 });
+
   const shopDetails = await prisma.shop.findFirst({ where: { id: shopId } });
   if (!shopDetails)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Shop not found", status: 404 });
@@ -215,6 +221,10 @@ export const createOrder = async (
         message: "This coupon is no longer valid. Please remove it and try again.",
         status: 409,
       });
+    }
+    if (e instanceof Error && e.message.startsWith("PRODUCT_NOT_FOUND:")) {
+      const name = e.message.replace("PRODUCT_NOT_FOUND:", "");
+      return err({ code: ErrorCode.GENERAL_ERROR, message: `"${name}" is no longer available. Please remove it from your cart.`, status: 409 });
     }
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
   }

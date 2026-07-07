@@ -56,12 +56,16 @@ export default function ShippingForm({
 
   async function handleSave() {
     setSaving(true);
-    await updateShipping(shopId, {
+    const result = await updateShipping(shopId, {
       shippingRate: defaultRate,
       freeThreshold: threshold,
       shippingZones: zones,
     });
     setSaving(false);
+    if (!result.ok) {
+      toast.error(result.error?.message ?? t("common.error"));
+      return;
+    }
     toast.success(t("dashboard.shipping.saved"));
   }
 

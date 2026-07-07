@@ -7,6 +7,11 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  rateLimit: {
+    window: 60,        // 60 second window
+    max: 10,           // 10 requests per window
+    storage: "memory", // in-memory (no Redis required)
+  },
   trustedOrigins: ["https://multistore.ge", "https://www.multistore.ge"],
   session: {
     expiresIn: 60 * 60 * 24 * 30,    // 30 days

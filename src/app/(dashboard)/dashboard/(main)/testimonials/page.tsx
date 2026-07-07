@@ -1,8 +1,14 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+﻿import type { Metadata } from "next";
+import { getShop } from "@/lib/auth/get-shop";
 import { getTestimonialsByShop, getProductsByShop } from "@/lib/db/queries";
 import TestimonialsClient from "./TestimonialsClient";
 import { isProShop, FREE_TESTIMONIAL_LIMIT } from "@/lib/subscription";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.testimonials.title };
+}
 
 export default async function TestimonialsPage() {
   const shop = await getShop();

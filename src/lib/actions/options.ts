@@ -10,6 +10,10 @@ export async function addOptionType(productId: string, shopId: string, name: str
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const product = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
+  if (!product || product.shopId !== shopId)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Product not found", status: 404 });
+
   const optionType = await prisma.optionType.upsert({
     where: { shopId_name: { shopId, name: name.trim() } },
     create: { shopId, name: name.trim() },

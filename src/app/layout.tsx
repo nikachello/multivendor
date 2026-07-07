@@ -33,7 +33,10 @@ const notoGeorgian = Noto_Sans_Georgian({
 });
 
 export const metadata: Metadata = {
-  title: "MultiStore — Build your online store",
+  title: {
+    template: "%s | MultiStore",
+    default: "MultiStore",
+  },
   description: "The multi vendor ecommerce platform",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   icons: {

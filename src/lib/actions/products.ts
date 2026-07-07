@@ -32,11 +32,13 @@ export async function addProductImages(productId: string, urls: string[]) {
   });
   const start = (agg._max.sortOrder ?? -1) + 1;
 
-  const images = await Promise.all(
-    urls.map((url, i) => prisma.productImage.create({
-      data: { productId, url, sortOrder: start + i },
-    })),
-  );
+  await prisma.productImage.createMany({
+    data: urls.map((url, i) => ({ productId, url, sortOrder: start + i })),
+  });
+  const images = await prisma.productImage.findMany({
+    where: { productId, url: { in: urls } },
+    orderBy: { sortOrder: "asc" },
+  });
   return ok(images);
 }
 
@@ -58,7 +60,7 @@ export async function reorderProductImages(productId: string, orderedIds: string
 
   await prisma.$transaction(
     orderedIds.map((id, i) =>
-      prisma.productImage.update({ where: { id }, data: { sortOrder: i } }),
+      prisma.productImage.update({ where: { id, productId }, data: { sortOrder: i } }),
     ),
   );
   return ok(null);
@@ -72,7 +74,7 @@ export async function setMainProductImage(imageId: string, productId: string) {
 
   await prisma.$transaction([
     prisma.productImage.updateMany({ where: { productId }, data: { isMain: false } }),
-    prisma.productImage.update({ where: { id: imageId }, data: { isMain: true } }),
+    prisma.productImage.update({ where: { id: imageId, productId }, data: { isMain: true } }),
   ]);
   return ok(null);
 }

@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getProductsByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
-import { notFound } from "next/navigation";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.products.title };
+}
 import ProductsTable from "./ProductsTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";
@@ -20,9 +25,9 @@ export default async function ProductsPage({
 
   const shop = await getShop();
   const result = await getProductsByShop(shop.id, { q, page, pageSize: PAGE_SIZE });
-  if (!result.ok) return notFound();
 
-  const { data: products, total } = result.data;
+  const products = result.ok ? result.data.data : [];
+  const total = result.ok ? result.data.total : 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const d = await getDict();
   const t = d.dashboard.products;

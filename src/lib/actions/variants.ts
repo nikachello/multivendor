@@ -71,31 +71,33 @@ export async function generateVariants(productId: string, priceFrom: number) {
   const usedSkus = new Set(existing.map((v) => v.sku));
 
   let created = 0;
-  for (const combo of combinations) {
-    const key = combo.map((v) => v.id).sort().join("|");
-    if (existingKeys.has(key)) continue;
+  await prisma.$transaction(async (tx) => {
+    for (const combo of combinations) {
+      const key = combo.map((v) => v.id).sort().join("|");
+      if (existingKeys.has(key)) continue;
 
-    const baseSku = combo.map((v) => v.value.slice(0, 3).toUpperCase()).join("-");
-    let sku = baseSku;
-    let suffix = 2;
-    while (usedSkus.has(sku)) {
-      sku = `${baseSku}-${suffix++}`;
-    }
-    usedSkus.add(sku);
+      const baseSku = combo.map((v) => v.value.slice(0, 3).toUpperCase()).join("-");
+      let sku = baseSku;
+      let suffix = 2;
+      while (usedSkus.has(sku)) {
+        sku = `${baseSku}-${suffix++}`;
+      }
+      usedSkus.add(sku);
 
-    await prisma.variant.create({
-      data: {
-        productId,
-        sku,
-        price: priceFrom,
-        stock: 0,
-        optionValues: {
-          create: combo.map((v) => ({ optionValueId: v.id })),
+      await tx.variant.create({
+        data: {
+          productId,
+          sku,
+          price: priceFrom,
+          stock: 0,
+          optionValues: {
+            create: combo.map((v) => ({ optionValueId: v.id })),
+          },
         },
-      },
-    });
-    created++;
-  }
+      });
+      created++;
+    }
+  });
 
   return ok({ created });
 }
@@ -156,6 +158,10 @@ export async function deleteVariant(variantId: string) {
   if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  const orderItemCount = await prisma.orderItem.count({ where: { variantId } });
+  if (orderItemCount > 0)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "This variant has order history and cannot be deleted.", status: 409 });
 
   await prisma.variant.delete({ where: { id: variantId } });
   return ok(null);

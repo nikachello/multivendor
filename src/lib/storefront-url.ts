@@ -1,5 +1,5 @@
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "multistore.ge";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://multistore.ge";
 
 /** Returns the public storefront URL for a shop slug.
  *  Production: https://slug.multistore.ge

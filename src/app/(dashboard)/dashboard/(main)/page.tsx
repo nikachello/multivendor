@@ -1,6 +1,12 @@
-﻿import { getShop } from "@/lib/auth/get-shop";
+﻿import type { Metadata } from "next";
+import { getShop } from "@/lib/auth/get-shop";
 import { getDashboardStats } from "@/lib/db/queries";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.sidebar.label };
+}
 import {
   Package,
   Tag,

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getCategoriesWithCount } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.categories.title };
+}
 import CategoriesTable from "./CategoriesTable";
 import SearchInput from "@/components/dashboard/SearchInput";
 import DashboardPagination from "@/components/dashboard/DashboardPagination";

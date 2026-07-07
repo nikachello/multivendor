@@ -176,7 +176,7 @@ export default function SettingsForm({
             </div>
           ) : (
             <ImageUploader
-              endpoint="categoryImage"
+              endpoint="shopLogo"
               maxFiles={1}
               onUploadComplete={(urls) => setLogo(urls[0])}
             />

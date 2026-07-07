@@ -185,66 +185,71 @@ export const createShop = async (name: string, slug: string) => {
 
   if (!session) redirect("/login");
 
-  if (!name || !slug) return;
+  if (!name || !slug)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Name and slug are required", status: 400 });
 
   const existing = await prisma.shop.findFirst({ where: { ownerId: session.user.id } });
   if (existing) return err({ code: ErrorCode.SHOP_CREATE_FAILED, message: "You already have a shop.", status: 400 });
 
   try {
-    const shop = await prisma.shop.create({
-      data: {
-        ownerId: session.user.id,
-        name,
-        slug,
-      },
-    });
+    const shop = await prisma.$transaction(async (tx) => {
+      const shop = await tx.shop.create({
+        data: {
+          ownerId: session.user.id,
+          name,
+          slug,
+        },
+      });
 
-    await prisma.shopSection.createMany({
-      data: [
-        {
-          shopId: shop.id,
-          type: "navbar",
-          order: 0,
-          props: {
-            items: [],
-            transparent: false,
+      await tx.shopSection.createMany({
+        data: [
+          {
+            shopId: shop.id,
+            type: "navbar",
+            order: 0,
+            props: {
+              items: [],
+              transparent: false,
+            },
           },
-        },
-        {
-          shopId: shop.id,
-          type: "banner",
-          order: 1,
-          props: {
-            title: `Welcome to ${name}`,
-            subtitle: "Discover our latest collection",
-            image: "",
-            buttonText: "Shop Now",
-            href: "#",
-            variant: "cover",
+          {
+            shopId: shop.id,
+            type: "banner",
+            order: 1,
+            props: {
+              title: `Welcome to ${name}`,
+              subtitle: "Discover our latest collection",
+              image: "",
+              buttonText: "Shop Now",
+              href: "#",
+              variant: "cover",
+            },
           },
-        },
-        {
-          shopId: shop.id,
-          type: "rich-text",
-          order: 2,
-          props: {
-            title: "Our Story",
-            body: "Tell customers about your brand and what makes you unique.",
-            align: "center",
+          {
+            shopId: shop.id,
+            type: "rich-text",
+            order: 2,
+            props: {
+              title: "Our Story",
+              body: "Tell customers about your brand and what makes you unique.",
+              align: "center",
+            },
           },
-        },
-        {
-          shopId: shop.id,
-          type: "newsletter",
-          order: 3,
-          props: {
-            title: "Stay in the loop",
-            subtitle: "Get notified about new products and exclusive offers.",
-            buttonText: "Subscribe",
-            variant: "banner",
+          {
+            shopId: shop.id,
+            type: "newsletter",
+            order: 3,
+            props: {
+              title: "Stay in the loop",
+              subtitle: "Get notified about new products and exclusive offers.",
+              buttonText: "Subscribe",
+              variant: "banner",
+            },
           },
-        },
-      ],
+        ],
+      });
+
+      return shop;
     });
 
     return ok(shop);

@@ -1,7 +1,14 @@
-﻿import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
+﻿import type { Metadata } from "next";
+import { getShopSections, getCategoriesByShop } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import MenuEditor from "@/components/dashboard/navigation/MenuEditor";
+import { getDict } from "@/i18n";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const d = await getDict();
+  return { title: d.dashboard.sidebar.navigation };
+}
 
 export default async function NavigationPage() {
   const shop = await getShop();

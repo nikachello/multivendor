@@ -18,7 +18,7 @@ export default async function EditProductPage({
     getCategoriesByShop(shop.id),
   ]);
 
-  if (!product) notFound();
+  if (!product || product.shopId !== shop.id) notFound();
   const categories = categoriesResult.ok ? categoriesResult.data : [];
 
   return (

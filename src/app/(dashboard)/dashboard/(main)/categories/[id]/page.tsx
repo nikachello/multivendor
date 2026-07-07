@@ -11,6 +11,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
   const categoryResult = await getCategoryById(id);
   if (!categoryResult.ok) notFound();
   const category = categoryResult.data;
+  if (!category || category.shopId !== shop.id) notFound();
 
   return (
     <div className="flex flex-col gap-6">
