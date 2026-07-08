@@ -65,7 +65,17 @@ const GOOGLE_ADS_LABEL_RE = /^[A-Za-z0-9_-]{4,20}$/;
 
 export async function updateShop(
   shopId: string,
-  data: { name: string; description?: string; currency: string; logo?: string; metaPixelId?: string; ga4MeasurementId?: string; googleAdsId?: string; googleAdsConversionLabel?: string },
+  data: {
+    name: string;
+    description?: string;
+    currency: string;
+    logo?: string;
+    metaPixelId?: string;
+    ga4MeasurementId?: string;
+    googleAdsId?: string;
+    googleAdsConversionLabel?: string;
+    paymentConfig?: Record<string, Record<string, unknown>>;
+  },
 ) {
   if (!shopId || !data.name || !data.currency)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
@@ -82,6 +92,34 @@ export async function updateShop(
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  // Preserve existing secrets (clientSecret etc.) if sent as empty string.
+  // Allowlist prevents arbitrary method IDs or field names from being stored.
+  const ALLOWED_PAYMENT_METHODS: Record<string, Set<string>> = {
+    cod: new Set(["enabled"]),
+    bog: new Set(["enabled", "clientId", "clientSecret"]),
+  };
+
+  let paymentConfigToSave: Record<string, unknown> | undefined = undefined;
+  if (data.paymentConfig !== undefined) {
+    const existing = await prisma.shop.findUnique({ where: { id: shopId }, select: { paymentConfig: true } });
+    const existingConfig = (existing?.paymentConfig as Record<string, Record<string, unknown>>) ?? {};
+    // Seed from existing so methods the client didn't submit are preserved
+    const merged: Record<string, Record<string, unknown>> = { ...existingConfig };
+    for (const [methodId, methodConfig] of Object.entries(data.paymentConfig)) {
+      const allowedFields = ALLOWED_PAYMENT_METHODS[methodId];
+      if (!allowedFields) continue; // reject unknown provider IDs
+      const existingMethod = (existingConfig[methodId] ?? {}) as Record<string, unknown>;
+      merged[methodId] = {};
+      for (const [key, value] of Object.entries(methodConfig)) {
+        if (!allowedFields.has(key)) continue; // reject unknown field names
+        merged[methodId][key] = key.toLowerCase().includes("secret") && value === ""
+          ? (existingMethod[key] ?? "")
+          : value;
+      }
+    }
+    paymentConfigToSave = merged;
+  }
+
   const shop = await prisma.shop.update({
     where: { id: shopId },
     data: {
@@ -93,6 +131,7 @@ export async function updateShop(
       ga4MeasurementId: data.ga4MeasurementId || null,
       googleAdsId: data.googleAdsId || null,
       googleAdsConversionLabel: data.googleAdsConversionLabel || null,
+      ...(paymentConfigToSave !== undefined ? { paymentConfig: paymentConfigToSave } : {}),
     },
   });
 

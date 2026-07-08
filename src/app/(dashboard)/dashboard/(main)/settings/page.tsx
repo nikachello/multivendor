@@ -35,6 +35,19 @@ export default async function SettingsPage() {
           ga4MeasurementId: shop.ga4MeasurementId ?? "",
           googleAdsId: shop.googleAdsId ?? "",
           googleAdsConversionLabel: shop.googleAdsConversionLabel ?? "",
+          paymentConfig: (() => {
+            const raw = (shop.paymentConfig as Record<string, Record<string, unknown>>) ?? {};
+            return Object.fromEntries(
+              Object.entries(raw).map(([methodId, methodConfig]) => [
+                methodId,
+                Object.fromEntries(
+                  Object.entries(methodConfig).map(([k, v]) =>
+                    k.toLowerCase().includes("secret") ? [k, ""] : [k, v]
+                  )
+                ),
+              ])
+            );
+          })(),
         }}
       />
 

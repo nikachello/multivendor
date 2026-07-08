@@ -124,6 +124,8 @@ model Shop {
   collectionConfig Json @default("{}")
 
   subscriptionPaidUntil DateTime?
+
+  paymentConfig Json @default("{}")
 }
 
 // ============================================

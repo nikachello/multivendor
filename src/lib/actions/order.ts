@@ -12,6 +12,7 @@ import { sendOrderConfirmation, sendOrderStatusUpdate } from "../email";
 import { ShippingZone } from "./shop";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 import { logger } from "../logger";
+import { createVendorBogOrder } from "../bog";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -35,6 +36,7 @@ export const createOrder = async (
   items: CartItem[],
   rawForm: OrderFormData,
   couponCode?: string,
+  skipConfirmationEmail?: boolean,
 ) => {
   if (!shopId || items.length === 0)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required data", status: 400 });
@@ -180,7 +182,7 @@ export const createOrder = async (
       return { order: created, verifiedItems, total };
     });
 
-    try {
+    if (!skipConfirmationEmail) try {
       await sendOrderConfirmation({
         to: form.email,
         shopName: shopDetails.name,
@@ -203,9 +205,7 @@ export const createOrder = async (
           country: "Georgia",
         },
       });
-    } catch {
-      // Email failure must not fail the order
-    }
+    } catch { /* email failure must not fail the order */ }
 
     return ok({ id: order.id, total });
   } catch (e) {
@@ -230,6 +230,70 @@ export const createOrder = async (
     logger.error("action.createOrder", { shopId, code: ErrorCode.GENERAL_ERROR }, e);
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
   }
+};
+
+export const initiateBogPayment = async (shopId: string, orderId: string) => {
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: { slug: true, paymentConfig: true },
+  });
+  const config = (shop?.paymentConfig as Record<string, { enabled?: boolean; clientId?: string; clientSecret?: string }>) ?? {};
+  const bogConfig = config.bog;
+  if (!bogConfig?.enabled || !bogConfig.clientId || !bogConfig.clientSecret)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "BOG payment is not configured for this shop", status: 400 });
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId, shopId },
+    select: { total: true, status: true },
+  });
+  if (!order)
+    return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
+  if (order.status !== "pending")
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Order is no longer pending", status: 409 });
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://multistore.ge";
+
+  try {
+    const { redirectUrl } = await createVendorBogOrder({
+      bogClientId: bogConfig.clientId,
+      bogClientSecret: bogConfig.clientSecret,
+      orderId,
+      amountGel: Number(order.total),
+      shopSlug: shop.slug,
+      callbackUrl: `${baseUrl}/api/bog-callback`,
+      successUrl: `${baseUrl}/shop/${shop.slug}/order/${orderId}`,
+      failUrl: `${baseUrl}/shop/${shop.slug}/checkout?payment=failed`,
+    });
+    return ok({ redirectUrl });
+  } catch (e) {
+    logger.error("action.initiateBogPayment", { shopId, orderId }, e);
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Failed to initiate payment", status: 500 });
+  }
+};
+
+// Called from the storefront when BOG payment initiation fails after an order
+// was already created. No auth check — the orderId is a CUID (unguessable) and
+// shopId is validated against the order row.
+export const cancelPendingBogOrder = async (orderId: string, shopId: string) => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const order = await tx.order.findFirst({
+        where: { id: orderId, shopId, status: "pending" },
+        select: { items: { select: { variantId: true, quantity: true } } },
+      });
+      if (!order) return; // already handled or wrong shop — no-op
+      await tx.order.update({ where: { id: orderId }, data: { status: "cancelled" } });
+      await Promise.all(
+        order.items.map((item) =>
+          tx.variant.updateMany({
+            where: { id: item.variantId, trackInventory: true },
+            data: { stock: { increment: item.quantity } },
+          })
+        )
+      );
+    });
+  } catch { /* best-effort — never block the checkout error path */ }
+  return ok(null);
 };
 
 export const updateOrderStatus = async (

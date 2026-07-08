@@ -17,6 +17,28 @@ export async function setShopActive(shopId: string, active: boolean) {
   return ok(null);
 }
 
+export async function adminExtendSubscription(shopId: string, days: number) {
+  try { await assertAdmin(); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  if (!Number.isInteger(days) || days < 1 || days > 365)
+    return err({ code: ErrorCode.GENERAL_ERROR, message: "Days must be 1–365", status: 400 });
+
+  const shop = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  if (!shop) return err({ code: ErrorCode.GENERAL_ERROR, message: "Shop not found", status: 404 });
+
+  const base = shop.subscriptionPaidUntil && shop.subscriptionPaidUntil > new Date()
+    ? new Date(shop.subscriptionPaidUntil)
+    : new Date();
+  const paidUntil = new Date(base);
+  paidUntil.setDate(paidUntil.getDate() + days);
+
+  await prisma.shop.update({ where: { id: shopId }, data: { subscriptionPaidUntil: paidUntil } });
+  revalidatePath("/admin/shops");
+  revalidatePath(`/admin/shops/${shopId}`);
+  return ok({ paidUntil });
+}
+
 export async function adminUpdateOrderStatus(orderId: string, status: OrderStatus) {
   try { await assertAdmin(); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }

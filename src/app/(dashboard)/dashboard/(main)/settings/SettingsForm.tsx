@@ -18,6 +18,38 @@ const CURRENCIES = [
   { code: "AED", label: "AED  UAE Dirham" },
 ];
 
+type PaymentMethodField = {
+  key: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+};
+
+type PaymentMethodDef = {
+  id: string;
+  label: string;
+  description: string;
+  fields: PaymentMethodField[];
+};
+
+const PAYMENT_METHODS: PaymentMethodDef[] = [
+  {
+    id: "cod",
+    label: "Cash on Delivery",
+    description: "Customers pay upon delivery. No credentials required.",
+    fields: [],
+  },
+  {
+    id: "bog",
+    label: "Bank of Georgia",
+    description: "Accept online card payments via your BOG merchant account.",
+    fields: [
+      { key: "clientId", label: "Client ID", placeholder: "bog_client_id" },
+      { key: "clientSecret", label: "Client Secret", type: "password", placeholder: "••••••••••••••••" },
+    ],
+  },
+];
+
 type Props = {
   shopId: string;
   shopSlug: string;
@@ -30,6 +62,7 @@ type Props = {
     ga4MeasurementId: string;
     googleAdsId: string;
     googleAdsConversionLabel: string;
+    paymentConfig: Record<string, Record<string, unknown>>;
   };
 };
 
@@ -50,6 +83,17 @@ export default function SettingsForm({
   const [googleAdsConversionLabel, setGoogleAdsConversionLabel] = useState(
     defaultValues.googleAdsConversionLabel,
   );
+  const [paymentConfig, setPaymentConfig] = useState<Record<string, Record<string, unknown>>>(() => {
+    const base: Record<string, Record<string, unknown>> = {};
+    for (const m of PAYMENT_METHODS) {
+      const existing = defaultValues.paymentConfig?.[m.id] ?? {};
+      base[m.id] = {
+        enabled: existing.enabled ?? false,
+        ...Object.fromEntries(m.fields.map((f) => [f.key, existing[f.key] ?? ""])),
+      };
+    }
+    return base;
+  });
   const [saving, setSaving] = useState(false);
   const t = useT();
 
@@ -69,6 +113,7 @@ export default function SettingsForm({
       ga4MeasurementId,
       googleAdsId,
       googleAdsConversionLabel,
+      paymentConfig,
     });
     setSaving(false);
     if (!result || !result.ok) {
@@ -76,6 +121,20 @@ export default function SettingsForm({
       return;
     }
     toast.success(t("dashboard.settings_form.saved"));
+  }
+
+  function toggleMethod(id: string) {
+    setPaymentConfig((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], enabled: !prev[id]?.enabled },
+    }));
+  }
+
+  function updatePaymentField(methodId: string, fieldKey: string, value: string) {
+    setPaymentConfig((prev) => ({
+      ...prev,
+      [methodId]: { ...prev[methodId], [fieldKey]: value },
+    }));
   }
 
   const inputCls =
@@ -239,6 +298,64 @@ export default function SettingsForm({
             className={inputCls}
             placeholder="AbCdEfGhIjKlMnOp"
           />
+        </div>
+      </section>
+
+      {/* Payment Methods */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-400">
+          Payment Methods
+        </h2>
+        <div className="flex flex-col gap-3">
+          {PAYMENT_METHODS.map((method) => {
+            const config = paymentConfig[method.id] ?? {};
+            const enabled = !!config.enabled;
+            return (
+              <div key={method.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="flex items-start justify-between gap-4 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{method.label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{method.description}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleMethod(method.id)}
+                    role="switch"
+                    aria-checked={enabled}
+                    className={`relative mt-0.5 inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 ${
+                      enabled ? "bg-gray-900" : "bg-gray-200"
+                    }`}
+                  >
+                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      enabled ? "translate-x-4" : "translate-x-0"
+                    }`} />
+                  </button>
+                </div>
+                {enabled && method.fields.length > 0 && (
+                  <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 flex flex-col gap-3">
+                    {method.fields.map((field) => (
+                      <div key={field.key} className="flex flex-col gap-1">
+                        <label className="text-xs font-medium text-gray-600">{field.label}</label>
+                        <input
+                          type={field.type ?? "text"}
+                          value={String(config[field.key] ?? "")}
+                          onChange={(e) => updatePaymentField(method.id, field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                          className={inputCls}
+                          autoComplete="off"
+                        />
+                      </div>
+                    ))}
+                    {method.id === "bog" && (
+                      <p className="text-xs text-gray-400">
+                        Find your credentials in the BOG merchant portal. Client Secret is stored securely — leave it blank to keep the existing value.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 

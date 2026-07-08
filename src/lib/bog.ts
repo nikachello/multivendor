@@ -14,9 +14,9 @@ tcBuHV4f7qsynQT+f2UYbESX/TLHwT5qFWZDHZ0YUOUIvb8n7JujVSGZO9/+ll/g
 PwIDAQAB
 -----END PUBLIC KEY-----`;
 
-async function getAccessToken(): Promise<string> {
-  const clientId = process.env.BOG_CLIENT_ID!;
-  const clientSecret = process.env.BOG_CLIENT_SECRET!;
+async function getAccessToken(clientId?: string, clientSecret?: string): Promise<string> {
+  clientId = clientId ?? process.env.BOG_CLIENT_ID!;
+  clientSecret = clientSecret ?? process.env.BOG_CLIENT_SECRET!;
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   const res = await fetch(BOG_AUTH_URL, {
@@ -80,6 +80,69 @@ export async function createBogOrder({
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`BOG order failed: ${res.status} — ${body}`);
+  }
+
+  const data = await res.json() as {
+    id: string;
+    _links: { redirect: { href: string } };
+  };
+
+  return { orderId: data.id, redirectUrl: data._links.redirect.href };
+}
+
+export async function createVendorBogOrder({
+  bogClientId,
+  bogClientSecret,
+  orderId,
+  amountGel,
+  shopSlug,
+  callbackUrl,
+  successUrl,
+  failUrl,
+}: {
+  bogClientId: string;
+  bogClientSecret: string;
+  orderId: string;
+  amountGel: number;
+  shopSlug: string;
+  callbackUrl: string;
+  successUrl: string;
+  failUrl: string;
+}): Promise<{ orderId: string; redirectUrl: string }> {
+  const token = await getAccessToken(bogClientId, bogClientSecret);
+
+  const res = await fetch(BOG_ORDERS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "Accept-Language": "ka",
+    },
+    body: JSON.stringify({
+      callback_url: callbackUrl,
+      external_order_id: `ord_${orderId}`,
+      purchase_units: {
+        currency: "GEL",
+        total_amount: amountGel,
+        basket: [
+          {
+            product_id: shopSlug,
+            description: `Order from ${shopSlug}`,
+            quantity: 1,
+            unit_price: amountGel,
+          },
+        ],
+      },
+      redirect_urls: {
+        success: successUrl,
+        fail: failUrl,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`BOG vendor order failed: ${res.status} — ${body}`);
   }
 
   const data = await res.json() as {

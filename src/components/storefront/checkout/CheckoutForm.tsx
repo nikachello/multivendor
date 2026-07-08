@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
-import { createOrder } from "@/lib/actions/order";
+import { createOrder, initiateBogPayment, cancelPendingBogOrder } from "@/lib/actions/order";
 import { validateCoupon } from "@/lib/actions/coupons";
 import { trackInitiateCheckout } from "@/lib/tracking";
 import { recordEvent } from "@/lib/actions/analytics";
@@ -25,6 +25,7 @@ type Props = {
   defaultShippingRate: number;
   freeThreshold: number;
   shippingZones: ShippingZone[];
+  hasBogPayment?: boolean;
 };
 
 type FormData = {
@@ -59,6 +60,7 @@ export default function CheckoutForm({
   defaultShippingRate,
   freeThreshold,
   shippingZones,
+  hasBogPayment,
 }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const t = useT();
@@ -76,6 +78,7 @@ export default function CheckoutForm({
   const [couponApplied, setCouponApplied] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bog">("cod");
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
@@ -153,6 +156,26 @@ export default function CheckoutForm({
     if (!validate()) return;
 
     setLoading(true);
+
+    if (paymentMethod === "bog") {
+      const orderResult = await createOrder(shopId, items, form, couponApplied?.code, true);
+      if (!orderResult?.ok) {
+        setLoading(false);
+        setServerError(orderResult?.error.message ?? t("checkout.generic_error"));
+        return;
+      }
+      const bogResult = await initiateBogPayment(shopId, orderResult.data.id);
+      if (!bogResult?.ok) {
+        await cancelPendingBogOrder(orderResult.data.id, shopId);
+        setLoading(false);
+        setServerError(t("checkout.generic_error"));
+        return;
+      }
+      setSubmitted(true);
+      window.location.href = bogResult.data.redirectUrl;
+      return;
+    }
+
     const result = await createOrder(shopId, items, form, couponApplied?.code);
 
     if (!result?.ok) {
@@ -341,13 +364,36 @@ export default function CheckoutForm({
           {couponError && <p id={couponErrorId} role="alert" className="text-xs text-red-500 mt-1.5">{couponError}</p>}
         </section>
 
-        {/* Payment placeholder */}
+        {/* Payment */}
         <section>
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
             {t("checkout.payment")}
           </h2>
-          <div className="rounded border border-dashed border-neutral-200 bg-neutral-50 px-5 py-6 text-center text-sm text-neutral-500">
-            {t("checkout.cash_on_delivery")}
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
+              <input
+                type="radio"
+                name="payment"
+                value="cod"
+                checked={paymentMethod === "cod"}
+                onChange={() => setPaymentMethod("cod")}
+                className="accent-black"
+              />
+              <span className="text-sm text-neutral-700">{t("checkout.cash_on_delivery")}</span>
+            </label>
+            {hasBogPayment && (
+              <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
+                <input
+                  type="radio"
+                  name="payment"
+                  value="bog"
+                  checked={paymentMethod === "bog"}
+                  onChange={() => setPaymentMethod("bog")}
+                  className="accent-black"
+                />
+                <span className="text-sm text-neutral-700">Bank of Georgia — Online Payment</span>
+              </label>
+            )}
           </div>
         </section>
 

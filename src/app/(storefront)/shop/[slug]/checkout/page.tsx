@@ -34,6 +34,8 @@ export default async function CheckoutPage({
   const navbarSection = sections.find((s) => s.type === "navbar");
   const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
   const shopBase = await getShopBase(slug);
+  const shopPaymentConfig = (shop as { paymentConfig?: Record<string, { enabled?: boolean; clientId?: string }> }).paymentConfig ?? {};
+  const hasBogPayment = !!(shopPaymentConfig.bog?.enabled && shopPaymentConfig.bog?.clientId);
   const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopName?: string }
   >;
@@ -65,6 +67,7 @@ export default async function CheckoutPage({
           defaultShippingRate={Number(shop.shippingRate)}
           freeThreshold={Number(shop.freeThreshold)}
           shippingZones={(shop.shippingZones as { city_en: string; city_ka: string; rate: number }[]) ?? []}
+          hasBogPayment={hasBogPayment}
         />
       </div>
     </>
