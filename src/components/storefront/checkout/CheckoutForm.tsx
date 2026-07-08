@@ -26,6 +26,7 @@ type Props = {
   freeThreshold: number;
   shippingZones: ShippingZone[];
   hasBogPayment?: boolean;
+  hasCodPayment?: boolean;
 };
 
 type FormData = {
@@ -61,6 +62,7 @@ export default function CheckoutForm({
   freeThreshold,
   shippingZones,
   hasBogPayment,
+  hasCodPayment = true,
 }: Props) {
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
   const t = useT();
@@ -78,7 +80,9 @@ export default function CheckoutForm({
   const [couponApplied, setCouponApplied] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bog">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bog">(
+    !hasCodPayment && hasBogPayment ? "bog" : "cod"
+  );
 
   const items = cart?.items ?? [];
   const subtotal = cart?.total ?? 0;
@@ -369,37 +373,46 @@ export default function CheckoutForm({
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
             {t("checkout.payment")}
           </h2>
-          <div className="space-y-2">
-            <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
-              <input
-                type="radio"
-                name="payment"
-                value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={() => setPaymentMethod("cod")}
-                className="accent-black"
-              />
-              <span className="text-sm text-neutral-700">{t("checkout.cash_on_delivery")}</span>
-            </label>
-            {hasBogPayment && (
-              <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
-                <input
-                  type="radio"
-                  name="payment"
-                  value="bog"
-                  checked={paymentMethod === "bog"}
-                  onChange={() => setPaymentMethod("bog")}
-                  className="accent-black"
-                />
-                <span className="text-sm text-neutral-700">Bank of Georgia — Online Payment</span>
-              </label>
-            )}
-          </div>
+          {!hasCodPayment && !hasBogPayment ? (
+            <div className="rounded border border-amber-200 bg-amber-50 px-4 py-4 space-y-1">
+              <p className="text-sm font-medium text-amber-800">{t("checkout.no_payment_methods")}</p>
+              <p className="text-xs text-amber-700">{t("checkout.contact_shop_owner")}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {hasCodPayment && (
+                <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={() => setPaymentMethod("cod")}
+                    className="accent-black"
+                  />
+                  <span className="text-sm text-neutral-700">{t("checkout.cash_on_delivery")}</span>
+                </label>
+              )}
+              {hasBogPayment && (
+                <label className="flex items-center gap-3 border border-neutral-200 rounded px-4 py-3 cursor-pointer hover:border-neutral-400 transition-colors">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="bog"
+                    checked={paymentMethod === "bog"}
+                    onChange={() => setPaymentMethod("bog")}
+                    className="accent-black"
+                  />
+                  <span className="text-sm text-neutral-700">Bank of Georgia — Online Payment</span>
+                </label>
+              )}
+            </div>
+          )}
         </section>
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || (!hasCodPayment && !hasBogPayment)}
           className="w-full py-4 text-sm tracking-widest uppercase bg-[#C25447] text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? t("checkout.placing_order") : t("checkout.place_order")}

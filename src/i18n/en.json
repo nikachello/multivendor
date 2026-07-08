@@ -133,7 +133,9 @@
     "free": "Free",
     "free_shipping_hint": "Add {amount} more for free shipping",
     "total": "Total",
-    "generic_error": "Something went wrong. Please try again."
+    "generic_error": "Something went wrong. Please try again.",
+    "no_payment_methods": "This shop hasn't set up any payment methods yet.",
+    "contact_shop_owner": "Please contact the shop owner to complete your order."
   },
   "cart": {
     "title": "Your Cart",

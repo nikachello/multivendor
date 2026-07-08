@@ -36,6 +36,8 @@ export default async function CheckoutPage({
   const shopBase = await getShopBase(slug);
   const shopPaymentConfig = (shop as { paymentConfig?: Record<string, { enabled?: boolean; clientId?: string }> }).paymentConfig ?? {};
   const hasBogPayment = !!(shopPaymentConfig.bog?.enabled && shopPaymentConfig.bog?.clientId);
+  // COD is on by default for backward compat; disabled only when explicitly set false
+  const hasCodPayment = shopPaymentConfig.cod?.enabled !== false;
   const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopName?: string }
   >;
@@ -68,6 +70,7 @@ export default async function CheckoutPage({
           freeThreshold={Number(shop.freeThreshold)}
           shippingZones={(shop.shippingZones as { city_en: string; city_ka: string; rate: number }[]) ?? []}
           hasBogPayment={hasBogPayment}
+          hasCodPayment={hasCodPayment}
         />
       </div>
     </>
