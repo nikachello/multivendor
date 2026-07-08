@@ -239,7 +239,7 @@ export const initiateBogPayment = async (shopId: string, orderId: string) => {
   });
   const config = (shop?.paymentConfig as Record<string, { enabled?: boolean; clientId?: string; clientSecret?: string }>) ?? {};
   const bogConfig = config.bog;
-  if (!bogConfig?.enabled || !bogConfig.clientId || !bogConfig.clientSecret)
+  if (!shop || !bogConfig?.enabled || !bogConfig.clientId || !bogConfig.clientSecret)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "BOG payment is not configured for this shop", status: 400 });
 
   const order = await prisma.order.findUnique({

@@ -12,12 +12,24 @@ import { assertOwnsShop } from "../auth/assert-owns-shop";
 import type { CollectionConfig } from "../db/queries";
 import { isProShop, FREE_THEME } from "../subscription";
 import { logger } from "../logger";
+import { Prisma } from "@/generated/prisma/client";
 
 export type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
-export async function updateCollectionConfig(shopId: string, shopSlug: string, config: CollectionConfig) {
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+export async function updateCollectionConfig(
+  shopId: string,
+  shopSlug: string,
+  config: CollectionConfig,
+) {
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
+  }
   await prisma.shop.update({
     where: { id: shopId },
     data: { collectionConfig: config as never },
@@ -28,33 +40,71 @@ export async function updateCollectionConfig(shopId: string, shopSlug: string, c
 
 export async function updateShipping(
   shopId: string,
-  data: { shippingRate: number; freeThreshold: number; shippingZones: ShippingZone[] },
+  data: {
+    shippingRate: number;
+    freeThreshold: number;
+    shippingZones: ShippingZone[];
+  },
 ) {
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
+  }
 
-  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+  const shopData = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: { subscriptionPaidUntil: true },
+  });
   const isPro = isProShop(shopData?.subscriptionPaidUntil);
 
   if (!isPro && data.shippingZones.length > 0) {
-    return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: "City rate overrides require a Pro subscription.", status: 403 });
+    return err({
+      code: ErrorCode.PLAN_LIMIT_REACHED,
+      message: "City rate overrides require a Pro subscription.",
+      status: 403,
+    });
   }
 
-  await prisma.shop.update({ where: { id: shopId }, data: { ...data, shippingZones: isPro ? data.shippingZones : [] } });
+  await prisma.shop.update({
+    where: { id: shopId },
+    data: { ...data, shippingZones: isPro ? data.shippingZones : [] },
+  });
   return ok(null);
 }
 
 export async function updateShopTheme(shopId: string, themeId: string) {
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
+  }
   if (themeId !== FREE_THEME) {
-    const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
+    const shopData = await prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { subscriptionPaidUntil: true },
+    });
     if (!isProShop(shopData?.subscriptionPaidUntil)) {
-      return err({ code: ErrorCode.PLAN_LIMIT_REACHED, message: "Pro subscription required to use this theme.", status: 403 });
+      return err({
+        code: ErrorCode.PLAN_LIMIT_REACHED,
+        message: "Pro subscription required to use this theme.",
+        status: 403,
+      });
     }
   }
   const { defaults } = getThemeConfig(themeId);
-  await prisma.shop.update({ where: { id: shopId }, data: { themeId, ...defaults } });
+  await prisma.shop.update({
+    where: { id: shopId },
+    data: { themeId, ...defaults },
+  });
   return ok(null);
 }
 
@@ -78,19 +128,49 @@ export async function updateShop(
   },
 ) {
   if (!shopId || !data.name || !data.currency)
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Missing required fields",
+      status: 400,
+    });
 
   if (data.ga4MeasurementId && !GA4_ID_RE.test(data.ga4MeasurementId))
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid GA4 measurement ID format", status: 400 });
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid GA4 measurement ID format",
+      status: 400,
+    });
   if (data.googleAdsId && !GOOGLE_ADS_ID_RE.test(data.googleAdsId))
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Google Ads ID format", status: 400 });
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid Google Ads ID format",
+      status: 400,
+    });
   if (data.metaPixelId && !META_PIXEL_ID_RE.test(data.metaPixelId))
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Meta Pixel ID format", status: 400 });
-  if (data.googleAdsConversionLabel && !GOOGLE_ADS_LABEL_RE.test(data.googleAdsConversionLabel))
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid Google Ads conversion label format", status: 400 });
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid Meta Pixel ID format",
+      status: 400,
+    });
+  if (
+    data.googleAdsConversionLabel &&
+    !GOOGLE_ADS_LABEL_RE.test(data.googleAdsConversionLabel)
+  )
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid Google Ads conversion label format",
+      status: 400,
+    });
 
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
+  }
 
   // Preserve existing secrets (clientSecret etc.) if sent as empty string.
   // Allowlist prevents arbitrary method IDs or field names from being stored.
@@ -99,25 +179,36 @@ export async function updateShop(
     bog: new Set(["enabled", "clientId", "clientSecret"]),
   };
 
-  let paymentConfigToSave: Record<string, unknown> | undefined = undefined;
+  let paymentConfigToSave: Prisma.InputJsonValue | undefined = undefined;
   if (data.paymentConfig !== undefined) {
-    const existing = await prisma.shop.findUnique({ where: { id: shopId }, select: { paymentConfig: true } });
-    const existingConfig = (existing?.paymentConfig as Record<string, Record<string, unknown>>) ?? {};
+    const existing = await prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { paymentConfig: true },
+    });
+    const existingConfig =
+      (existing?.paymentConfig as Record<string, Record<string, unknown>>) ??
+      {};
     // Seed from existing so methods the client didn't submit are preserved
-    const merged: Record<string, Record<string, unknown>> = { ...existingConfig };
+    const merged: Record<string, Record<string, unknown>> = {
+      ...existingConfig,
+    };
     for (const [methodId, methodConfig] of Object.entries(data.paymentConfig)) {
       const allowedFields = ALLOWED_PAYMENT_METHODS[methodId];
       if (!allowedFields) continue; // reject unknown provider IDs
-      const existingMethod = (existingConfig[methodId] ?? {}) as Record<string, unknown>;
+      const existingMethod = (existingConfig[methodId] ?? {}) as Record<
+        string,
+        unknown
+      >;
       merged[methodId] = {};
       for (const [key, value] of Object.entries(methodConfig)) {
         if (!allowedFields.has(key)) continue; // reject unknown field names
-        merged[methodId][key] = key.toLowerCase().includes("secret") && value === ""
-          ? (existingMethod[key] ?? "")
-          : value;
+        merged[methodId][key] =
+          key.toLowerCase().includes("secret") && value === ""
+            ? (existingMethod[key] ?? "")
+            : value;
       }
     }
-    paymentConfigToSave = merged;
+    paymentConfigToSave = merged as unknown as Prisma.InputJsonValue;
   }
 
   const shop = await prisma.shop.update({
@@ -131,7 +222,9 @@ export async function updateShop(
       ga4MeasurementId: data.ga4MeasurementId || null,
       googleAdsId: data.googleAdsId || null,
       googleAdsConversionLabel: data.googleAdsConversionLabel || null,
-      ...(paymentConfigToSave !== undefined ? { paymentConfig: paymentConfigToSave } : {}),
+      ...(paymentConfigToSave !== undefined
+        ? { paymentConfig: paymentConfigToSave }
+        : {}),
     },
   });
 
@@ -164,56 +257,129 @@ async function vercelDomainsRequest(
 }
 
 export async function connectCustomDomain(shopId: string, domain: string) {
-  const cleaned = domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
-  if (!cleaned || !/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(cleaned))
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Invalid domain format", status: 400 });
+  const cleaned = domain
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
+  if (
+    !cleaned ||
+    !/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(cleaned)
+  )
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Invalid domain format",
+      status: 400,
+    });
 
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
-
-  const shopData = await prisma.shop.findUnique({ where: { id: shopId }, select: { subscriptionPaidUntil: true } });
-  if (!isProShop(shopData?.subscriptionPaidUntil)) {
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Custom domains require a Pro subscription. Upgrade to connect your domain.", status: 403 });
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
   }
 
-  const existing = await prisma.shop.findFirst({ where: { customDomain: cleaned, NOT: { id: shopId } } });
-  if (existing) return err({ code: ErrorCode.GENERAL_ERROR, message: "Domain already in use", status: 400 });
+  const shopData = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: { subscriptionPaidUntil: true },
+  });
+  if (!isProShop(shopData?.subscriptionPaidUntil)) {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message:
+        "Custom domains require a Pro subscription. Upgrade to connect your domain.",
+      status: 403,
+    });
+  }
+
+  const existing = await prisma.shop.findFirst({
+    where: { customDomain: cleaned, NOT: { id: shopId } },
+  });
+  if (existing)
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Domain already in use",
+      status: 400,
+    });
 
   await vercelDomainsRequest("POST", "", { name: cleaned });
 
-  await prisma.shop.update({ where: { id: shopId }, data: { customDomain: cleaned, domainVerified: false } });
+  await prisma.shop.update({
+    where: { id: shopId },
+    data: { customDomain: cleaned, domainVerified: false },
+  });
 
   return ok({ domain: cleaned, cname: "cname.vercel-dns.com" });
 }
 
 export async function removeCustomDomain(shopId: string) {
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
-
-  const shop = await prisma.shop.findUnique({ where: { id: shopId }, select: { customDomain: true } });
-  if (shop?.customDomain) {
-    await vercelDomainsRequest("DELETE", `/${encodeURIComponent(shop.customDomain)}`);
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
   }
 
-  await prisma.shop.update({ where: { id: shopId }, data: { customDomain: null, domainVerified: false } });
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: { customDomain: true },
+  });
+  if (shop?.customDomain) {
+    await vercelDomainsRequest(
+      "DELETE",
+      `/${encodeURIComponent(shop.customDomain)}`,
+    );
+  }
+
+  await prisma.shop.update({
+    where: { id: shopId },
+    data: { customDomain: null, domainVerified: false },
+  });
   return ok(null);
 }
 
 export async function checkDomainVerification(shopId: string) {
-  try { await assertOwnsShop(shopId); }
-  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+  try {
+    await assertOwnsShop(shopId);
+  } catch {
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Forbidden",
+      status: 403,
+    });
+  }
 
-  const shop = await prisma.shop.findUnique({ where: { id: shopId }, select: { customDomain: true, domainVerified: true } });
-  if (!shop?.customDomain) return err({ code: ErrorCode.GENERAL_ERROR, message: "No custom domain", status: 400 });
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: { customDomain: true, domainVerified: true },
+  });
+  if (!shop?.customDomain)
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "No custom domain",
+      status: 400,
+    });
 
-  const res = await vercelDomainsRequest("GET", `/${encodeURIComponent(shop.customDomain)}`);
+  const res = await vercelDomainsRequest(
+    "GET",
+    `/${encodeURIComponent(shop.customDomain)}`,
+  );
 
   let verified = shop.domainVerified;
   if (res?.ok) {
-    const data = await res.json() as { verified?: boolean };
+    const data = (await res.json()) as { verified?: boolean };
     verified = data.verified === true;
     if (verified && !shop.domainVerified) {
-      await prisma.shop.update({ where: { id: shopId }, data: { domainVerified: true } });
+      await prisma.shop.update({
+        where: { id: shopId },
+        data: { domainVerified: true },
+      });
     }
   }
 
@@ -226,10 +392,21 @@ export const createShop = async (name: string, slug: string) => {
   if (!session) redirect("/login");
 
   if (!name || !slug)
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Name and slug are required", status: 400 });
+    return err({
+      code: ErrorCode.GENERAL_ERROR,
+      message: "Name and slug are required",
+      status: 400,
+    });
 
-  const existing = await prisma.shop.findFirst({ where: { ownerId: session.user.id } });
-  if (existing) return err({ code: ErrorCode.SHOP_CREATE_FAILED, message: "You already have a shop.", status: 400 });
+  const existing = await prisma.shop.findFirst({
+    where: { ownerId: session.user.id },
+  });
+  if (existing)
+    return err({
+      code: ErrorCode.SHOP_CREATE_FAILED,
+      message: "You already have a shop.",
+      status: 400,
+    });
 
   try {
     const shop = await prisma.$transaction(async (tx) => {
@@ -294,7 +471,11 @@ export const createShop = async (name: string, slug: string) => {
 
     return ok(shop);
   } catch (e) {
-    logger.error("action.createShop", { userId: session?.user?.id ?? null, slug }, e);
+    logger.error(
+      "action.createShop",
+      { userId: session?.user?.id ?? null, slug },
+      e,
+    );
     return err({
       code: "SHOP_CREATE_FAILED",
       message: "მაღაზიის მისამართი უკვე დაკავებულია.",
