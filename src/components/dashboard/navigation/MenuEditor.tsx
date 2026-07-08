@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/context";
 
 import MenuTree from "./MenuTree";
 import ItemEditor from "./ItemEditor";
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export default function MenuEditor({ shopId, shopSlug, initialItems, categories }: Props) {
+  const t = useT();
   const [menu, setMenu] = useState<NavItem[]>(initialItems);
   const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -101,10 +103,10 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
 
   const handleSave = useCallback(async () => {
     const result = await saveNavigation(shopId, menu);
-    if (!result.ok) { toast.error("Failed to save navigation"); return; }
+    if (!result.ok) { toast.error(t("dashboard.navigation_editor.save_failed")); return; }
     setSavedMenu(menu);
-    toast.success("Navigation saved");
-  }, [shopId, menu]);
+    toast.success(t("dashboard.navigation_editor.saved"));
+  }, [shopId, menu, t]);
 
   const handleDiscard = useCallback(() => {
     setMenu(savedMenu);
@@ -119,11 +121,11 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
       <header className="border-b border-zinc-200 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-sm font-semibold tracking-widest uppercase text-zinc-900">
-            Navigation Editor
+            {t("dashboard.navigation_editor.title")}
           </h1>
           {isDirty && (
             <span className="text-[10px] tracking-widest uppercase text-zinc-400">
-              Unsaved changes
+              {t("dashboard.navigation_editor.unsaved")}
             </span>
           )}
         </div>
@@ -134,7 +136,7 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
               onClick={handleDiscard}
               className="text-xs px-4 py-1.5 border border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:text-zinc-700 transition-colors"
             >
-              Discard
+              {t("dashboard.navigation_editor.discard")}
             </button>
           )}
           <button
@@ -146,7 +148,7 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
                 : "border-zinc-200 text-zinc-300 cursor-not-allowed"
             }`}
           >
-            Save
+            {t("dashboard.navigation_editor.save")}
           </button>
         </div>
       </header>
@@ -159,20 +161,20 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
               onClick={() => handleAddRoot("link")}
               className="flex-1 text-[11px] tracking-widest uppercase py-3 px-4 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors border-r border-zinc-200"
             >
-              + Link
+              {t("dashboard.navigation_editor.add_link")}
             </button>
             <button
               onClick={() => handleAddRoot("group")}
               className="flex-1 text-[11px] tracking-widest uppercase py-3 px-4 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
-              + Group
+              {t("dashboard.navigation_editor.add_group")}
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto">
             {menu.length === 0 ? (
               <div className="p-6 text-[11px] text-zinc-400 tracking-wide">
-                No items yet. Add a link or group above.
+                {t("dashboard.navigation_editor.no_items")}
               </div>
             ) : (
               <MenuTree

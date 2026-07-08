@@ -1,5 +1,6 @@
 import React from "react";
 import { Resend } from "resend";
+import { logger } from "./logger";
 import { render } from "@react-email/components";
 import OrderConfirmation from "@/emails/OrderConfirmation";
 import OrderStatusUpdate from "@/emails/OrderStatusUpdate";
@@ -12,7 +13,7 @@ const EMAIL_FROM = process.env.EMAIL_FROM ?? "orders@resend.dev";
 let _resend: Resend | null = null;
 function getResend(): Resend | null {
   if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY is not set — emails will not be sent");
+    logger.warn("email.send", { reason: "RESEND_API_KEY not set" });
     return null;
   }
   if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
@@ -23,7 +24,7 @@ async function send(params: { to: string; subject: string; html: string }) {
   const resend = getResend();
   if (!resend) return;
   const { error } = await resend.emails.send({ from: EMAIL_FROM, ...params });
-  if (error) console.error("[email] send failed:", params.subject, error);
+  if (error) logger.error("email.send", { subject: params?.subject ?? null }, error);
 }
 
 type OrderConfirmationProps = {

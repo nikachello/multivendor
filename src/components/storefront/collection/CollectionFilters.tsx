@@ -3,13 +3,9 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { CollectionFacets, CollectionSortOption, CollectionConfig } from "@/lib/db/queries";
+import { useT } from "@/i18n/context";
 
-const SORT_OPTIONS: { value: CollectionSortOption; label: string }[] = [
-  { value: "newest", label: "Newest" },
-  { value: "price_asc", label: "Price: Low → High" },
-  { value: "price_desc", label: "Price: High → Low" },
-  { value: "name_asc", label: "Name: A–Z" },
-];
+const SORT_VALUES: CollectionSortOption[] = ["newest", "price_asc", "price_desc", "name_asc"];
 
 type Props = {
   facets: CollectionFacets;
@@ -41,6 +37,7 @@ export default function CollectionFilters({
   const router = useRouter();
   const pathname = usePathname();
   const [, startTransition] = useTransition();
+  const t = useT();
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [priceMin, setPriceMin] = useState(minPrice !== undefined ? String(minPrice) : "");
   const [priceMax, setPriceMax] = useState(maxPrice !== undefined ? String(maxPrice) : "");
@@ -119,9 +116,9 @@ export default function CollectionFilters({
               onChange={(e) => navigate({ sort: e.target.value })}
               className="appearance-none border border-neutral-200 rounded-lg px-3 py-1.5 pr-7 text-xs text-neutral-700 bg-white cursor-pointer outline-none hover:border-neutral-400 transition-colors"
             >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {SORT_VALUES.map((v) => (
+                <option key={v} value={v}>
+                  {t(`storefront.filters.sort_${v}`)}
                 </option>
               ))}
             </select>
@@ -137,7 +134,7 @@ export default function CollectionFilters({
             onClick={() => setOpenPanel(openPanel === "price" ? null : "price")}
             className={`${filterBtnBase} ${hasPriceFilter ? filterBtnActive : filterBtnInactive}`}
           >
-            Price
+            {t("storefront.filters.price")}
             {hasPriceFilter && (
               <span className="text-[10px] opacity-70">
                 {minPrice !== undefined && maxPrice !== undefined
@@ -152,7 +149,7 @@ export default function CollectionFilters({
           {openPanel === "price" && (
             <div className="absolute top-full left-0 mt-1.5 w-52 bg-white border border-neutral-200 rounded-xl shadow-lg z-20 p-4 space-y-3">
               <p className="text-xs font-medium text-neutral-700">
-                Price range ({currency})
+                {t("storefront.filters.price_range")} ({currency})
               </p>
               <div className="flex items-center gap-2">
                 <input
@@ -179,14 +176,14 @@ export default function CollectionFilters({
                     onClick={clearPrice}
                     className="flex-1 border border-neutral-200 text-neutral-600 text-xs py-1.5 rounded-lg hover:bg-neutral-50 transition-colors"
                   >
-                    Clear
+                    {t("storefront.filters.clear")}
                   </button>
                 )}
                 <button
                   onClick={applyPrice}
                   className="flex-1 bg-neutral-900 text-white text-xs py-1.5 rounded-lg hover:bg-neutral-800 transition-colors"
                 >
-                  Apply
+                  {t("storefront.filters.apply")}
                 </button>
               </div>
             </div>
@@ -263,7 +260,7 @@ export default function CollectionFilters({
                 <span className="text-neutral-900 text-[8px] leading-none">✓</span>
               )}
             </span>
-            In stock
+            {t("storefront.filters.in_stock")}
           </button>
         )}
 
@@ -271,7 +268,7 @@ export default function CollectionFilters({
         <div className="ml-auto flex items-center gap-3">
           <span className="text-xs text-neutral-400">
             {total === allTotal
-              ? `${total} product${total !== 1 ? "s" : ""}`
+              ? `${total} ${total !== 1 ? t("storefront.filters.product_plural") : t("storefront.filters.product_singular")}`
               : `${total} of ${allTotal}`}
           </span>
           {hasAnyFilter && (
@@ -279,7 +276,7 @@ export default function CollectionFilters({
               onClick={() => startTransition(() => router.push(pathname))}
               className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors underline underline-offset-2"
             >
-              Clear all
+              {t("storefront.filters.clear_all")}
             </button>
           )}
         </div>
@@ -302,7 +299,7 @@ export default function CollectionFilters({
               onClick={() => navigate({ inStock: null })}
               className="flex items-center gap-1 border border-neutral-200 rounded-full px-2.5 py-1 text-[11px] text-neutral-600 hover:border-neutral-400 bg-neutral-50 transition-colors"
             >
-              In stock <span className="text-neutral-400 ml-0.5">×</span>
+              {t("storefront.filters.in_stock")} <span className="text-neutral-400 ml-0.5">×</span>
             </button>
           )}
           {activeOptionFilters.map(([typeName, values]) =>

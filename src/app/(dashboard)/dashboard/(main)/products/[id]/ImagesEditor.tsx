@@ -20,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import ImageUploader from "@/components/ui/ImageUploader";
+import { useT } from "@/i18n/context";
 import {
   addProductImages,
   deleteProductImage,
@@ -61,6 +62,7 @@ function SortableImageCard({
   onDelete: () => void;
   onSetMain: () => void;
 }) {
+  const t = useT();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: image.id });
 
@@ -83,7 +85,7 @@ function SortableImageCard({
         type="button"
         {...attributes}
         {...listeners}
-        aria-label="Drag to reorder image"
+        aria-label={t("dashboard.images_editor.drag_handle")}
         className="absolute top-1 left-1 w-5 h-5 bg-white/85 rounded flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity shadow-sm"
       >
         <DragHandle />
@@ -93,7 +95,7 @@ function SortableImageCard({
       <button
         type="button"
         onClick={onDelete}
-        aria-label="Delete image"
+        aria-label={t("dashboard.images_editor.delete_image")}
         className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
       >
         ×
@@ -102,7 +104,7 @@ function SortableImageCard({
       {/* Set main / Main badge — bottom */}
       {image.isMain ? (
         <span className="absolute bottom-1 left-1 right-1 text-center text-[10px] px-1 py-0.5 bg-gray-900 text-white rounded font-medium">
-          Main
+          {t("dashboard.images_editor.main_badge")}
         </span>
       ) : (
         <button
@@ -110,7 +112,7 @@ function SortableImageCard({
           onClick={onSetMain}
           className="absolute bottom-1 left-1 right-1 text-center text-[10px] px-1 py-0.5 bg-white/90 text-gray-700 border border-gray-200 rounded font-medium opacity-60 hover:opacity-100 transition-opacity"
         >
-          Set main
+          {t("dashboard.images_editor.set_main")}
         </button>
       )}
     </div>
@@ -118,6 +120,7 @@ function SortableImageCard({
 }
 
 export default function ImagesEditor({ productId, images: initialImages, onUpdate }: Props) {
+  const t = useT();
   const [images, setImages] = useState(initialImages);
   const [prevInitialImages, setPrevInitialImages] = useState(initialImages);
   const sensors = useSensors(
@@ -134,21 +137,21 @@ export default function ImagesEditor({ productId, images: initialImages, onUpdat
 
   async function handleUploadComplete(urls: string[]) {
     const result = await addProductImages(productId, urls);
-    if (!result.ok) { toast.error("Failed to save images"); return; }
-    toast.success(`${urls.length} image(s) uploaded`);
+    if (!result.ok) { toast.error(t("dashboard.images_editor.upload_failed")); return; }
+    toast.success(t("dashboard.images_editor.uploaded", { n: urls.length }));
     setImages((prev) => [...prev, ...result.data.map((img) => ({ ...img, altText: img.altText ?? null }))]);
   }
 
   async function handleDelete(imageId: string) {
     setImages((prev) => prev.filter((img) => img.id !== imageId));
     const result = await deleteProductImage(imageId);
-    if (!result.ok) { toast.error("Failed to delete image"); onUpdate(); }
+    if (!result.ok) { toast.error(t("dashboard.images_editor.delete_failed")); onUpdate(); }
   }
 
   async function handleSetMain(imageId: string) {
     setImages((prev) => prev.map((img) => ({ ...img, isMain: img.id === imageId })));
     const result = await setMainProductImage(imageId, productId);
-    if (!result.ok) { toast.error("Failed to set main image"); onUpdate(); }
+    if (!result.ok) { toast.error(t("dashboard.images_editor.set_main_failed")); onUpdate(); }
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -169,7 +172,7 @@ export default function ImagesEditor({ productId, images: initialImages, onUpdat
 
       {images.length > 0 && (
         <>
-          <p className="text-xs text-gray-400">Drag to reorder. The first image is used as thumbnail unless you set a main image.</p>
+          <p className="text-xs text-gray-400">{t("dashboard.images_editor.drag_hint")}</p>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}

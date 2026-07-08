@@ -11,6 +11,7 @@ import { OrderStatus } from "@/generated/prisma/client";
 import { sendOrderConfirmation, sendOrderStatusUpdate } from "../email";
 import { ShippingZone } from "./shop";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
+import { logger } from "../logger";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -226,6 +227,7 @@ export const createOrder = async (
       const name = e.message.replace("PRODUCT_NOT_FOUND:", "");
       return err({ code: ErrorCode.GENERAL_ERROR, message: `"${name}" is no longer available. Please remove it from your cart.`, status: 409 });
     }
+    logger.error("action.createOrder", { shopId, code: ErrorCode.GENERAL_ERROR }, e);
     return err({ code: ErrorCode.ORDER_CREATE_FAILED, message: "Failed to place order", status: 500 });
   }
 };
@@ -301,7 +303,8 @@ export const updateOrderStatus = async (
     }
 
     return ok(order);
-  } catch {
+  } catch (e) {
+    logger.warn("action.updateOrderStatus", { orderId, status }, e);
     return err({ code: ErrorCode.ORDER_NOT_FOUND, message: "Order not found", status: 404 });
   }
 };

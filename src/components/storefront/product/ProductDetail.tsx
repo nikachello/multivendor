@@ -8,6 +8,7 @@ import { ProductWithRelations } from "@/lib/db/queries";
 import { trackViewContent, trackAddToCart } from "@/lib/tracking";
 import { recordEvent } from "@/lib/actions/analytics";
 import { useAnalyticsSession } from "@/hooks/useAnalyticsSession";
+import { useT } from "@/i18n/context";
 
 type Props = {
   product: ProductWithRelations;
@@ -37,6 +38,7 @@ export default function ProductDetail({
 
   const { add } = useCart(shopId);
   const sessionId = useAnalyticsSession();
+  const t = useT();
 
   useEffect(() => {
     if (sessionId) recordEvent(shopId, "view", sessionId, product.id);
@@ -158,7 +160,7 @@ export default function ProductDetail({
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={t("storefront.product.view_image", { n: i + 1 })}
                   aria-current={activeImage === i}
                   className={`relative aspect-square bg-neutral-100 overflow-hidden transition-opacity ${
                     activeImage === i
@@ -196,10 +198,10 @@ export default function ProductDetail({
           {selectedVariant && (
             <p className="mt-1 text-sm text-neutral-400">
               {!tracksInventory
-                ? "In stock"
+                ? t("storefront.product.in_stock")
                 : selectedVariant.stock > 0
-                  ? `${selectedVariant.stock} in stock`
-                  : "Out of stock"}
+                  ? `${selectedVariant.stock} ${t("storefront.product.in_stock")}`
+                  : t("storefront.product.out_of_stock")}
             </p>
           )}
 
@@ -236,12 +238,12 @@ export default function ProductDetail({
           {/* Quantity */}
           <div className="mt-8">
             <p className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-2">
-              Quantity
+              {t("storefront.product.quantity")}
             </p>
             <div className="inline-flex items-center border border-neutral-200">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                aria-label="Decrease quantity"
+                aria-label={t("storefront.product.decrease_qty")}
                 className="w-10 h-10 flex items-center justify-center text-lg text-neutral-500 hover:text-black transition-colors"
               >
                 −
@@ -257,7 +259,7 @@ export default function ProductDetail({
                       : q + 1,
                   )
                 }
-                aria-label="Increase quantity"
+                aria-label={t("storefront.product.increase_qty")}
                 className="w-10 h-10 flex items-center justify-center text-lg text-neutral-500 hover:text-black transition-colors"
               >
                 +
@@ -272,14 +274,14 @@ export default function ProductDetail({
             className="mt-6 w-full py-4 text-sm tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: "var(--primary)", color: "var(--secondary)", borderRadius: "var(--radius)" }}
           >
-            {!inStock ? "Out of Stock" : added ? "Added ✓" : "Add to Cart"}
+            {!inStock ? t("storefront.product.out_of_stock") : added ? t("storefront.product.added") : t("storefront.product.add_to_cart")}
           </button>
 
           {/* Description */}
           {product.description && (
             <div className="mt-8 pt-8 border-t border-neutral-100">
               <p className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-3">
-                Description
+                {t("storefront.product.description")}
               </p>
               <p className="text-sm text-neutral-600 leading-relaxed">
                 {product.description}

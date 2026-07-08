@@ -1,14 +1,30 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 
 export default function StorefrontError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    fetch("/api/log-client-error", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "reactBoundary",
+        message: error.message,
+        stack: error.stack,
+        digest: error.digest ?? null,
+        route: typeof window !== "undefined" ? window.location.pathname : "unknown",
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [error]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 text-center">
       <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400 mb-4">

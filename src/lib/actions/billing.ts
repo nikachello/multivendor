@@ -4,6 +4,7 @@ import { getShop } from "@/lib/auth/get-shop";
 import { createBogOrder } from "@/lib/bog";
 import { err, ok } from "@/lib/result";
 import { ErrorCode } from "@/lib/errors";
+import { logger } from "../logger";
 
 const SUBSCRIPTION_PRICE_GEL = 29;
 
@@ -28,7 +29,7 @@ export async function startSubscriptionPayment() {
 
     return ok({ redirectUrl });
   } catch (e) {
-    console.error("BOG order creation failed:", e);
+    logger.error("action.startSubscriptionPayment", { shopId: shop?.id ?? null }, e);
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Payment initiation failed", status: 500 });
   }
 }

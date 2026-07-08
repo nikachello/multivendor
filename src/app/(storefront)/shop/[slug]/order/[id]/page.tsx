@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getOrderById } from "@/lib/db/queries";
 import { getShopBySlug, getShopSections } from "@/lib/db/queries";
+import { getDict } from "@/i18n";
 import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
@@ -74,6 +75,7 @@ export default async function OrderConfirmationPage({
     }
   >;
 
+  const d = await getDict();
   const address = order.shippingAddress as ShippingAddress;
   const firstName = address.name?.split(" ")[0] ?? "";
 
@@ -131,15 +133,14 @@ export default async function OrderConfirmationPage({
             </svg>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Order confirmed!
+            {d.storefront.order.confirmed}
           </h1>
           <p className="mt-2 text-neutral-500 text-sm max-w-sm">
-            Thank you{firstName ? `, ${firstName}` : ""}. We&apos;ll send a
-            confirmation to{" "}
+            {d.storefront.order.thank_you}{firstName ? `, ${firstName}` : ""}. {d.storefront.order.confirmation_sending}{" "}
             <span className="text-neutral-800">
               {maskEmail(order.customerEmail!)}
             </span>{" "}
-            shortly.
+            {d.storefront.order.confirmation_shortly}
           </p>
           <p className="mt-3 text-xs text-neutral-400 font-mono">
             #{order.id.slice(-8).toUpperCase()}
@@ -149,7 +150,7 @@ export default async function OrderConfirmationPage({
         {/* Items */}
         <section className="mb-8">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-            Items ordered
+            {d.storefront.order.items_ordered}
           </h2>
           <ul className="divide-y divide-neutral-100 border border-neutral-100 rounded">
             {order.items.map((item) => (
@@ -179,7 +180,7 @@ export default async function OrderConfirmationPage({
                     </p>
                   )}
                   <p className="text-xs text-neutral-400 mt-0.5">
-                    Qty: {item.quantity}
+                    {d.storefront.order.qty} {item.quantity}
                   </p>
                 </div>
                 <p className="text-sm text-neutral-900 whitespace-nowrap">
@@ -190,7 +191,7 @@ export default async function OrderConfirmationPage({
             ))}
           </ul>
           <div className="flex justify-between text-sm font-semibold text-neutral-900 pt-4 px-1">
-            <span>Total</span>
+            <span>{d.storefront.order.total}</span>
             <span>
               {shop.currency} {Number(order.total).toFixed(2)}
             </span>
@@ -200,7 +201,7 @@ export default async function OrderConfirmationPage({
         {/* Shipping address */}
         <section className="mb-10">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-3">
-            Shipping to
+            {d.storefront.order.shipping_to}
           </h2>
           <div className="text-sm text-neutral-600 space-y-0.5">
             <p>{[address.city, address.country].filter(Boolean).join(", ")}</p>
@@ -211,7 +212,7 @@ export default async function OrderConfirmationPage({
           href={shopBase || "/"}
           className="inline-block px-8 py-3 text-sm tracking-widest uppercase bg-black text-white hover:opacity-80 transition-opacity"
         >
-          Continue shopping
+          {d.checkout.continue_shopping}
         </Link>
       </div>
     </>

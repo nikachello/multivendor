@@ -9,6 +9,7 @@ import {
   removeOptionTypeFromProduct,
   removeOptionValue,
 } from "@/lib/actions/options";
+import { useT } from "@/i18n/context";
 
 type Props = {
   productId: string;
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function OptionsEditor({ productId, shopId, optionTypes: initial }: Props) {
+  const t = useT();
   const [optionTypes, setOptionTypes] = useState<ProductOptionType[]>(initial);
   const [newTypeName, setNewTypeName] = useState("");
   const [inputs, setInputs] = useState<Record<string, string>>({});
@@ -70,7 +72,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
     setSaving((prev) => ({ ...prev, [optionTypeId]: false }));
 
     if (!result.ok) {
-      toast.error("Failed to save values");
+      toast.error(t("dashboard.options_editor.save_failed"));
       return;
     }
 
@@ -92,7 +94,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
     setAddingType(false);
 
     if (!result.ok) {
-      toast.error("Failed to add option");
+      toast.error(t("dashboard.options_editor.add_failed"));
       return;
     }
 
@@ -110,7 +112,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
     setRemovingTypeId(null);
 
     if (!result.ok) {
-      toast.error("Failed to remove option");
+      toast.error(t("dashboard.options_editor.remove_type_failed"));
       return;
     }
 
@@ -124,7 +126,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
     setDeletingValueId(null);
 
     if (!result.ok) {
-      toast.error("Failed to remove value");
+      toast.error(t("dashboard.options_editor.remove_value_failed"));
       return;
     }
 
@@ -140,7 +142,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-xs text-neutral-400 bg-neutral-50 border border-neutral-100 rounded px-3 py-2">
-        Option types (Size, Color, etc.) are shared across your shop. Adding a value here makes it available to all products using that option.
+        {t("dashboard.options_editor.hint")}
       </p>
 
       {optionTypes.map((ot) => {
@@ -157,7 +159,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                 disabled={isRemovingThisType}
                 className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
               >
-                {isRemovingThisType ? "Removing…" : "Remove"}
+                {isRemovingThisType ? t("dashboard.options_editor.removing") : t("dashboard.options_editor.remove")}
               </button>
             </div>
 
@@ -201,7 +203,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                 value={inputs[ot.optionTypeId] ?? ""}
                 onChange={(e) => handleInputChange(ot.optionTypeId, e.target.value)}
                 onKeyDown={(e) => handleInputKeyDown(ot.optionTypeId, e)}
-                placeholder="Type values, separate by comma (e.g. S, M, L)"
+                placeholder={t("dashboard.options_editor.values_placeholder")}
                 className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
               />
               {hasPending && (
@@ -210,13 +212,13 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                   disabled={saving[ot.optionTypeId]}
                   className="px-3 py-1.5 bg-gray-900 text-white text-[13px] rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
                 >
-                  {saving[ot.optionTypeId] ? "Saving…" : "Save"}
+                  {saving[ot.optionTypeId] ? t("dashboard.options_editor.saving") : t("dashboard.options_editor.save")}
                 </button>
               )}
             </div>
             {hasPending && (
               <p className="text-xs text-blue-500">
-                {pendingValues.length} unsaved value(s) — click Save to add them.
+                {t("dashboard.options_editor.unsaved_values", { n: pendingValues.length })}
               </p>
             )}
           </div>
@@ -228,7 +230,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           value={newTypeName}
           onChange={(e) => setNewTypeName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddType()}
-          placeholder="New option name (e.g. Size, Color)"
+          placeholder={t("dashboard.options_editor.type_placeholder")}
           className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm"
         />
         <button
@@ -236,7 +238,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           disabled={addingType}
           className="px-3 py-1.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50"
         >
-          {addingType ? "Adding…" : "Add Option"}
+          {addingType ? t("dashboard.options_editor.adding") : t("dashboard.options_editor.add_option")}
         </button>
       </div>
 
@@ -247,9 +249,9 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Remove &quot;{ot?.name}&quot; option?</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t("dashboard.options_editor.remove_confirm_title", { name: ot?.name ?? "" })}</h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  This removes the option from this product. Existing variants may become inconsistent and should be regenerated.
+                  {t("dashboard.options_editor.remove_confirm_body")}
                 </p>
               </div>
               <div className="flex gap-3 justify-end">
@@ -257,13 +259,13 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
                   onClick={() => setConfirmRemoveTypeId(null)}
                   className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => { setConfirmRemoveTypeId(null); handleRemoveType(confirmRemoveTypeId); }}
                   className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
                 >
-                  Remove
+                  {t("dashboard.options_editor.remove")}
                 </button>
               </div>
             </div>

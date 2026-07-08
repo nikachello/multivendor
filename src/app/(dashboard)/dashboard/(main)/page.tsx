@@ -164,8 +164,7 @@ export default async function DashboardPage() {
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${STATUS_STYLES[order.status]}`}
                       >
-                        {order.status.charAt(0).toUpperCase() +
-                          order.status.slice(1)}
+                        {(d.dashboard.orders as Record<string, string>)["status_" + order.status] ?? order.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">

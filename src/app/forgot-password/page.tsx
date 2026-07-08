@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { requestPasswordReset } from "@/lib/auth/client";
+import { useT } from "@/i18n/context";
 
 export default function ForgotPasswordPage() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -23,7 +25,7 @@ export default function ForgotPasswordPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Something went wrong. Please try again.");
+      setError(t("auth.forgot_password.error"));
     } else {
       setSent(true);
     }
@@ -33,29 +35,29 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center px-8 bg-white">
       <div className="w-full max-w-sm space-y-8">
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">Forgot password</h1>
+          <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">{t("auth.forgot_password.title")}</h1>
           <p className="text-sm text-zinc-500">
-            Enter your email and we&apos;ll send you a reset link.
+            {t("auth.forgot_password.subtitle")}
           </p>
         </div>
 
         {sent ? (
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-100 px-4 py-3 rounded-sm text-sm text-green-700">
-              Check your inbox — a reset link is on its way.
+              {t("auth.forgot_password.sent")}
             </div>
             <Link
               href="/login"
               className="block text-center text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors"
             >
-              Back to sign in
+              {t("auth.forgot_password.back_to_sign_in")}
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-                Email
+                {t("auth.email")}
               </label>
               <input
                 type="email"
@@ -82,7 +84,7 @@ export default function ForgotPasswordPage() {
               disabled={loading || !email}
               className="w-full py-2.5 text-[11px] tracking-widest uppercase font-medium bg-zinc-900 text-white hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Sending..." : "Send reset link"}
+              {loading ? t("auth.forgot_password.sending") : t("auth.forgot_password.submit")}
             </button>
 
             <p className="text-center">
@@ -90,7 +92,7 @@ export default function ForgotPasswordPage() {
                 href="/login"
                 className="text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors"
               >
-                Back to sign in
+                {t("auth.forgot_password.back_to_sign_in")}
               </Link>
             </p>
           </form>

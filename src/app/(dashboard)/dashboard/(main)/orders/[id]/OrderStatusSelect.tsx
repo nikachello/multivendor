@@ -4,16 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { OrderStatus } from "@/generated/prisma/client";
 import { updateOrderStatus } from "@/lib/actions/order";
-
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending:    "Pending",
-  confirmed:  "Confirmed",
-  processing: "Processing",
-  shipped:    "Shipped",
-  delivered:  "Delivered",
-  cancelled:  "Cancelled",
-  refunded:   "Refunded",
-};
+import { useT } from "@/i18n/context";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   pending:    "bg-yellow-50 text-yellow-700 border-yellow-200",
@@ -28,6 +19,16 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
 const DESTRUCTIVE_STATUSES: OrderStatus[] = ["cancelled", "refunded"];
 
 export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { orderId: string; currentStatus: OrderStatus; shopId: string }) {
+  const t = useT();
+  const STATUS_LABELS: Record<OrderStatus, string> = {
+    pending:    t("dashboard.orders.status_pending"),
+    confirmed:  t("dashboard.orders.status_confirmed"),
+    processing: t("dashboard.orders.status_processing"),
+    shipped:    t("dashboard.orders.status_shipped"),
+    delivered:  t("dashboard.orders.status_delivered"),
+    cancelled:  t("dashboard.orders.status_cancelled"),
+    refunded:   t("dashboard.orders.status_refunded"),
+  };
   const [status, setStatus] = useState<OrderStatus>(currentStatus);
   const [saving, setSaving] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
@@ -36,9 +37,9 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
     setSaving(true);
     const result = await updateOrderStatus(orderId, next, shopId);
     setSaving(false);
-    if (!result?.ok) { toast.error("Failed to update status"); return; }
+    if (!result?.ok) { toast.error(t("dashboard.order_status.save_failed")); return; }
     setStatus(next);
-    toast.success("Status updated");
+    toast.success(t("dashboard.order_status.saved"));
   }
 
   function handleChange(next: OrderStatus) {
@@ -66,7 +67,7 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
             <option key={value} value={value}>{label}</option>
           ))}
         </select>
-        {saving && <span className="text-xs text-gray-400">Saving…</span>}
+        {saving && <span className="text-xs text-gray-400">{t("dashboard.order_status.saving")}</span>}
       </div>
 
       {pendingStatus && (
@@ -74,11 +75,10 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6 flex flex-col gap-5">
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
-                Mark as {STATUS_LABELS[pendingStatus]}?
+                {t("dashboard.order_status.confirm_title", { status: STATUS_LABELS[pendingStatus] })}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                This action is difficult to reverse. The order will be marked as{" "}
-                <span className="font-medium text-gray-900">{STATUS_LABELS[pendingStatus].toLowerCase()}</span>.
+                {t("dashboard.order_status.confirm_body", { status: STATUS_LABELS[pendingStatus].toLowerCase() })}
               </p>
             </div>
             <div className="flex gap-3 justify-end">
@@ -86,13 +86,13 @@ export default function OrderStatusSelect({ orderId, currentStatus, shopId }: { 
                 onClick={() => setPendingStatus(null)}
                 className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={() => { const s = pendingStatus; setPendingStatus(null); applyChange(s); }}
                 className="px-3 py-1.5 bg-red-500 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-red-600 transition-all"
               >
-                Confirm
+                {t("dashboard.order_status.confirm")}
               </button>
             </div>
           </div>

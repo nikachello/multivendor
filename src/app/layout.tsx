@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { getLocale, getDictionary } from "@/i18n";
 import { I18nProvider } from "@/i18n/context";
 import { Analytics } from "@vercel/analytics/next";
+import { GlobalErrorReporter } from "@/components/GlobalErrorReporter";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const inter = Inter({ subsets: ["latin"] });
@@ -69,6 +70,7 @@ export default async function RootLayout({
         </I18nProvider>
         <Toaster />
         <Analytics />
+        <GlobalErrorReporter />
       </body>
     </html>
   );

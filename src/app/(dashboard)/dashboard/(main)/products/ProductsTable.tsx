@@ -3,6 +3,7 @@
 import DataTable from "@/components/ui/data-table";
 import { ProductWithRelations } from "@/lib/db/queries";
 import { createColumns } from "./columns";
+import { useT } from "@/i18n/context";
 
 type Props = {
   products: ProductWithRelations[];
@@ -10,13 +11,13 @@ type Props = {
 };
 
 export default function ProductsTable({ products, currency }: Props) {
-  const emptyMessage = "No products found.";
+  const t = useT();
 
   return (
     <DataTable
-      columns={createColumns(currency)}
+      columns={createColumns(currency, t)}
       data={products}
-      emptyMessage={emptyMessage}
+      emptyMessage={t("dashboard.products.no_products")}
     />
   );
 }

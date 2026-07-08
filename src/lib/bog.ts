@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { logger } from "./logger";
 
 const BOG_AUTH_URL = "https://oauth2.bog.ge/auth/realms/bog/protocol/openid-connect/token";
 const BOG_ORDERS_URL = "https://api.bog.ge/payments/v1/ecommerce/orders";
@@ -102,7 +103,7 @@ export function verifyBogCallback(rawBody: string, signature: string | null): bo
   try {
     return verify.verify(BOG_PUBLIC_KEY, signature, "base64");
   } catch (e) {
-    console.error("[bog] malformed callback signature:", e);
+    logger.error("bog.verifySignature", { route: "/api/bog-callback" }, e);
     return false;
   }
 }

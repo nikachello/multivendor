@@ -6,6 +6,7 @@ import { err, ok } from "@/lib/result";
 import { ErrorCode } from "@/lib/errors";
 import { OrderStatus } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
+import { logger } from "../logger";
 
 export async function setShopActive(shopId: string, active: boolean) {
   try { await assertAdmin(); }
@@ -50,7 +51,8 @@ export async function adminUpdateOrderStatus(orderId: string, status: OrderStatu
         );
       }
     });
-  } catch {
+  } catch (e) {
+    logger.error("action.adminUpdateOrderStatus", { orderId, status }, e);
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Order not found", status: 404 });
   }
 

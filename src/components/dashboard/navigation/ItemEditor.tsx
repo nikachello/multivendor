@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { NavItem } from "@/lib/types/sections";
+import { useT } from "@/i18n/context";
 
 type Category = { id: string; name: string; slug: string };
 
@@ -46,10 +47,15 @@ function collectHrefs(items: NavItem[], excludeId: string): string[] {
   return hrefs;
 }
 
-function validateHref(href: string, allItems: NavItem[], currentId: string): string | null {
-  if (!href.trim()) return "URL cannot be empty.";
-  if (!href.startsWith("/") && !href.startsWith("http")) return 'Must start with "/" or "http".';
-  if (collectHrefs(allItems, currentId).includes(href.trim())) return "This URL is already used by another link.";
+function validateHref(
+  href: string,
+  allItems: NavItem[],
+  currentId: string,
+  t: (key: string) => string,
+): string | null {
+  if (!href.trim()) return t("dashboard.navigation_editor.url_empty");
+  if (!href.startsWith("/") && !href.startsWith("http")) return t("dashboard.navigation_editor.url_invalid_start");
+  if (collectHrefs(allItems, currentId).includes(href.trim())) return t("dashboard.navigation_editor.url_duplicate");
   return null;
 }
 
@@ -57,6 +63,7 @@ export default function ItemEditor({
   item, allItems, categories, shopSlug,
   onLabelChange, onHrefChange, onTypeChange, onDelete, onAddChild,
 }: Props) {
+  const t = useT();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [prevItemId, setPrevItemId] = useState(item?.id);
 
@@ -74,20 +81,20 @@ export default function ItemEditor({
   const childCount = isGroup ? item.children.length : 0;
 
   const hrefError = item?.type === "link"
-    ? validateHref(localHref, allItems, item.id)
+    ? validateHref(localHref, allItems, item.id, t)
     : null;
 
   // Suggestions: Home + categories
   const suggestions = [
-    { label: "Home", href: "/" },
+    { label: t("dashboard.navigation_editor.home_label"), href: "/" },
     ...categories.map((c) => ({ label: c.name, href: `/collections/${c.slug}` })),
   ];
 
   if (!item) {
     return (
       <div className="pt-2">
-        <p className="text-[11px] tracking-widest uppercase text-zinc-300">No item selected</p>
-        <p className="text-[11px] text-zinc-400 mt-2">Select an item from the tree, or create one using the buttons on the left.</p>
+        <p className="text-[11px] tracking-widest uppercase text-zinc-300">{t("dashboard.navigation_editor.no_item_selected")}</p>
+        <p className="text-[11px] text-zinc-400 mt-2">{t("dashboard.navigation_editor.select_hint")}</p>
       </div>
     );
   }
@@ -97,37 +104,37 @@ export default function ItemEditor({
       {/* Header */}
       <div className="flex items-start justify-between border-b border-zinc-200 pb-4">
         <div className="min-w-0">
-          <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-1">Editing</p>
+          <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-1">{t("dashboard.navigation_editor.editing")}</p>
           <p className="text-sm font-semibold text-zinc-900 truncate">{item.label}</p>
         </div>
         <span className="text-[10px] text-zinc-300 font-mono shrink-0 ml-4 mt-1">{item.id.slice(0, 8)}</span>
       </div>
 
       {/* Label */}
-      <Field label="Label">
+      <Field label={t("dashboard.navigation_editor.label_field")}>
         <input
           value={localLabel}
           onChange={(e) => setLocalLabel(e.target.value)}
           className="w-full border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 transition-colors font-mono"
-          placeholder="Label"
+          placeholder={t("dashboard.navigation_editor.label_field")}
         />
       </Field>
 
       {/* Type toggle */}
       <Field
-        label="Type"
-        hint={isGroup && childCount > 0 ? `Converting to link will remove ${childCount} child${childCount !== 1 ? "ren" : ""}.` : undefined}
+        label={t("dashboard.navigation_editor.type_field")}
+        hint={isGroup && childCount > 0 ? (childCount === 1 ? t("dashboard.navigation_editor.type_convert_one") : t("dashboard.navigation_editor.type_convert_many", { n: childCount })) : undefined}
         hintWarning={isGroup && childCount > 0}
       >
         <div className="flex border border-zinc-200">
-          <TypeButton active={!isGroup} onClick={() => isGroup && onTypeChange("link")}>Link</TypeButton>
-          <TypeButton active={isGroup} onClick={() => !isGroup && onTypeChange("group")}>Group</TypeButton>
+          <TypeButton active={!isGroup} onClick={() => isGroup && onTypeChange("link")}>{t("dashboard.navigation_editor.link_type_btn")}</TypeButton>
+          <TypeButton active={isGroup} onClick={() => !isGroup && onTypeChange("group")}>{t("dashboard.navigation_editor.group_type_btn")}</TypeButton>
         </div>
       </Field>
 
       {/* URL — required for links, optional for groups */}
       <Field
-        label={isGroup ? "URL (optional — makes group clickable)" : "URL"}
+        label={isGroup ? t("dashboard.navigation_editor.url_optional") : t("dashboard.navigation_editor.url_field")}
         hint={hrefError ?? undefined}
         hintWarning={!!hrefError}
       >
@@ -137,7 +144,7 @@ export default function ItemEditor({
           className={`w-full border px-3 py-2 text-sm text-zinc-900 focus:outline-none transition-colors font-mono ${
             hrefError ? "border-red-300 focus:border-red-500" : "border-zinc-200 focus:border-zinc-900"
           }`}
-          placeholder={isGroup ? "Leave empty or enter /collections/watches" : "/path or https://..."}
+          placeholder={isGroup ? t("dashboard.navigation_editor.url_placeholder_group") : t("dashboard.navigation_editor.url_placeholder_link")}
         />
         {/* Preview */}
         {localHref && (
@@ -166,15 +173,15 @@ export default function ItemEditor({
 
       {/* Add child (groups only) */}
       {isGroup && (
-        <Field label="Children">
+        <Field label={t("dashboard.navigation_editor.children_field")}>
           <div className="flex items-center gap-4">
             <button
               onClick={onAddChild}
               className="text-[11px] tracking-widest uppercase px-4 py-2 border border-zinc-300 text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
             >
-              + Add child link
+              {t("dashboard.navigation_editor.add_child")}
             </button>
-            <span className="text-[11px] text-zinc-400">{childCount} {childCount === 1 ? "child" : "children"}</span>
+            <span className="text-[11px] text-zinc-400">{childCount === 1 ? t("dashboard.navigation_editor.child_count_one") : t("dashboard.navigation_editor.child_count_many", { n: childCount })}</span>
           </div>
         </Field>
       )}
@@ -183,19 +190,19 @@ export default function ItemEditor({
       <div className="pt-6 border-t border-zinc-100">
         {!confirmDelete ? (
           <button onClick={() => setConfirmDelete(true)} className="text-[11px] tracking-widest uppercase text-red-400 hover:text-red-600 transition-colors">
-            Delete item
+            {t("dashboard.navigation_editor.delete_item")}
           </button>
         ) : (
           <div className="flex items-center gap-4">
-            <span className="text-[11px] text-zinc-500">Are you sure?</span>
+            <span className="text-[11px] text-zinc-500">{t("dashboard.navigation_editor.confirm_delete")}</span>
             <button
               onClick={() => { setConfirmDelete(false); onDelete(); }}
               className="text-[11px] tracking-widest uppercase text-red-500 hover:text-red-700 font-semibold transition-colors"
             >
-              Yes, delete
+              {t("dashboard.navigation_editor.yes_delete")}
             </button>
             <button onClick={() => setConfirmDelete(false)} className="text-[11px] tracking-widest uppercase text-zinc-400 hover:text-zinc-700 transition-colors">
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         )}

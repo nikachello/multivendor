@@ -7,6 +7,17 @@ import type { OurFileRouter } from "@/lib/uploadthing";
 
 const { useUploadThing } = generateReactHelpers<OurFileRouter>();
 
+async function reportClientError(data: Record<string, unknown>) {
+  try {
+    await fetch("/api/log-client-error", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      keepalive: true,
+    });
+  } catch { /* swallow */ }
+}
+
 type Props = {
   onUploadComplete: (urls: string[]) => void;
   endpoint?: keyof OurFileRouter;
@@ -24,9 +35,15 @@ export default function ImageUploader({ onUploadComplete, endpoint = "productIma
       onUploadComplete(urls);
     },
     onUploadError: (err) => {
-      console.error(err);
+      void reportClientError({
+        type: "uploadError",
+        message: err.message,
+        code: err.code,
+        endpoint,
+        route: typeof window !== "undefined" ? window.location.pathname : "unknown",
+      });
       setPreviews([]);
-      toast.error("Upload failed — please try again");
+      toast.error(err.message ?? "Upload failed — please try again");
     },
   });
 

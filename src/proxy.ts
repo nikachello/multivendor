@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { logger } from "@/lib/logger";
 
 // Better Auth prepends __Secure- when BETTER_AUTH_URL uses https://
 const SESSION_COOKIE = "__Secure-better-auth.session_token";
@@ -44,8 +45,8 @@ export async function proxy(req: NextRequest) {
         url.pathname = `/shop/${shop.slug}${pathname === "/" ? "" : pathname}`;
         return NextResponse.rewrite(url);
       }
-    } catch {
-      // DB lookup failed — fall through
+    } catch (e) {
+      logger.warn("proxy.customDomainLookup", { host, reason: "db_lookup_failed" }, e);
     }
   }
 

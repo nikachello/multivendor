@@ -2,6 +2,7 @@
 import { getShop } from "@/lib/auth/get-shop";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Link from "next/link";
+import { getDict } from "@/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
   const shop = await getShop();
@@ -13,8 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+type BannerStrings = {
+  expired: string;
+  expiring_one: string;
+  expiring_many: string;
+};
+
 function getSubscriptionBanner(
   paidUntil: Date | null,
+  strings: BannerStrings,
 ): { message: string; style: string } | null {
   if (!paidUntil) return null;
 
@@ -23,15 +31,16 @@ function getSubscriptionBanner(
 
   if (until < now) {
     return {
-      message: "Your Pro subscription has expired. You're back on the free plan — upgrade to restore all features.",
+      message: strings.expired,
       style: "bg-amber-50 border-amber-200 text-amber-700",
     };
   }
 
   const daysLeft = Math.ceil((until.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   if (daysLeft <= 7) {
+    const tmpl = daysLeft === 1 ? strings.expiring_one : strings.expiring_many;
     return {
-      message: `Your Pro subscription expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"}. Renew to keep all Pro features.`,
+      message: tmpl.replace("{days}", String(daysLeft)),
       style: "bg-amber-50 border-amber-200 text-amber-700",
     };
   }
@@ -41,7 +50,9 @@ function getSubscriptionBanner(
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const shop = await getShop();
-  const banner = getSubscriptionBanner(shop.subscriptionPaidUntil);
+  const d = await getDict();
+  const bannerStrings = d.dashboard.subscription_banner;
+  const banner = getSubscriptionBanner(shop.subscriptionPaidUntil, bannerStrings);
 
   return (
     <div className="flex h-screen bg-[#f5f5f7]">
@@ -54,7 +65,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               href="/dashboard/billing"
               className="ml-4 shrink-0 font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
-              Renew now
+              {d.dashboard.subscription_banner.renew}
             </Link>
           </div>
         )}

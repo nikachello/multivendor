@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/i18n/context";
 
 type Props = { shopSlug: string; shopBase?: string; initialQuery: string };
 
@@ -10,6 +11,7 @@ export default function SearchInput({ shopSlug, shopBase, initialQuery }: Props)
   const router = useRouter();
   const isFirstRender = useRef(true);
   const base = shopBase !== undefined ? shopBase : `/shop/${shopSlug}`;
+  const t = useT();
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -29,7 +31,7 @@ export default function SearchInput({ shopSlug, shopBase, initialQuery }: Props)
       type="text"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
-      placeholder="Search products…"
+      placeholder={t("storefront.search.placeholder")}
       className="w-full border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-neutral-500 transition-colors"
     />
   );

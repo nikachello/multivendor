@@ -4,9 +4,11 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/auth/client";
+import { useT } from "@/i18n/context";
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const t = useT();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -19,13 +21,13 @@ function ResetPasswordForm() {
     return (
       <div className="space-y-4">
         <div className="bg-red-50 border border-red-100 px-4 py-3 rounded-sm text-sm text-red-600">
-          Invalid or expired reset link.
+          {t("auth.reset_password.invalid_link")}
         </div>
         <Link
           href="/forgot-password"
           className="block text-center text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors"
         >
-          Request a new link
+          {t("auth.reset_password.request_new")}
         </Link>
       </div>
     );
@@ -36,11 +38,11 @@ function ResetPasswordForm() {
     setError(null);
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("auth.password_min"));
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError(t("auth.reset_password.mismatch"));
       return;
     }
 
@@ -49,7 +51,7 @@ function ResetPasswordForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError("This link is invalid or has expired. Request a new one.");
+      setError(t("auth.reset_password.expired"));
     } else {
       router.push("/login?reset=1");
     }
@@ -59,7 +61,7 @@ function ResetPasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-          New password
+          {t("auth.reset_password.new_password_label")}
         </label>
         <input
           type="password"
@@ -68,13 +70,13 @@ function ResetPasswordForm() {
           required
           autoFocus
           className="w-full border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-900 transition-colors rounded-sm"
-          placeholder="Min. 8 characters"
+          placeholder={t("auth.register.password_placeholder")}
         />
       </div>
 
       <div className="space-y-1.5">
         <label className="text-[11px] font-medium tracking-widest uppercase text-zinc-500">
-          Confirm password
+          {t("auth.reset_password.confirm_password_label")}
         </label>
         <input
           type="password"
@@ -82,7 +84,7 @@ function ResetPasswordForm() {
           onChange={(e) => setConfirm(e.target.value)}
           required
           className="w-full border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-900 transition-colors rounded-sm"
-          placeholder="Repeat your password"
+          placeholder={t("auth.reset_password.confirm_placeholder")}
         />
       </div>
 
@@ -100,19 +102,20 @@ function ResetPasswordForm() {
         disabled={loading || !password || !confirm}
         className="w-full py-2.5 text-[11px] tracking-widest uppercase font-medium bg-zinc-900 text-white hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Updating..." : "Set new password"}
+        {loading ? t("auth.reset_password.updating") : t("auth.reset_password.submit")}
       </button>
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
+  const t = useT();
   return (
     <div className="min-h-screen flex items-center justify-center px-8 bg-white">
       <div className="w-full max-w-sm space-y-8">
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">Set new password</h1>
-          <p className="text-sm text-zinc-500">Choose a strong password for your account.</p>
+          <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">{t("auth.reset_password.title")}</h1>
+          <p className="text-sm text-zinc-500">{t("auth.reset_password.subtitle")}</p>
         </div>
 
         <Suspense fallback={null}>

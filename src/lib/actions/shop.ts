@@ -11,6 +11,7 @@ import { getThemeConfig } from "@/themes";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 import type { CollectionConfig } from "../db/queries";
 import { isProShop, FREE_THEME } from "../subscription";
+import { logger } from "../logger";
 
 export type ShippingZone = { city_en: string; city_ka: string; rate: number };
 
@@ -253,7 +254,8 @@ export const createShop = async (name: string, slug: string) => {
     });
 
     return ok(shop);
-  } catch {
+  } catch (e) {
+    logger.error("action.createShop", { userId: session?.user?.id ?? null, slug }, e);
     return err({
       code: "SHOP_CREATE_FAILED",
       message: "მაღაზიის მისამართი უკვე დაკავებულია.",

@@ -69,6 +69,25 @@
       "submit": "Set new password",
       "mismatch": "Passwords do not match.",
       "expired": "This link is invalid or has expired. Request a new one."
+    },
+    "onboarding": {
+      "title": "Create your store",
+      "subtitle": "This takes 10 seconds.",
+      "one_last_step": "One last step.",
+      "panel_desc": "Give your store a name and a URL. You can change these later from your settings.",
+      "feature_live": "Your store is live instantly",
+      "feature_domain": "Custom domain support",
+      "feature_design": "Full control over design & content",
+      "store_name": "Store name",
+      "store_name_placeholder": "Niko Watches",
+      "store_url": "Store URL",
+      "store_at": "Your store will be at",
+      "name_required": "Shop name is required.",
+      "slug_required": "Slug is required.",
+      "slug_min": "Slug must be at least 3 characters.",
+      "error_generic": "Something went wrong.",
+      "submitting": "Creating...",
+      "submit": "Create store →"
     }
   },
   "common": {
@@ -629,6 +648,7 @@
       "variant_col": "Variant",
       "price_col": "Price",
       "stock_col": "Stock",
+      "sku_col": "SKU",
       "switch_unlimited": "Switch to unlimited",
       "switch_tracked": "Switch to tracked",
       "delete_title": "Delete variant",

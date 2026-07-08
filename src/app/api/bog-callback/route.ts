@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { verifyBogCallback } from "@/lib/bog";
 import prisma from "@/lib/db/prisma";
+import { logger } from "@/lib/logger";
 
 const SUBSCRIPTION_PRICE_GEL = 29;
 
@@ -10,6 +11,7 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get("Callback-Signature");
 
   if (!verifyBogCallback(rawBody, signature)) {
+    logger.warn("api.bogCallback", { route: "/api/bog-callback", reason: "invalid_signature" });
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -51,6 +53,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unexpected currency" }, { status: 400 });
   }
   if (paidAmount === undefined || paidAmount < SUBSCRIPTION_PRICE_GEL) {
+    logger.warn("api.bogCallback", { route: "/api/bog-callback", reason: "insufficient_payment", paidAmount });
     return NextResponse.json({ error: "Insufficient payment amount" }, { status: 400 });
   }
 
