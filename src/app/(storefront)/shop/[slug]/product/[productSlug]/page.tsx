@@ -8,6 +8,7 @@ import {
 import { getThemeRegistry } from "@/lib/section-registry";
 import { getThemeConfig } from "@/themes";
 import ProductDetail from "@/components/storefront/product/ProductDetail";
+import CreatorProductPage from "@/themes/creator/sections/CreatorProductPage";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { ShopSection } from "@/lib/types/store-section";
@@ -134,16 +135,42 @@ export default async function ProductPage({
         />
       )}
 
-      <div className="px-5 md:px-10 py-12 max-w-6xl mx-auto">
-        <ProductDetail
-          product={product}
-          currency={shop.currency}
-          shopSlug={shop.slug}
-          shopBase={shopBase}
-          shopName={shop.name}
+      {themeId === "creator" ? (
+        <CreatorProductPage
+          product={{
+            id: product.id,
+            name: product.name,
+            description: product.description ?? undefined,
+            images: product.images.map((img) => img.url),
+            priceFrom: Number(product.priceFrom),
+            variants: product.variants.map((v) => ({
+              id: v.id,
+              price: Number(v.price),
+              stock: v.stock,
+              trackInventory: v.trackInventory,
+              image: v.image ?? undefined,
+              optionValues: v.optionValues.map((ov) => ({
+                name: ov.optionValue.optionType.name,
+                value: ov.optionValue.value,
+              })),
+            })),
+          }}
           shopId={shop.id}
+          shopBase={shopBase}
+          currency={shop.currency}
         />
-      </div>
+      ) : (
+        <div className="px-5 md:px-10 py-12 max-w-6xl mx-auto">
+          <ProductDetail
+            product={product}
+            currency={shop.currency}
+            shopSlug={shop.slug}
+            shopBase={shopBase}
+            shopName={shop.name}
+            shopId={shop.id}
+          />
+        </div>
+      )}
 
       <EditorBridge />
 

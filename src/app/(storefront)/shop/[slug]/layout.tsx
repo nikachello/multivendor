@@ -20,6 +20,7 @@ export async function generateMetadata({
   };
 }
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
+import CreatorCartFab from "@/themes/creator/sections/CreatorCartFab";
 import StorefrontFooter from "@/components/storefront/layout/StorefrontFooter";
 import StorefrontPixel from "@/components/storefront/tracking/StorefrontPixel";
 import StorefrontGA4 from "@/components/storefront/tracking/StorefrontGA4";
@@ -114,12 +115,11 @@ export default async function ShopSlugLayout({
       {!isCreatorTheme && (
         <StorefrontFooter shopName={shop.name} shopBase={shopBase} footerItems={footerItems} />
       )}
-      <CartDrawer
-        shopId={shop.id}
-        shopSlug={shop.slug}
-        shopBase={shopBase}
-        currency={shop.currency}
-      />
+      {isCreatorTheme ? (
+        <CreatorCartFab shopId={shop.id} shopBase={shopBase} currency={shop.currency} />
+      ) : (
+        <CartDrawer shopId={shop.id} shopSlug={shop.slug} shopBase={shopBase} currency={shop.currency} />
+      )}
     </div>
   );
 }

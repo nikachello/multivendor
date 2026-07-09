@@ -11,6 +11,7 @@ import {
 import { getThemeRegistry } from "@/lib/section-registry";
 import { getThemeConfig } from "@/themes";
 import CollectionContainer from "@/components/storefront/collection/CollectionContainer";
+import CreatorCollectionPage from "@/themes/creator/sections/CreatorCollectionPage";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { ShopSection } from "@/lib/types/store-section";
@@ -181,35 +182,50 @@ export default async function CollectionPage({
       )}
 
       <div className="pb-20">
-        <nav className="flex items-center gap-2 text-xs text-neutral-400 px-5 md:px-10 pt-8">
-          <a
-            href={shopBase || "/"}
-            className="hover:text-neutral-600 transition-colors"
-          >
-            {shop.name}
-          </a>
-          <span>/</span>
-          <span className="text-neutral-600">{category.name}</span>
-        </nav>
+        {themeId === "creator" ? (
+          <CreatorCollectionPage
+            categoryName={category.name}
+            shopBase={shopBase}
+            currency={shop.currency}
+            products={products.map((p) => ({
+              id: p.id,
+              slug: p.slug,
+              name: p.name,
+              image: p.images[0]?.url ?? "",
+              price: p.priceFrom,
+              inStock: p.variants.some((v) => !v.trackInventory || v.stock > 0),
+            }))}
+          />
+        ) : (
+          <>
+            <nav className="flex items-center gap-2 text-xs text-neutral-400 px-5 md:px-10 pt-8">
+              <a href={shopBase || "/"} className="hover:text-neutral-600 transition-colors">
+                {shop.name}
+              </a>
+              <span>/</span>
+              <span className="text-neutral-600">{category.name}</span>
+            </nav>
 
-        <CollectionContainer
-          category={category}
-          products={products}
-          currency={shop.currency}
-          shopSlug={shop.slug}
-          shopBase={shopBase}
-          total={total}
-          allTotal={allTotal}
-          page={page}
-          facets={facets}
-          sort={sort}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          optionFilters={optionFilters}
-          inStockOnly={inStockOnly}
-          currentParamsStr={currentParamsStr}
-          config={collectionConfig}
-        />
+            <CollectionContainer
+              category={category}
+              products={products}
+              currency={shop.currency}
+              shopSlug={shop.slug}
+              shopBase={shopBase}
+              total={total}
+              allTotal={allTotal}
+              page={page}
+              facets={facets}
+              sort={sort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              optionFilters={optionFilters}
+              inStockOnly={inStockOnly}
+              currentParamsStr={currentParamsStr}
+              config={collectionConfig}
+            />
+          </>
+        )}
 
         <EditorBridge />
 
