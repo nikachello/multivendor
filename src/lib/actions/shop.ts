@@ -424,10 +424,13 @@ export const createShop = async (name: string, slug: string) => {
             shopId: shop.id,
             type: "navbar",
             order: 0,
-            props: {
-              items: [],
-              transparent: false,
-            },
+            props: { items: [], transparent: false },
+          },
+          {
+            shopId: shop.id,
+            type: "footerNav",
+            order: 999,
+            props: { items: [] },
           },
           {
             shopId: shop.id,

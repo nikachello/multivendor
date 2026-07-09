@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getShopBySlug } from "@/lib/db/queries";
+import prisma from "@/lib/db/prisma";
+import { NavItem } from "@/lib/types/sections";
 
 export async function generateMetadata({
   params,
@@ -38,6 +40,12 @@ export default async function ShopSlugLayout({
   const shop = result.data;
 
   const shopBase = await getShopBase(slug);
+
+  const footerSection = await prisma.shopSection.findFirst({
+    where: { shopId: shop.id, type: "footerNav" },
+    select: { props: true },
+  });
+  const footerItems = ((footerSection?.props as { items?: NavItem[] })?.items) ?? [];
 
   const themeConfig = getThemeConfig((shop as { themeId?: string }).themeId ?? "minimal");
 
@@ -78,7 +86,7 @@ export default async function ShopSlugLayout({
       <StorefrontGA4 measurementId={shop.ga4MeasurementId ?? ""} />
       <StorefrontGoogleAds googleAdsId={shop.googleAdsId ?? ""} />
       {children}
-      <StorefrontFooter shopName={shop.name} shopBase={shopBase} />
+      <StorefrontFooter shopName={shop.name} shopBase={shopBase} footerItems={footerItems} />
       <CartDrawer
         shopId={shop.id}
         shopSlug={shop.slug}

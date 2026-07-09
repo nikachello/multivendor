@@ -15,7 +15,7 @@ import { containsId } from "@/lib/navigation/contains-id";
 import { NavItem } from "@/lib/types/sections";
 import { DropPosition, reorderItem } from "@/lib/navigation/reorder-item";
 import { updateItem } from "@/lib/navigation/update-item";
-import { saveNavigation } from "@/lib/actions/navigation";
+import { saveNavigation, saveFooterNavigation } from "@/lib/actions/navigation";
 
 type Category = { id: string; name: string; slug: string };
 type Page = { slug: string; title: string };
@@ -26,9 +26,10 @@ type Props = {
   initialItems: NavItem[];
   categories: Category[];
   pages: Page[];
+  menuType?: "navbar" | "footerNav";
 };
 
-export default function MenuEditor({ shopId, shopSlug, initialItems, categories, pages }: Props) {
+export default function MenuEditor({ shopId, shopSlug, initialItems, categories, pages, menuType = "navbar" }: Props) {
   const t = useT();
   const [menu, setMenu] = useState<NavItem[]>(initialItems);
   const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
@@ -104,11 +105,13 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories,
   // ─── Save ─────────────────────────────────────────────────────────────────────
 
   const handleSave = useCallback(async () => {
-    const result = await saveNavigation(shopId, menu);
+    const result = menuType === "footerNav"
+      ? await saveFooterNavigation(shopId, menu)
+      : await saveNavigation(shopId, menu);
     if (!result.ok) { toast.error(t("dashboard.navigation_editor.save_failed")); return; }
     setSavedMenu(menu);
     toast.success(t("dashboard.navigation_editor.saved"));
-  }, [shopId, menu, t]);
+  }, [shopId, menu, menuType, t]);
 
   const handleDiscard = useCallback(() => {
     setMenu(savedMenu);
@@ -123,7 +126,7 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories,
       <header className="border-b border-zinc-200 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-sm font-semibold tracking-widest uppercase text-zinc-900">
-            {t("dashboard.navigation_editor.title")}
+            {menuType === "footerNav" ? "Footer Navigation" : t("dashboard.navigation_editor.title")}
           </h1>
           {isDirty && (
             <span className="text-[10px] tracking-widest uppercase text-zinc-400">
