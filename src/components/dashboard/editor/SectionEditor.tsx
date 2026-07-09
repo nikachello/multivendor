@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   DndContext,
   closestCenter,
@@ -91,8 +91,11 @@ export default function SectionEditor({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const justSwitchedPage = useRef(false);
 
-  const sections = pagesSections[activePage].filter(
-    (s) => !(themeId === "creator" && s.type === "navbar"),
+  const sections = useMemo(
+    () => pagesSections[activePage].filter(
+      (s) => !(themeId === "creator" && s.type === "navbar"),
+    ),
+    [pagesSections, activePage, themeId],
   );
 
   function getPreviewUrl(page: PageType): string {
