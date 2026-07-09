@@ -11,6 +11,7 @@ import CollectionItem from "@/components/storefront/collection/CollectionItem";
 import SearchInput from "./SearchInput";
 import EditorBridge from "@/components/storefront/EditorBridge";
 import { getShopBase } from "@/lib/shop-base";
+import CreatorBackButton from "@/themes/creator/sections/CreatorBackButton";
 
 export async function generateMetadata({
   params,
@@ -85,6 +86,7 @@ export default async function SearchPage({
 
       <div className="pb-20">
         <div className="px-5 md:px-10 pt-10 pb-6 max-w-2xl">
+          {themeId === "creator" && <CreatorBackButton />}
           <h1 className="text-2xl font-semibold tracking-tight mb-4">Search</h1>
           <SearchInput shopSlug={slug} shopBase={shopBase} initialQuery={q} />
         </div>

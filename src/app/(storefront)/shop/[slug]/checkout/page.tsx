@@ -6,6 +6,7 @@ import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
 import { getShopBase } from "@/lib/shop-base";
+import CreatorBackButton from "@/themes/creator/sections/CreatorBackButton";
 
 export async function generateMetadata({
   params,
@@ -32,7 +33,8 @@ export default async function CheckoutPage({
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
-  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
   const shopBase = await getShopBase(slug);
   const shopPaymentConfig = (shop as { paymentConfig?: Record<string, { enabled?: boolean; clientId?: string }> }).paymentConfig ?? {};
   const hasBogPayment = !!(shopPaymentConfig.bog?.enabled && shopPaymentConfig.bog?.clientId);
@@ -60,6 +62,7 @@ export default async function CheckoutPage({
       )}
 
       <div className="px-5 md:px-10 py-12 max-w-6xl mx-auto">
+        {themeId === "creator" && <CreatorBackButton />}
         <CheckoutForm
           shopId={shop.id}
           shopSlug={shop.slug}

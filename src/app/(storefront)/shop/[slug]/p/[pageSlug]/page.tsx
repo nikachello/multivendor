@@ -6,6 +6,7 @@ import { getThemeRegistry } from "@/lib/section-registry";
 import { NavbarSectionProps } from "@/lib/types/sections";
 import { resolveNavItems } from "@/lib/navigation/resolve-nav-items";
 import { getShopBase } from "@/lib/shop-base";
+import CreatorBackButton from "@/themes/creator/sections/CreatorBackButton";
 
 export async function generateMetadata({
   params,
@@ -42,7 +43,8 @@ export default async function ShopPage({
   const sectionsResult = await getShopSections(shop.id);
   const sections = sectionsResult.ok ? sectionsResult.data : [];
   const navbarSection = sections.find((s) => s.type === "navbar");
-  const registry = getThemeRegistry((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const registry = getThemeRegistry(themeId);
   const shopBase = await getShopBase(slug);
   const NavbarComponent = registry["navbar"] as React.ComponentType<
     NavbarSectionProps & { shopId?: string; shopName?: string }
@@ -66,6 +68,7 @@ export default async function ShopPage({
       )}
 
       <div className="px-5 md:px-10 py-12 max-w-3xl mx-auto">
+        {themeId === "creator" && <CreatorBackButton />}
         <article
           className="prose prose-neutral max-w-none"
           dangerouslySetInnerHTML={{ __html: page.content }}
