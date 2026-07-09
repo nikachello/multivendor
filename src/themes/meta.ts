@@ -30,4 +30,10 @@ export const THEMES_META: ThemeMeta[] = [
     description: "Editorial black & white with image rollover, portrait cards, and generous whitespace",
     available: true,
   },
+  {
+    id: "creator",
+    name: "Creator",
+    description: "Mobile-first bio link storefront for creators, coaches, and social-first shops",
+    available: true,
+  },
 ];

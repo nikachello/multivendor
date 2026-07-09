@@ -47,7 +47,9 @@ export default async function ShopSlugLayout({
   });
   const footerItems = ((footerSection?.props as { items?: NavItem[] })?.items) ?? [];
 
-  const themeConfig = getThemeConfig((shop as { themeId?: string }).themeId ?? "minimal");
+  const themeId = (shop as { themeId?: string }).themeId ?? "minimal";
+  const themeConfig = getThemeConfig(themeId);
+  const isCreatorTheme = themeId === "creator";
 
   const fontMap: Record<string, string> = {
     sans: "system-ui, sans-serif",
@@ -82,11 +84,36 @@ export default async function ShopSlugLayout({
         } as React.CSSProperties
       }
     >
+      {isCreatorTheme && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link
+            href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+          />
+          <style>{`
+            @media (prefers-color-scheme: dark) {
+              [data-theme-root] {
+                --creator-accent: #E2895F;
+                --creator-muted: #9C9284;
+                --creator-subtle: #34302A;
+                --creator-surface: #221E19;
+                --creator-on-surface: #F5F1E9;
+                --creator-link-btn-bg: #2C2820;
+              }
+            }
+          `}</style>
+        </>
+      )}
       <StorefrontPixel pixelId={shop.metaPixelId ?? ""} />
       <StorefrontGA4 measurementId={shop.ga4MeasurementId ?? ""} />
       <StorefrontGoogleAds googleAdsId={shop.googleAdsId ?? ""} />
       {children}
-      <StorefrontFooter shopName={shop.name} shopBase={shopBase} footerItems={footerItems} />
+      {!isCreatorTheme && (
+        <StorefrontFooter shopName={shop.name} shopBase={shopBase} footerItems={footerItems} />
+      )}
       <CartDrawer
         shopId={shop.id}
         shopSlug={shop.slug}

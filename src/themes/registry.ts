@@ -2,6 +2,7 @@ import { minimalTheme } from "./minimal";
 import { maisonTheme } from "./maison";
 import { dewTheme } from "./dew";
 import { pipelineTheme } from "./pipeline";
+import { creatorTheme } from "./creator";
 import { ThemeDefinition, SectionRegistry } from "./types";
 
 const themes: Record<string, ThemeDefinition> = {
@@ -9,6 +10,7 @@ const themes: Record<string, ThemeDefinition> = {
   maison: maisonTheme,
   dew: dewTheme,
   pipeline: pipelineTheme,
+  creator: creatorTheme,
 };
 
 export const THEMES = themes;

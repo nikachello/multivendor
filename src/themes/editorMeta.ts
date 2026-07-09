@@ -3,6 +3,7 @@
 
 import { standardSectionMeta, dewSectionMeta } from "./_shared/sectionMeta";
 import { pipelineSectionMeta } from "./pipeline/sectionMeta";
+import { creatorSectionMeta } from "./creator/sectionMeta";
 import type { SectionMeta } from "./types";
 
 export const THEME_SECTION_META: Record<string, SectionMeta[]> = {
@@ -10,6 +11,7 @@ export const THEME_SECTION_META: Record<string, SectionMeta[]> = {
   maison: standardSectionMeta,
   dew: [...standardSectionMeta, ...dewSectionMeta],
   pipeline: pipelineSectionMeta,
+  creator: creatorSectionMeta,
 };
 
 export function getThemeSectionMeta(themeId: string): SectionMeta[] {
