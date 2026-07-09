@@ -11,7 +11,14 @@ type LinkItem = {
 
 type Props = {
   items?: LinkItem[];
+  shopBase?: string;
 };
+
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
 
 const VARIANT_CLASSES: Record<string, string> = {
   filled:
@@ -22,7 +29,7 @@ const VARIANT_CLASSES: Record<string, string> = {
     "bg-transparent text-[var(--primary)] hover:bg-[var(--creator-subtle)]/50",
 };
 
-export default function CreatorLinks({ items = [] }: Props) {
+export default function CreatorLinks({ items = [], shopBase = "" }: Props) {
   if (items.length === 0) return null;
 
   return (
@@ -39,7 +46,7 @@ export default function CreatorLinks({ items = [] }: Props) {
         return (
           <Link
             key={item.id}
-            href={item.url}
+            href={resolveUrl(item.url, shopBase)}
             target={item.url.startsWith("http") ? "_blank" : undefined}
             rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
             className={`flex items-center justify-center gap-2 h-14 rounded-2xl text-[15px] font-semibold transition-all ${variantClass} ${disabledClass}`}

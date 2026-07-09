@@ -47,6 +47,7 @@ type Props = {
   currency: string;
   categories: { id: string; name: string; slug?: string }[];
   pages: { slug: string; title: string }[];
+  products: { name: string; slug: string }[];
   initialTheme: ThemeData;
   themeId: string;
   firstCategorySlug: string | null;
@@ -61,6 +62,7 @@ export default function SectionEditor({
   shopSlug,
   categories,
   pages,
+  products,
   initialTheme,
   themeId,
   firstCategorySlug,
@@ -468,6 +470,7 @@ export default function SectionEditor({
             shopId={shopId}
             categories={categories}
             pages={pages}
+            products={products}
             sectionMeta={getThemeSectionMeta(themeId)}
             onChange={handlePropChange}
           />

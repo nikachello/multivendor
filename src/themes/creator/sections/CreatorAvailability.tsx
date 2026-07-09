@@ -10,7 +10,14 @@ type Props = {
   ctaUrl?: string;
   waitlistEnabled?: boolean;
   waitlistCtaLabel?: string;
+  shopBase?: string;
 };
+
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
 
 export default function CreatorAvailability({
   headline = "Limited availability",
@@ -20,6 +27,7 @@ export default function CreatorAvailability({
   ctaUrl = "#",
   waitlistEnabled = false,
   waitlistCtaLabel = "Join waitlist",
+  shopBase = "",
 }: Props) {
   const [email, setEmail] = useState("");
 
@@ -85,7 +93,7 @@ export default function CreatorAvailability({
           </div>
         ) : (
           <a
-            href={ctaUrl}
+            href={resolveUrl(ctaUrl, shopBase)}
             className="h-12 rounded-xl text-white text-sm font-semibold flex items-center justify-center hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-40"
             style={{
               backgroundColor: isSoldOut ? "var(--creator-subtle)" : "var(--primary)",

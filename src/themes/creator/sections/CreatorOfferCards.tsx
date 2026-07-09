@@ -15,9 +15,16 @@ type OfferItem = {
 type Props = {
   title?: string;
   items?: OfferItem[];
+  shopBase?: string;
 };
 
-export default function CreatorOfferCards({ title, items = [] }: Props) {
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
+
+export default function CreatorOfferCards({ title, items = [], shopBase = "" }: Props) {
   if (items.length === 0) return null;
 
   return (
@@ -59,7 +66,7 @@ export default function CreatorOfferCards({ title, items = [] }: Props) {
               {item.price}
             </p>
             <Link
-              href={item.ctaUrl}
+              href={resolveUrl(item.ctaUrl, shopBase)}
               target={item.ctaUrl.startsWith("http") ? "_blank" : undefined}
               rel={item.ctaUrl.startsWith("http") ? "noopener noreferrer" : undefined}
               className="h-11 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold flex items-center justify-center hover:opacity-90 transition-opacity"

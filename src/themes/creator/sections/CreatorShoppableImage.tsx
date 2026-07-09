@@ -7,9 +7,16 @@ type Props = {
   image?: string;
   caption?: string;
   products?: ProductLink[];
+  shopBase?: string;
 };
 
-export default function CreatorShoppableImage({ image, caption, products = [] }: Props) {
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
+
+export default function CreatorShoppableImage({ image, caption, products = [], shopBase = "" }: Props) {
   if (!image && products.length === 0) return null;
 
   return (
@@ -39,7 +46,7 @@ export default function CreatorShoppableImage({ image, caption, products = [] }:
           {products.map((p) => (
             <Link
               key={p.id}
-              href={p.url}
+              href={resolveUrl(p.url, shopBase)}
               target={p.url.startsWith("http") ? "_blank" : undefined}
               rel={p.url.startsWith("http") ? "noopener noreferrer" : undefined}
               className="flex items-center gap-2 rounded-xl bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] px-3 py-2 text-sm font-medium text-[var(--creator-on-surface)] hover:ring-[var(--primary)] transition-all"

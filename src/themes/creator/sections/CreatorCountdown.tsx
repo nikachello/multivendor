@@ -9,7 +9,14 @@ type Props = {
   notifyLabel?: string;
   liveCtaLabel?: string;
   liveCtaUrl?: string;
+  shopBase?: string;
 };
+
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
 
 function getTimeLeft(target: string) {
   const diff = new Date(target).getTime() - Date.now();
@@ -32,6 +39,7 @@ export default function CreatorCountdown({
   notifyLabel = "Notify me",
   liveCtaLabel = "Shop now",
   liveCtaUrl = "#",
+  shopBase = "",
 }: Props) {
   const [timeLeft, setTimeLeft] = useState(targetDate ? getTimeLeft(targetDate) : null);
   const [email, setEmail] = useState("");
@@ -64,7 +72,7 @@ export default function CreatorCountdown({
       {isLive ? (
         /* Live state */
         <Link
-          href={liveCtaUrl}
+          href={resolveUrl(liveCtaUrl, shopBase)}
           className="mt-2 h-12 w-full rounded-xl bg-white font-semibold text-sm flex items-center justify-center hover:opacity-90 transition-opacity"
           style={{ color: "var(--primary)" }}
         >

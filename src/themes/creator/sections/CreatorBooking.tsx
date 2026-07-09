@@ -8,7 +8,14 @@ type Props = {
   ctaLabel?: string;
   ctaUrl?: string;
   meta?: string;
+  shopBase?: string;
 };
+
+function resolveUrl(url: string, base: string): string {
+  if (!url || url === "#") return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${base}${url}`;
+}
 
 export default function CreatorBooking({
   image,
@@ -17,6 +24,7 @@ export default function CreatorBooking({
   ctaLabel = "Book now",
   ctaUrl = "#",
   meta,
+  shopBase = "",
 }: Props) {
   return (
     <section className="px-5 py-6 max-w-[600px] mx-auto w-full" style={{ fontFamily: "var(--creator-body-font)" }}>
@@ -42,7 +50,7 @@ export default function CreatorBooking({
             </div>
           )}
           <Link
-            href={ctaUrl}
+            href={resolveUrl(ctaUrl, shopBase)}
             target={ctaUrl.startsWith("http") ? "_blank" : undefined}
             rel={ctaUrl.startsWith("http") ? "noopener noreferrer" : undefined}
             className="h-14 rounded-2xl bg-[var(--primary)] text-white text-base font-semibold flex items-center justify-center mt-1 hover:opacity-90 transition-opacity active:scale-[0.98]"

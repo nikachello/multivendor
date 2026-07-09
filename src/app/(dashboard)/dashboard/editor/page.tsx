@@ -24,6 +24,7 @@ export default async function EditorPage() {
     firstProductSlug,
     optionTypeNames,
     pages,
+    products,
   ] = await Promise.all([
     getShopSections(shop.id, "home"),
     getShopSections(shop.id, "collection"),
@@ -34,6 +35,7 @@ export default async function EditorPage() {
     getFirstProductSlug(shop.id),
     getShopOptionTypeNames(shop.id),
     prisma.page.findMany({ where: { shopId: shop.id }, select: { slug: true, title: true } }),
+    prisma.product.findMany({ where: { shopId: shop.id, isActive: true }, select: { name: true, slug: true }, orderBy: { name: "asc" }, take: 50 }),
   ]);
 
   if (!homeSectionsResult.ok) notFound();
@@ -52,6 +54,7 @@ export default async function EditorPage() {
       currency={shop.currency}
       categories={categoriesResult.ok ? categoriesResult.data : []}
       pages={pages}
+      products={products}
       themeId={(shop as { themeId?: string }).themeId ?? "minimal"}
       initialTheme={{
         primaryColor: shop.primaryColor,

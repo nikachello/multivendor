@@ -47,12 +47,14 @@ function ImageUploadField({ label, value, onChange }: { label: string; value: un
 
 type ShopCategory = { id: string; name: string; slug?: string };
 type ShopPage = { slug: string; title: string };
+type ShopProduct = { name: string; slug: string };
 
 type Props = {
   section: ShopSection;
   shopId: string;
   categories: ShopCategory[];
   pages: ShopPage[];
+  products: ShopProduct[];
   sectionMeta: SectionMeta[];
   onChange: (key: string, value: unknown) => void;
 };
@@ -61,11 +63,13 @@ function LinkSuggestions({
   value,
   categories,
   pages,
+  products,
   onSelect,
 }: {
   value: string;
   categories: ShopCategory[];
   pages: ShopPage[];
+  products: ShopProduct[];
   onSelect: (href: string) => void;
 }) {
   const groups = [
@@ -79,6 +83,10 @@ function LinkSuggestions({
     {
       label: "Collections",
       items: categories.map((c) => ({ label: c.name, href: `/collections/${c.slug ?? c.name.toLowerCase().replace(/\s+/g, "-")}` })),
+    },
+    {
+      label: "Products",
+      items: products.map((p) => ({ label: p.name, href: `/product/${p.slug}` })),
     },
   ].filter((g) => g.items.length > 0);
 
@@ -116,12 +124,14 @@ function FlatField({
   onChange,
   categories,
   pages,
+  products,
 }: {
   field: FlatFieldDef;
   value: unknown;
   onChange: (val: unknown) => void;
   categories: ShopCategory[];
   pages: ShopPage[];
+  products: ShopProduct[];
 }) {
   const labelCls = "block text-xs font-medium text-neutral-600 mb-1.5";
   const inputCls = "w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors";
@@ -145,7 +155,7 @@ function FlatField({
           className={inputCls}
         />
         {isUrlField && (
-          <LinkSuggestions value={str} categories={categories} pages={pages} onSelect={onChange} />
+          <LinkSuggestions value={str} categories={categories} pages={pages} products={products} onSelect={onChange} />
         )}
       </div>
     );
@@ -215,12 +225,14 @@ function Field({
   value,
   categories,
   pages,
+  products,
   onChange,
 }: {
   field: FieldDef;
   value: unknown;
   categories: ShopCategory[];
   pages: ShopPage[];
+  products: ShopProduct[];
   onChange: (val: unknown) => void;
 }) {
   const t = useT();
@@ -232,7 +244,7 @@ function Field({
     field.type === "select" ||
     field.type === "image-upload"
   ) {
-    return <FlatField field={field} value={value} onChange={onChange} categories={categories} pages={pages} />;
+    return <FlatField field={field} value={value} onChange={onChange} categories={categories} pages={pages} products={products} />;
   }
 
   if (field.type === "select-shop-categories") {
@@ -338,6 +350,7 @@ function Field({
                     value={item[f.key]}
                     categories={categories}
                     pages={pages}
+                    products={products}
                     onChange={(val) =>
                       onChange(items.map((it, i) => (i === idx ? { ...it, [f.key]: val } : it)))
                     }
@@ -360,7 +373,7 @@ function Field({
   return null;
 }
 
-export default function SectionSettingsPanel({ section, shopId, categories, pages, sectionMeta, onChange }: Props) {
+export default function SectionSettingsPanel({ section, shopId, categories, pages, products, sectionMeta, onChange }: Props) {
   void shopId;
   const t = useT();
   const meta = sectionMeta.find((m) => m.type === section.type);
@@ -397,6 +410,7 @@ export default function SectionSettingsPanel({ section, shopId, categories, page
           value={props[field.key]}
           categories={categories}
           pages={pages}
+          products={products}
           onChange={(val) => onChange(field.key, val)}
         />
       ))}
