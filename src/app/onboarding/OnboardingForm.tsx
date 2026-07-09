@@ -5,12 +5,10 @@ import { useRouter } from "next/navigation";
 import { createShop } from "@/lib/actions/shop";
 import { getStorefrontUrl } from "@/lib/storefront-url";
 import { useT } from "@/i18n/context";
+import { slugify } from "@/lib/slugify";
 
 function toSlug(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+  return slugify(value);
 }
 
 export default function OnboardingPage() {

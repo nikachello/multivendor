@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   CreditCard,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/lib/auth/client";
@@ -62,6 +63,7 @@ export default function Sidebar({ shopName, shopSlug }: Props) {
       items: [
         { label: t("dashboard.sidebar.coupons"), href: "/dashboard/coupons", icon: Ticket },
         { label: t("dashboard.sidebar.testimonials"), href: "/dashboard/testimonials", icon: MessageSquare },
+        { label: t("dashboard.sidebar.pages"), href: "/dashboard/pages", icon: FileText },
         { label: t("dashboard.sidebar.billing"), href: "/dashboard/billing", icon: CreditCard },
         { label: t("dashboard.sidebar.settings"), href: "/dashboard/settings", icon: Settings },
       ],

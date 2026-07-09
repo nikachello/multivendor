@@ -10,6 +10,7 @@ import { categorySchema } from "@/lib/validators/category";
 import { createCategory, updateCategory } from "@/lib/actions/categories";
 import ImageUploader from "@/components/ui/ImageUploader";
 import { useT } from "@/i18n/context";
+import { slugify } from "@/lib/slugify";
 
 type Props = {
   shopId: string;
@@ -33,7 +34,7 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
 
   useEffect(() => {
     if (!name || isEditing) return;
-    setValue("slug", name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+    setValue("slug", slugify(name));
   }, [name, isEditing, setValue]);
 
   async function onSubmit(data: FormInput) {

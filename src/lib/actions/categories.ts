@@ -6,6 +6,18 @@ import { ErrorCode } from "../errors";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 import { categorySchema } from "../validators/category";
 
+async function uniqueCategorySlug(base: string, shopId: string, excludeId?: string): Promise<string> {
+  let slug = base;
+  for (let n = 2; ; n++) {
+    const hit = await prisma.category.findFirst({
+      where: { shopId, slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+      select: { id: true },
+    });
+    if (!hit) return slug;
+    slug = `${base}-${n}`;
+  }
+}
+
 export async function createCategory(
   shopId: string,
   name: string,
@@ -23,8 +35,10 @@ export async function createCategory(
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const finalSlug = await uniqueCategorySlug(parsed.data.slug, shopId);
+
   const category = await prisma.category.create({
-    data: { shopId, name: parsed.data.name, slug: parsed.data.slug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image || null },
+    data: { shopId, name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image || null },
   });
 
   return ok(category);
@@ -49,9 +63,11 @@ export async function updateCategory(
   try { await assertOwnsShop(existing.shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const finalSlug = await uniqueCategorySlug(parsed.data.slug, existing.shopId, id);
+
   const category = await prisma.category.update({
     where: { id },
-    data: { name: parsed.data.name, slug: parsed.data.slug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image ?? null },
+    data: { name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image ?? null },
   });
 
   return ok(category);

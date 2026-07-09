@@ -30,16 +30,20 @@ export default function BillingClient({ isActive }: { isActive: boolean }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <button
-        onClick={handlePay}
-        disabled={loading}
-        className="px-4 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 self-start"
-      >
-        {loading ? t("dashboard.billing.redirecting") : isActive ? t("dashboard.billing.renew") : t("dashboard.billing.activate")}
-      </button>
-      <p className="text-[11px] text-gray-400">
-        {t("dashboard.billing.bog_note")}
-      </p>
+      {!isActive && (
+        <>
+          <button
+            onClick={handlePay}
+            disabled={loading}
+            className="px-4 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg shadow-sm hover:bg-gray-800 transition-all disabled:opacity-50 self-start"
+          >
+            {loading ? t("dashboard.billing.redirecting") : t("dashboard.billing.activate")}
+          </button>
+          <p className="text-[11px] text-gray-400">
+            {t("dashboard.billing.bog_note")}
+          </p>
+        </>
+      )}
     </div>
   );
 }

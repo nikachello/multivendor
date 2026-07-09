@@ -7,6 +7,18 @@ import { assertOwnsShop } from "../auth/assert-owns-shop";
 import { isProShop, FREE_PRODUCT_LIMIT } from "../subscription";
 import { productSchema } from "../validators/product";
 
+async function uniqueProductSlug(base: string, shopId: string, excludeId?: string): Promise<string> {
+  let slug = base;
+  for (let n = 2; ; n++) {
+    const hit = await prisma.product.findFirst({
+      where: { shopId, slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+      select: { id: true },
+    });
+    if (!hit) return slug;
+    slug = `${base}-${n}`;
+  }
+}
+
 async function shopIdForProduct(productId: string) {
   const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
   return p?.shopId ?? null;
@@ -112,11 +124,13 @@ export const createProduct = async (
     }
   }
 
+  const finalSlug = await uniqueProductSlug(parsed.data.slug, shopId);
+
   const product = await prisma.product.create({
     data: {
       shopId,
       name: parsed.data.name,
-      slug: parsed.data.slug,
+      slug: finalSlug,
       description: parsed.data.description,
       priceFrom: parsed.data.price,
       categories: parsed.data.categoryIds.length ? { connect: parsed.data.categoryIds.map((id) => ({ id })) } : undefined,
@@ -149,11 +163,13 @@ export const updateProduct = async (
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
+  const finalSlug = await uniqueProductSlug(parsed.data.slug, shopId, id);
+
   const product = await prisma.product.update({
     where: { id },
     data: {
       name: parsed.data.name,
-      slug: parsed.data.slug,
+      slug: finalSlug,
       description: parsed.data.description,
       priceFrom: parsed.data.price,
       categories: { set: parsed.data.categoryIds.map((id) => ({ id })) },
@@ -162,3 +178,13 @@ export const updateProduct = async (
 
   return ok(product);
 };
+
+export async function deleteProduct(id: string) {
+  const shopId = await shopIdForProduct(id);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
+  catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
+
+  await prisma.product.delete({ where: { id } });
+  return ok(null);
+}

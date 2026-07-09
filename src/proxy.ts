@@ -20,6 +20,12 @@ export async function proxy(req: NextRequest) {
     host !== ROOT_DOMAIN &&
     !isWWW;
 
+  // www → apex redirect
+  if (isWWW) {
+    url.host = ROOT_DOMAIN;
+    return NextResponse.redirect(url, { status: 301 });
+  }
+
   // Subdomain routing → /shop/:slug
   if (isSubdomain) {
     const slug = host.replace(`.${ROOT_DOMAIN}`, "");

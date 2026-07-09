@@ -126,6 +126,8 @@ model Shop {
   subscriptionPaidUntil DateTime?
 
   paymentConfig Json @default("{}")
+
+  pages Page[]
 }
 
 // ============================================
@@ -447,4 +449,22 @@ enum OrderStatus {
   delivered
   cancelled
   refunded
+}
+
+// ============================================
+// PAGE
+// ============================================
+model Page {
+  id          String   @id @default(cuid())
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  content     String   @db.Text
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([shopId, slug])
+  @@index([shopId])
 }

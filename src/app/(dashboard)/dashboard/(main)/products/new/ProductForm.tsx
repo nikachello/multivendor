@@ -11,6 +11,7 @@ import { createProduct, updateProduct } from "@/lib/actions/products";
 import { createCategory } from "@/lib/actions/categories";
 import { useT } from "@/i18n/context";
 import { ErrorCode } from "@/lib/errors";
+import { slugify } from "@/lib/slugify";
 
 type Category = { id: string; name: string };
 
@@ -56,22 +57,11 @@ export default function ProductForm({
 
   useEffect(() => {
     if (!name || isEditing) return;
-    setValue(
-      "slug",
-      name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, ""),
-    );
+    setValue("slug", slugify(name));
   }, [name, isEditing, setValue]);
 
   useEffect(() => {
-    setNewCatSlug(
-      newCatName
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, ""),
-    );
+    setNewCatSlug(slugify(newCatName));
   }, [newCatName]);
 
   async function onSubmit(data: FormInput) {

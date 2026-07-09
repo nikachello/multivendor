@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ProductWithRelations } from "@/lib/db/queries";
@@ -50,6 +50,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
   const [, startTransition] = useTransition();
   const t = useT();
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
+  useEffect(() => { setVariants(initialVariants); }, [initialVariants]);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSku, setShowSku] = useState(false);

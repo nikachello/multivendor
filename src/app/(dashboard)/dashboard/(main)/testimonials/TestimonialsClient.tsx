@@ -57,7 +57,7 @@ function StarRow({
           onClick={() => onChange(star)}
           className={`text-xl leading-none ${star <= value ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
         >
-          ˜…
+          ★
         </button>
       ))}
     </div>
@@ -68,8 +68,8 @@ function Stars({ value, noRating }: { value: number | null; noRating?: string })
   if (!value) return <span className="text-gray-300 text-xs">{noRating ?? "No rating"}</span>;
   return (
     <span className="text-yellow-400 text-sm">
-      {"˜…".repeat(value)}
-      <span className="text-gray-200">{"˜…".repeat(5 - value)}</span>
+      {"★".repeat(value)}
+      <span className="text-gray-200">{"★".repeat(5 - value)}</span>
     </span>
   );
 }

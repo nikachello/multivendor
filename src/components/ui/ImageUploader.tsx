@@ -18,6 +18,32 @@ async function reportClientError(data: Record<string, unknown>) {
   } catch { /* swallow */ }
 }
 
+async function compressImage(file: File, maxPx = 1400, quality = 0.82): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const src = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(src);
+      let { width, height } = img;
+      if (width <= maxPx && height <= maxPx) { resolve(file); return; }
+      const ratio = Math.min(maxPx / width, maxPx / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => resolve(blob ? new File([blob], file.name, { type: "image/jpeg" }) : file),
+        "image/jpeg",
+        quality,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(src); resolve(file); };
+    img.src = src;
+  });
+}
+
 type Props = {
   onUploadComplete: (urls: string[]) => void;
   endpoint?: keyof OurFileRouter;
@@ -50,21 +76,10 @@ export default function ImageUploader({ onUploadComplete, endpoint = "productIma
   const handleFiles = useCallback(
     async (files: File[]) => {
       if (!files.length) return;
-      const MAX_BYTES = 4 * 1024 * 1024; // 4MB
-      const oversized = files.filter((f) => f.size > MAX_BYTES);
-      if (oversized.length > 0) {
-        toast.error(
-          oversized.length === 1
-            ? `"${oversized[0].name}" exceeds the 4 MB limit`
-            : `${oversized.length} files exceed the 4 MB limit`
-        );
-        const valid = files.filter((f) => f.size <= MAX_BYTES);
-        if (valid.length === 0) return;
-        files = valid;
-      }
-      const objectUrls = files.map((f) => URL.createObjectURL(f));
+      const compressed = await Promise.all(files.map((f) => compressImage(f)));
+      const objectUrls = compressed.map((f) => URL.createObjectURL(f));
       setPreviews((prev) => [...prev, ...objectUrls]);
-      await startUpload(files);
+      await startUpload(compressed);
     },
     [startUpload],
   );
@@ -116,7 +131,7 @@ export default function ImageUploader({ onUploadComplete, endpoint = "productIma
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
             <p className="text-sm text-gray-500">Drag & drop or <span className="underline">browse</span></p>
-            <p className="text-xs text-gray-400 mt-1">Up to {maxFiles} images, 4MB each</p>
+            <p className="text-xs text-gray-400 mt-1">Up to {maxFiles} images — auto-compressed</p>
           </>
         )}
       </label>
