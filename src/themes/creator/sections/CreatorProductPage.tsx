@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
 import { useCartStore } from "@/lib/store/cart-store";
 
@@ -76,12 +77,14 @@ function isColorOption(name: string) {
 export default function CreatorProductPage({
   product,
   shopId,
+  shopBase,
   currency,
   ctaLabel = "Add to cart",
   showQuantity = true,
   showShipping = true,
   shippingNote = "Free shipping over 50 GEL",
 }: Props) {
+  const router = useRouter();
   const { add } = useCart(shopId);
   const setCartOpen = useCartStore((s) => s.setCartOpen);
 
@@ -185,6 +188,15 @@ export default function CreatorProductPage({
 
       {/* 1. Image gallery */}
       <div className="relative">
+        <button
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="absolute top-4 left-4 z-10 w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+        </button>
         <div
           ref={scrollerRef}
           onScroll={handleScroll}

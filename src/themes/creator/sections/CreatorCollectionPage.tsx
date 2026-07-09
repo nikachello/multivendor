@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type CollectionProduct = {
   id: string;
@@ -41,6 +42,7 @@ export default function CreatorCollectionPage({
   onLoadMore,
   loadingMore = false,
 }: Props) {
+  const router = useRouter();
   const [sort, setSort] = useState<SortOption>("all");
 
   const sortedProducts = useMemo(() => {
@@ -58,6 +60,16 @@ export default function CreatorCollectionPage({
 
       {/* Header */}
       <div className="px-5 pt-6 pb-3">
+        <button
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="flex items-center gap-1.5 text-sm text-[var(--creator-muted)] hover:text-[var(--creator-on-surface)] transition-colors mb-3"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          Back
+        </button>
         <h1
           className="text-2xl text-[var(--creator-on-surface)]"
           style={{ fontFamily: "var(--creator-display-font)" }}
