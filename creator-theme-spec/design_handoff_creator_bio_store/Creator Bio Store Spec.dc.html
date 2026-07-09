@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; }
+    * { box-sizing: border-box; }
+    ::selection { background: rgba(194,88,46,0.25); }
+  </style>
+</helmet>
+
+<div style="{{ pageStyle }}">
+
+  <!-- HEADER -->
+  <div style="max-width:960px;margin:0 auto;padding:56px 24px 32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:{{ pal.accent }};font-weight:600;">Design system spec</div>
+        <h1 style="font-family:'Instrument Serif',serif;font-size:40px;font-weight:400;margin:0;color:{{ pal.onSurface }};letter-spacing:-0.01em;">Creator Bio Store</h1>
+      </div>
+      <button onClick="{{ toggleMode }}" style="{{ toggleBtnStyle }}">{{ toggleLabel }}</button>
+    </div>
+    <p style="font-family:'Public Sans',sans-serif;font-size:17px;line-height:1.6;color:{{ pal.muted }};max-width:680px;margin:20px 0 0;text-wrap:pretty;">
+      A warm, editorial storefront kit that reads as one person's bio link, not a SaaS dashboard —
+      terracotta accents and a serif display name give it the credibility of a real brand while
+      staying quiet enough for any merchant's <span style="font-family:'JetBrains Mono',monospace;font-size:14px;">--primary</span> to lead the page.
+      Every surface sits a half-step off the page background, so cards feel placed rather than boxed,
+      and dark mode is tuned separately — deep warm charcoal, not an inverted light theme —
+      because bios get scrolled at night. It flexes from a drop-artist countdown to a WhatsApp
+      order button without ever looking generic.
+    </p>
+  </div>
+
+  <!-- COLOR TOKENS -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">Color tokens</h2>
+    <p style="{{ pSmall }}">6 tokens, defined for light and dark. <span style="font-family:'JetBrains Mono',monospace;">accent</span> is intentionally warm-neutral so it never fights an arbitrary merchant <span style="font-family:'JetBrains Mono',monospace;">--primary</span>.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px;">
+      <sc-for list="{{ tokenList }}" as="tok" hint-placeholder-count="6">
+        <div style="{{ tok.cardStyle }}">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="{{ tok.swatchStyle }}"></div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:{{ pal.onSurface }};">{{ tok.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ pal.muted }};">{{ tok.hex }}</div>
+            </div>
+          </div>
+          <div style="font-family:'Public Sans',sans-serif;font-size:13px;color:{{ pal.muted }};margin-top:10px;line-height:1.5;">{{ tok.note }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">Typography</h2>
+    <div style="{{ cardBase }}padding:32px;">
+      <div style="font-family:'Instrument Serif',serif;font-size:44px;color:{{ pal.onSurface }};line-height:1.1;">Maren Okoye</div>
+      <div style="font-family:'Public Sans',sans-serif;font-size:15px;color:{{ pal.muted }};margin-top:10px;max-width:420px;line-height:1.6;">Ceramicist making small-batch tableware in Lisbon. Custom orders open twice a year.</div>
+      <div style="display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;">
+        <div>
+          <div style="{{ specLabel }}">Display — Instrument Serif</div>
+          <div style="font-family:'Public Sans',sans-serif;font-size:13px;color:{{ pal.muted }};line-height:1.7;">Creator name, section-hero headlines (booking, availability). Weight 400, regular only — italic reserved for emphasis words.</div>
+        </div>
+        <div>
+          <div style="{{ specLabel }}">Body — Public Sans</div>
+          <div style="font-family:'Public Sans',sans-serif;font-size:13px;color:{{ pal.muted }};line-height:1.7;">Bio text, descriptions, buttons, prices, captions. Weights 400 / 500 / 600 / 700.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:20px;margin-top:28px;flex-wrap:wrap;border-top:1px solid {{ pal.subtle }};padding-top:24px;">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="font-family:'Public Sans',sans-serif;font-weight:600;color:{{ pal.onSurface }};font-size:{{ t.px }}px;">Aa</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ pal.muted }};">{{ t.name }} / {{ t.px }}px</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYOUT TOKENS -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">Layout tokens</h2>
+    <div style="{{ cardBase }}padding:24px 28px;">
+      <sc-for list="{{ layoutTokens }}" as="lt" hint-placeholder-count="9">
+        <div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid {{ pal.subtle }};">
+          <span style="font-family:'Public Sans',sans-serif;font-size:13px;color:{{ pal.muted }};">{{ lt.label }}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:{{ pal.onSurface }};">{{ lt.value }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- LIVE MOCKUP -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">Live composition</h2>
+    <p style="{{ pSmall }}">Profile → links → featured product → grid, in {{ mode }} mode, with a sample --primary of {{ demoPrimary }}.</p>
+    <div style="max-width:360px;margin:16px auto 0;border-radius:36px;overflow:hidden;background:{{ pal.pageBg }};box-shadow:0 24px 60px -20px rgba(0,0,0,0.35);border:1px solid {{ pal.subtle }};">
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px 24px;">
+        <img src="https://placehold.co/96x96/e8ded0/938a7a?text=IMG" style="width:88px;height:88px;border-radius:999px;object-fit:cover;box-shadow:0 0 0 2px {{ pal.subtle }};" />
+        <div style="font-family:'Instrument Serif',serif;font-size:24px;color:{{ pal.onSurface }};">Maren Okoye</div>
+        <div style="font-family:'Public Sans',sans-serif;font-size:13px;color:{{ pal.muted }};text-align:center;max-width:230px;line-height:1.5;">Small-batch ceramics, made by hand in Lisbon ✦ custom orders open twice a year</div>
+        <div style="display:flex;gap:10px;margin-top:2px;">
+          <sc-for list="{{ socialIcons }}" as="ic" hint-placeholder-count="4">
+            <div style="width:34px;height:34px;border-radius:999px;background:{{ pal.surface }};display:flex;align-items:center;justify-content:center;font-family:'Public Sans',sans-serif;font-size:11px;font-weight:600;color:{{ pal.muted }};">{{ ic }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;padding:0 20px 20px;">
+        <div style="height:52px;border-radius:16px;background:{{ pal.linkBtnBg }};display:flex;align-items:center;justify-content:center;font-family:'Public Sans',sans-serif;font-size:14px;font-weight:600;color:{{ pal.onSurface }};box-shadow:0 1px 2px rgba(0,0,0,0.04);">🛍️ Shop the new drop</div>
+        <div style="height:52px;border-radius:16px;background:{{ pal.linkBtnBg }};display:flex;align-items:center;justify-content:center;font-family:'Public Sans',sans-serif;font-size:14px;font-weight:600;color:{{ pal.onSurface }};box-shadow:0 1px 2px rgba(0,0,0,0.04);">✦ Book a studio visit</div>
+      </div>
+
+      <div style="padding:4px 20px 20px;">
+        <div style="border-radius:22px;overflow:hidden;background:{{ pal.surface }};border:1px solid {{ pal.subtle }};">
+          <div style="position:relative;">
+            <img src="https://placehold.co/400x400/ded2bd/8a7c63?text=Featured+Product" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" />
+            <div style="position:absolute;top:10px;left:10px;background:{{ demoPrimary }};color:white;font-family:'Public Sans',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;">New drop</div>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:6px;">
+            <div style="font-family:'Public Sans',sans-serif;font-size:15px;font-weight:600;color:{{ pal.onSurface }};">Terracotta pour-over set</div>
+            <div style="font-family:'Public Sans',sans-serif;font-size:18px;font-weight:700;color:{{ pal.onSurface }};">$68</div>
+            <div style="height:44px;border-radius:12px;background:{{ demoPrimary }};color:white;font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:4px;">Add to cart</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 20px 32px;">
+        <div style="font-family:'Public Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:{{ pal.muted }};margin-bottom:10px;">More pieces</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <sc-for list="{{ gridDemo }}" as="p" hint-placeholder-count="2">
+            <div style="border-radius:14px;background:{{ pal.surface }};border:1px solid {{ pal.subtle }};padding:6px;">
+              <img src="{{ p.img }}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block;" />
+              <div style="font-family:'Public Sans',sans-serif;font-size:12px;font-weight:500;color:{{ pal.onSurface }};padding:6px 4px 0;">{{ p.name }}</div>
+              <div style="font-family:'Public Sans',sans-serif;font-size:12px;font-weight:600;color:{{ pal.onSurface }};padding:0 4px 4px;">{{ p.price }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTIONS SPEC -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">All 12 sections — Tailwind classes</h2>
+    <p style="{{ pSmall }}">Copy-pasteable class strings per element. Colors reference the CSS variables defined below.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px;">
+      <sc-for list="{{ sections }}" as="s" hint-placeholder-count="12">
+        <div style="{{ cardBase }}padding:0;overflow:hidden;">
+          <div style="padding:18px 22px;border-bottom:1px solid {{ pal.subtle }};display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:{{ pal.onSurface }};">{{ s.name }}</div>
+            <div style="font-family:'Public Sans',sans-serif;font-size:12px;color:{{ pal.muted }};">{{ s.note }}</div>
+          </div>
+          <div style="{{ codeBlockStyle }}">
+            <sc-for list="{{ s.rows }}" as="row" hint-placeholder-count="4">
+              <div style="display:flex;gap:8px;padding:3px 0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.6;">
+                <span style="color:{{ codeKeyColor }};white-space:nowrap;">{{ row.k }}:</span>
+                <span style="color:{{ codeValColor }};">"{{ row.v }}"</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- STATES -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">State variations</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px;">
+      <sc-for list="{{ stateGroups }}" as="g" hint-placeholder-count="4">
+        <div style="{{ cardBase }}padding:20px 22px;">
+          <div style="font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;color:{{ pal.onSurface }};margin-bottom:12px;">{{ g.title }}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <sc-for list="{{ g.states }}" as="st" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div style="{{ st.style }}">{{ st.label }}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ pal.muted }};">{{ st.tag }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- THEMECONFIG -->
+  <div style="{{ sectionWrap }}">
+    <h2 style="{{ h2 }}">ThemeConfig skeleton</h2>
+    <pre style="{{ preBlockStyle }}">{{ themeConfigCode }}</pre>
+  </div>
+
+  <!-- CSS VARS -->
+  <div style="{{ sectionWrap }}padding-bottom:80px;">
+    <h2 style="{{ h2 }}">CSS variables</h2>
+    <pre style="{{ preBlockStyle }}">{{ cssVarsCode }}</pre>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LIGHT = {
+  pageBg: '#FAF7F2',
+  surface: '#FFFFFF',
+  onSurface: '#211D17',
+  muted: '#86796A',
+  subtle: '#E6E0D6',
+  accent: '#C2582E',
+  linkBtnBg: '#F3EEE5',
+};
+const DARK = {
+  pageBg: '#171410',
+  surface: '#221E19',
+  onSurface: '#F5F1E9',
+  muted: '#9C9284',
+  subtle: '#34302A',
+  accent: '#E2895F',
+  linkBtnBg: '#2C2820',
+};
+
+const TOKEN_NOTES = {
+  accent: 'Warm terracotta, primary-agnostic. Used for badges, focus rings, small emphasis — never the main CTA.',
+  muted: 'Secondary text: bios, captions, labels, stat labels.',
+  subtle: 'Borders, dividers, input backgrounds, disabled fills.',
+  surface: 'Card and container background, one step off page-bg.',
+  onSurface: 'Primary text drawn on surface / page-bg.',
+  linkBtnBg: 'Default fill for creator-links buttons — neutral so it never competes with --primary.',
+};
+
+const TYPE_SCALE = [
+  { name: 'xs', px: 12 }, { name: 'sm', px: 14 }, { name: 'base', px: 16 },
+  { name: 'lg', px: 18 }, { name: 'xl', px: 20 }, { name: '2xl', px: 24 }, { name: '3xl', px: 30 },
+];
+
+const LAYOUT_TOKENS = [
+  { label: 'Max content width', value: '600px' },
+  { label: 'Section padding — standard', value: 'py-8 (32px)' },
+  { label: 'Section padding — hero (profile, booking)', value: 'py-12 (48px)' },
+  { label: 'Section padding — compact', value: 'py-6 (24px)' },
+  { label: 'Button radius — minimum', value: 'max(var(--radius), 12px)' },
+  { label: 'Avatar size', value: '96px (w-24 h-24)' },
+  { label: 'Social icon button', value: '36px (w-9 h-9)' },
+  { label: 'Product grid gap', value: '12px (gap-3)' },
+  { label: 'Link button height', value: '56px (h-14) — comfortable touch target' },
+];
+
+function rows(obj) { return Object.entries(obj).map(([k, v]) => ({ k, v })); }
+
+const SECTIONS = [
+  { name: 'creator-profile', note: 'circle avatar 96px, or brand variant: rounded logo tile + location badge', rows: rows({
+      wrapper: 'flex flex-col items-center gap-4 px-5 pt-12 pb-8',
+      avatar: 'w-24 h-24 rounded-full object-cover ring-2 ring-[var(--creator-subtle)]',
+      avatarBrand: 'w-24 h-24 rounded-2xl object-contain bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] p-3',
+      locationBadge: 'absolute -bottom-1 -right-1 flex items-center gap-1 rounded-full bg-[var(--creator-surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--creator-muted)] ring-1 ring-[var(--creator-subtle)]',
+      name: 'text-2xl font-semibold tracking-tight text-center',
+      bio: 'text-sm text-[var(--creator-muted)] text-center max-w-xs leading-relaxed',
+      socialRow: 'flex items-center gap-3 mt-1',
+      socialIcon: 'w-9 h-9 flex items-center justify-center rounded-full bg-[var(--creator-surface)] text-[var(--creator-muted)] hover:text-[var(--primary)] hover:bg-[var(--creator-subtle)] transition-colors',
+  })},
+  { name: 'creator-links', note: 'filled / outline / ghost variants', rows: rows({
+      wrapper: 'flex flex-col gap-3 px-5 py-6',
+      linkButtonFilled: 'flex items-center justify-center gap-2 h-14 rounded-2xl bg-[var(--creator-link-btn-bg)] text-[15px] font-semibold text-[var(--creator-on-surface)] shadow-sm ring-1 ring-black/[0.03] transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0',
+      linkButtonOutline: 'flex items-center justify-center gap-2 h-14 rounded-2xl bg-transparent text-[15px] font-semibold text-[var(--creator-on-surface)] ring-1 ring-[var(--creator-subtle)] hover:bg-[var(--creator-surface)] active:scale-[0.99]',
+      linkButtonGhost: 'flex items-center justify-center gap-2 h-14 rounded-2xl bg-transparent text-[15px] font-semibold text-[var(--primary)] hover:bg-[var(--creator-subtle)]/50',
+      linkEmoji: 'text-lg leading-none',
+      linkDisabled: 'opacity-40 pointer-events-none grayscale',
+  })},
+  { name: 'creator-featured-product', note: 'hero product spotlight', rows: rows({
+      wrapper: 'px-5 py-6',
+      card: 'relative rounded-3xl overflow-hidden bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)]',
+      image: 'w-full aspect-square object-cover',
+      badge: 'absolute top-3 left-3 rounded-full bg-[var(--primary)] px-3 py-1 text-xs font-semibold text-white shadow-sm',
+      name: 'text-lg font-semibold text-[var(--creator-on-surface)]',
+      price: 'text-xl font-bold tabular-nums text-[var(--creator-on-surface)]',
+      cta: 'mt-2 h-12 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold flex items-center justify-center active:scale-[0.98]',
+  })},
+  { name: 'creator-product-grid', note: '2-column, touch-optimized', rows: rows({
+      wrapper: 'px-5 py-6',
+      sectionTitle: 'text-xs font-semibold uppercase tracking-wide text-[var(--creator-muted)] mb-3',
+      grid: 'grid grid-cols-2 gap-3',
+      card: 'flex flex-col gap-2 rounded-2xl bg-[var(--creator-surface)] p-2 ring-1 ring-[var(--creator-subtle)] active:scale-[0.98]',
+      image: 'w-full aspect-square rounded-xl object-cover',
+      name: 'text-sm font-medium text-[var(--creator-on-surface)] truncate px-1',
+      price: 'text-sm font-semibold text-[var(--creator-on-surface)] px-1 pb-1',
+  })},
+  { name: 'creator-countdown', note: 'drop timer on --primary field', rows: rows({
+      wrapper: 'mx-5 my-6 rounded-3xl bg-[var(--primary)] px-6 py-8 text-center text-white',
+      label: 'text-xs font-semibold uppercase tracking-widest opacity-80',
+      dropName: 'text-xl font-semibold mt-1 mb-5',
+      timeBlock: 'flex flex-col items-center gap-1 min-w-[52px] rounded-xl bg-white/15 py-2',
+      timeValue: 'text-2xl font-bold tabular-nums',
+      timeUnit: 'text-[10px] uppercase tracking-wide opacity-70',
+      notifyInput: 'flex-1 h-12 rounded-xl bg-white/15 px-4 text-sm text-white placeholder-white/60 outline-none',
+      liveCta: 'mt-6 h-12 w-full rounded-xl bg-white text-[var(--primary)] text-sm font-semibold',
+  })},
+  { name: 'creator-offer-cards', note: 'courses / 1:1 sessions, manual entries', rows: rows({
+      wrapper: 'px-5 py-6 flex flex-col gap-4 sm:grid sm:grid-cols-2',
+      card: 'flex flex-col gap-3 rounded-2xl bg-[var(--creator-surface)] p-5 ring-1 ring-[var(--creator-subtle)]',
+      icon: 'w-11 h-11 rounded-xl bg-[var(--creator-subtle)] flex items-center justify-center text-lg',
+      title: 'text-base font-semibold text-[var(--creator-on-surface)]',
+      description: 'text-sm text-[var(--creator-muted)] leading-relaxed line-clamp-2',
+      price: 'text-lg font-bold text-[var(--creator-on-surface)] mt-1',
+      cta: 'h-11 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold flex items-center justify-center',
+  })},
+  { name: 'creator-social-proof-bar', note: 'stat strip + optional logo row', rows: rows({
+      wrapper: 'px-5 py-6 flex flex-col gap-5',
+      statsRow: 'flex items-stretch justify-between gap-2 rounded-2xl bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] px-4 py-4',
+      stat: 'flex flex-col items-center gap-0.5 flex-1 text-center',
+      statValue: 'text-lg font-bold text-[var(--creator-on-surface)] tabular-nums',
+      statLabel: 'text-[11px] text-[var(--creator-muted)]',
+      divider: 'w-px bg-[var(--creator-subtle)]',
+      logoRow: 'flex items-center justify-center gap-6 opacity-60 grayscale',
+  })},
+  { name: 'creator-shoppable-image', note: '"shop this look" grid', rows: rows({
+      wrapper: 'px-5 py-6',
+      imageWrap: 'relative rounded-3xl overflow-hidden',
+      image: 'w-full aspect-[4/5] object-cover',
+      caption: 'text-sm text-[var(--creator-muted)] mt-3 leading-relaxed',
+      buttonGrid: 'grid grid-cols-2 gap-2 mt-3',
+      productButton: 'flex items-center gap-2 rounded-xl bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] px-3 py-2 text-sm font-medium text-[var(--creator-on-surface)]',
+      dot: 'w-1.5 h-1.5 rounded-full bg-[var(--primary)]',
+  })},
+  { name: 'creator-availability', note: 'scarcity block, artisan makers', rows: rows({
+      wrapper: 'mx-5 my-6 rounded-3xl bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] p-6 flex flex-col gap-4',
+      headline: 'text-lg font-semibold text-[var(--creator-on-surface)]',
+      progressTrack: 'h-2 rounded-full bg-[var(--creator-subtle)] overflow-hidden',
+      progressFill: 'h-full rounded-full bg-[var(--primary)] transition-all',
+      progressLabel: 'text-xs text-[var(--creator-muted)]',
+      waitlistInput: 'flex-1 h-12 rounded-xl bg-[var(--page-bg)] ring-1 ring-[var(--creator-subtle)] px-4 text-sm outline-none focus:ring-[var(--primary)]',
+      cta: 'h-12 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold px-5',
+  })},
+  { name: 'creator-portfolio', note: 'visual grid, lightbox expand', rows: rows({
+      wrapper: 'px-5 py-6',
+      sectionTitle: 'text-xs font-semibold uppercase tracking-wide text-[var(--creator-muted)] mb-3',
+      grid: 'grid grid-cols-3 gap-1.5',
+      tile: 'aspect-square overflow-hidden rounded-lg bg-[var(--creator-subtle)]',
+      image: 'w-full h-full object-cover active:scale-95 transition-transform',
+      lightboxOverlay: 'fixed inset-0 bg-black/90 flex items-center justify-center z-50',
+  })},
+  { name: 'creator-booking', note: 'single-CTA, most-important-thing-on-page', rows: rows({
+      wrapper: 'mx-5 my-6 rounded-3xl overflow-hidden bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)]',
+      image: 'w-full aspect-[16/10] object-cover',
+      body: 'flex flex-col gap-3 p-6',
+      headline: 'text-xl font-semibold text-[var(--creator-on-surface)]',
+      description: 'text-sm text-[var(--creator-muted)] leading-relaxed',
+      cta: 'h-14 rounded-2xl bg-[var(--primary)] text-white text-base font-semibold flex items-center justify-center',
+      metaRow: 'flex items-center gap-4 text-xs text-[var(--creator-muted)]',
+  })},
+  { name: 'creator-video', note: 'YouTube / TikTok embed, 16:9', rows: rows({
+      wrapper: 'px-5 py-6 max-w-[600px] mx-auto',
+      frameWrap: 'relative w-full aspect-video rounded-2xl overflow-hidden bg-black',
+      iframe: 'absolute inset-0 w-full h-full',
+      title: 'text-base font-semibold text-[var(--creator-on-surface)] mt-3',
+      description: 'text-sm text-[var(--creator-muted)] mt-1 leading-relaxed',
+  })},
+  { name: 'creator-whatsapp-cta', note: 'social-first shop — primary funnel CTA', rows: rows({
+      wrapper: 'px-5 py-4',
+      button: 'flex items-center justify-center gap-2 h-14 w-full rounded-2xl bg-[#25D366] text-white text-base font-semibold shadow-sm active:scale-[0.98]',
+      icon: 'w-5 h-5',
+  })},
+  { name: 'creator-info-strip', note: 'social-first shop — trust signals', rows: rows({
+      wrapper: 'px-5 py-4 grid grid-cols-2 gap-3 sm:grid-cols-4',
+      item: 'flex items-center gap-2 rounded-xl bg-[var(--creator-surface)] ring-1 ring-[var(--creator-subtle)] px-3 py-2.5',
+      icon: 'w-4 h-4 text-[var(--creator-muted)] shrink-0',
+      text: 'text-xs font-medium text-[var(--creator-on-surface)] leading-tight',
+  })},
+];
+
+class Component extends DCLogic {
+  state = { mode: 'light' };
+
+  renderVals() {
+    const mode = this.state.mode;
+    const pal = mode === 'light' ? LIGHT : DARK;
+    const demoPrimary = mode === 'light' ? '#6C63FF' : '#8B84FF';
+
+    const cardBase = `border-radius:20px;border:1px solid ${pal.subtle};background:${pal.surface};`;
+    const codeKeyColor = mode === 'light' ? '#A8896F' : '#C79A78';
+    const codeValColor = pal.onSurface;
+
+    const stateChip = (label, style) => ({ label, style: `height:40px;padding:0 16px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;${style}` });
+
+    const stateGroups = [
+      { title: 'Link button', states: [
+        { ...stateChip('Default', `background:${pal.linkBtnBg};color:${pal.onSurface};box-shadow:0 1px 2px rgba(0,0,0,0.06);`), tag: 'default' },
+        { ...stateChip('Hover', `background:${pal.linkBtnBg};color:${pal.onSurface};box-shadow:0 4px 10px rgba(0,0,0,0.12);transform:translateY(-2px);`), tag: 'hover' },
+        { ...stateChip('Active', `background:${pal.subtle};color:${pal.onSurface};`), tag: 'active' },
+        { ...stateChip('Disabled', `background:${pal.linkBtnBg};color:${pal.muted};opacity:0.5;`), tag: 'disabled' },
+      ]},
+      { title: 'Add to cart', states: [
+        { ...stateChip('Add to cart', `background:${demoPrimary};color:#fff;`), tag: 'default' },
+        { ...stateChip('Adding…', `background:${demoPrimary};color:#fff;opacity:0.75;`), tag: 'loading' },
+        { ...stateChip('✓ Added', `background:${pal.onSurface};color:${pal.surface};`), tag: 'added' },
+      ]},
+      { title: 'Countdown', states: [
+        { ...stateChip('02 : 14 : 08', `background:${demoPrimary};color:#fff;`), tag: 'live' },
+        { ...stateChip("It's live!", `background:${pal.onSurface};color:${pal.surface};`), tag: 'ended' },
+      ]},
+      { title: 'Availability', states: [
+        { ...stateChip('9 / 12 left', `background:${pal.subtle};color:${pal.onSurface};`), tag: '>50%' },
+        { ...stateChip('2 / 12 left', `background:#F0C4B4;color:#7A2E12;`), tag: '<30% low' },
+        { ...stateChip('Sold out', `background:${pal.subtle};color:${pal.muted};`), tag: 'sold out' },
+      ]},
+    ];
+
+    const themeConfigCode = `export const creatorConfig: ThemeConfig = {
+  palette: {
+    accent: "${LIGHT.accent}",
+    muted: "${LIGHT.muted}",
+    subtle: "${LIGHT.subtle}",
+    surface: "${LIGHT.surface}",
+    onSurface: "${LIGHT.onSurface}",
+    linkButtonBg: "${LIGHT.linkBtnBg}",
+  },
+  paletteDark: {
+    accent: "${DARK.accent}",
+    muted: "${DARK.muted}",
+    subtle: "${DARK.subtle}",
+    surface: "${DARK.surface}",
+    onSurface: "${DARK.onSurface}",
+    linkButtonBg: "${DARK.linkBtnBg}",
+  },
+  typography: {
+    display: "'Instrument Serif', serif",
+    body: "'Public Sans', sans-serif",
+    scale: { xs: 12, sm: 14, base: 16, lg: 18, xl: 20, "2xl": 24, "3xl": 30 },
+  },
+  layout: {
+    maxWidth: 600,
+    avatarSize: 96,
+    socialIconSize: 36,
+    linkButtonHeight: 56,
+    addToCartHeight: 48,
+    gridGap: 12,
+    radiusMin: 12,
+    sectionPaddingY: { compact: 24, standard: 32, hero: 48 },
+  },
+  sections: [
+    "creator-profile", "creator-links", "creator-featured-product", "creator-product-grid",
+    "creator-countdown", "creator-offer-cards", "creator-social-proof-bar", "creator-shoppable-image",
+    "creator-availability", "creator-portfolio", "creator-booking", "creator-video",
+    "creator-whatsapp-cta", "creator-info-strip",
+  ],
+}`;
+
+    const cssVarsCode = `/* light mode */
+--creator-accent: ${LIGHT.accent};
+--creator-muted: ${LIGHT.muted};
+--creator-subtle: ${LIGHT.subtle};
+--creator-surface: ${LIGHT.surface};
+--creator-on-surface: ${LIGHT.onSurface};
+--creator-link-btn-bg: ${LIGHT.linkBtnBg};
+
+/* dark mode */
+--creator-accent: ${DARK.accent};
+--creator-muted: ${DARK.muted};
+--creator-subtle: ${DARK.subtle};
+--creator-surface: ${DARK.surface};
+--creator-on-surface: ${DARK.onSurface};
+--creator-link-btn-bg: ${DARK.linkBtnBg};`;
+
+    return {
+      mode, pal, demoPrimary,
+      pageStyle: `min-height:100vh;background:${pal.pageBg};font-family:'Public Sans',sans-serif;transition:background 0.2s;`,
+      toggleMode: () => this.setState(s => ({ mode: s.mode === 'light' ? 'dark' : 'light' })),
+      toggleLabel: mode === 'light' ? '🌙 Preview dark mode' : '☀️ Preview light mode',
+      toggleBtnStyle: `height:40px;padding:0 18px;border-radius:999px;border:1px solid ${pal.subtle};background:${pal.surface};color:${pal.onSurface};font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;`,
+      sectionWrap: `max-width:960px;margin:0 auto;padding:32px 24px 8px;`,
+      h2: `font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:${pal.accent};margin:0 0 4px;`,
+      pSmall: `font-family:'Public Sans',sans-serif;font-size:14px;color:${pal.muted};margin:4px 0 0;line-height:1.6;`,
+      specLabel: `font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:${pal.onSurface};margin-bottom:4px;`,
+      cardBase,
+      codeBlockStyle: `padding:16px 22px 20px;background:${mode === 'light' ? '#FBF9F5' : '#1B1814'};`,
+      codeKeyColor, codeValColor,
+      preBlockStyle: `background:${mode === 'light' ? '#1E1B16' : '#0F0D0A'};color:#E8E1D4;padding:24px 26px;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;margin-top:14px;white-space:pre;`,
+      tokenList: [
+        { name: 'accent', hex: pal.accent, note: TOKEN_NOTES.accent, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.accent};flex-shrink:0;` },
+        { name: 'muted', hex: pal.muted, note: TOKEN_NOTES.muted, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.muted};flex-shrink:0;` },
+        { name: 'subtle', hex: pal.subtle, note: TOKEN_NOTES.subtle, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.subtle};flex-shrink:0;` },
+        { name: 'surface', hex: pal.surface, note: TOKEN_NOTES.surface, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.surface};flex-shrink:0;border:1px solid ${pal.subtle};` },
+        { name: 'on-surface', hex: pal.onSurface, note: TOKEN_NOTES.onSurface, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.onSurface};flex-shrink:0;` },
+        { name: 'link-button-bg', hex: pal.linkBtnBg, note: TOKEN_NOTES.linkBtnBg, cardStyle: cardBase + 'padding:16px;', swatchStyle: `width:44px;height:44px;border-radius:12px;background:${pal.linkBtnBg};flex-shrink:0;border:1px solid ${pal.subtle};` },
+      ],
+      typeScale: TYPE_SCALE,
+      layoutTokens: LAYOUT_TOKENS,
+      socialIcons: ['IG', 'TT', 'YT', 'X'],
+      gridDemo: [
+        { img: 'https://placehold.co/200x200/e2d6c2/8a7c63?text=Mug', name: 'Speckled mug', price: '$24' },
+        { img: 'https://placehold.co/200x200/dccdb4/8a7c63?text=Bowl', name: 'Nesting bowl set', price: '$52' },
+      ],
+      sections: SECTIONS,
+      stateGroups,
+      themeConfigCode,
+      cssVarsCode,
+    };
+  }
+}
+</script>
+</body>
+</html>
