@@ -135,31 +135,42 @@ export default async function ProductPage({
         />
       )}
 
-      {themeId === "creator" ? (
-        <CreatorProductPage
-          product={{
-            id: product.id,
-            name: product.name,
-            description: product.description ?? undefined,
-            images: product.images.map((img) => img.url),
-            priceFrom: Number(product.priceFrom),
-            variants: product.variants.map((v) => ({
-              id: v.id,
-              price: Number(v.price),
-              stock: v.stock,
-              trackInventory: v.trackInventory,
-              image: v.image ?? undefined,
-              optionValues: v.optionValues.map((ov) => ({
-                name: ov.optionValue.optionType.name,
-                value: ov.optionValue.value,
+      {themeId === "creator" ? (() => {
+        const productSettings = pageSections.find((s) => s.type === "creator-product-settings")?.props ?? {};
+        const ctaLabel = typeof productSettings.ctaLabel === "string" && productSettings.ctaLabel ? productSettings.ctaLabel : "Add to cart";
+        const showQuantity = productSettings.showQuantity !== "false";
+        const showShipping = productSettings.showShipping === "true";
+        const shippingNote = typeof productSettings.shippingNote === "string" && productSettings.shippingNote ? productSettings.shippingNote : "Free shipping over 50 GEL";
+        return (
+          <CreatorProductPage
+            product={{
+              id: product.id,
+              name: product.name,
+              description: product.description ?? undefined,
+              images: product.images.map((img) => img.url),
+              priceFrom: Number(product.priceFrom),
+              variants: product.variants.map((v) => ({
+                id: v.id,
+                price: Number(v.price),
+                stock: v.stock,
+                trackInventory: v.trackInventory,
+                image: v.image ?? undefined,
+                optionValues: v.optionValues.map((ov) => ({
+                  name: ov.optionValue.optionType.name,
+                  value: ov.optionValue.value,
+                })),
               })),
-            })),
-          }}
-          shopId={shop.id}
-          shopBase={shopBase}
-          currency={shop.currency}
-        />
-      ) : (
+            }}
+            shopId={shop.id}
+            shopBase={shopBase}
+            currency={shop.currency}
+            ctaLabel={ctaLabel}
+            showQuantity={showQuantity}
+            showShipping={showShipping}
+            shippingNote={shippingNote}
+          />
+        );
+      })() : (
         <div className="px-5 md:px-10 py-12 max-w-6xl mx-auto">
           <ProductDetail
             product={product}

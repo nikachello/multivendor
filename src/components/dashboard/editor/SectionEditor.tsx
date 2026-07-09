@@ -391,7 +391,7 @@ export default function SectionEditor({
                 )}
                 onAdd={handleAddSection}
                 onAddNavbar={handleAddNavbar}
-                hasNavbar={sections.some((s) => s.type === "navbar")}
+                hasNavbar={themeId === "creator" || sections.some((s) => s.type === "navbar")}
                 onClose={() => setShowAddPanel(false)}
               />
             )}

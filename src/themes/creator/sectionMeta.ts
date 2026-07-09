@@ -290,6 +290,51 @@ export const creatorInfoStripMeta: SectionMeta = {
   },
 };
 
+export const creatorProductSettingsMeta: SectionMeta = {
+  type: "creator-product-settings",
+  label: "Product page settings",
+  description: "Configure the add-to-cart button and optional fields for this store's product pages",
+  pages: ["product"],
+  fieldSchema: [
+    {
+      type: "text",
+      key: "ctaLabel",
+      label: "Button label",
+      placeholder: "Add to cart",
+    },
+    {
+      type: "select",
+      key: "showQuantity",
+      label: "Show quantity stepper",
+      options: [
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No — for digital products, courses, services" },
+      ],
+    },
+    {
+      type: "select",
+      key: "showShipping",
+      label: "Show shipping note",
+      options: [
+        { value: "false", label: "No — for digital products or services" },
+        { value: "true", label: "Yes — show shipping info" },
+      ],
+    },
+    {
+      type: "text",
+      key: "shippingNote",
+      label: "Shipping note text",
+      placeholder: "Free shipping over 50 GEL",
+    },
+  ],
+  defaultProps: {
+    ctaLabel: "Add to cart",
+    showQuantity: "true",
+    showShipping: "false",
+    shippingNote: "Free shipping over 50 GEL",
+  },
+};
+
 export const creatorSectionMeta: SectionMeta[] = [
   creatorProfileMeta,
   creatorLinksMeta,
@@ -305,4 +350,5 @@ export const creatorSectionMeta: SectionMeta[] = [
   creatorVideoMeta,
   creatorWhatsappCtaMeta,
   creatorInfoStripMeta,
+  creatorProductSettingsMeta,
 ];
