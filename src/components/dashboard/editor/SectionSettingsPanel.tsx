@@ -45,43 +45,108 @@ function ImageUploadField({ label, value, onChange }: { label: string; value: un
   );
 }
 
-type ShopCategory = { id: string; name: string };
+type ShopCategory = { id: string; name: string; slug?: string };
+type ShopPage = { slug: string; title: string };
 
 type Props = {
   section: ShopSection;
   shopId: string;
   categories: ShopCategory[];
+  pages: ShopPage[];
   sectionMeta: SectionMeta[];
   onChange: (key: string, value: unknown) => void;
 };
+
+function LinkSuggestions({
+  value,
+  categories,
+  pages,
+  onSelect,
+}: {
+  value: string;
+  categories: ShopCategory[];
+  pages: ShopPage[];
+  onSelect: (href: string) => void;
+}) {
+  const groups = [
+    {
+      label: "Pages",
+      items: [
+        { label: "Home", href: "/" },
+        ...pages.map((p) => ({ label: p.title, href: `/p/${p.slug}` })),
+      ],
+    },
+    {
+      label: "Collections",
+      items: categories.map((c) => ({ label: c.name, href: `/collections/${c.slug ?? c.name.toLowerCase().replace(/\s+/g, "-")}` })),
+    },
+  ].filter((g) => g.items.length > 0);
+
+  return (
+    <div className="flex flex-col gap-2 mt-1.5">
+      {groups.map((group) => (
+        <div key={group.label}>
+          <p className="text-[9px] tracking-widest uppercase text-neutral-300 mb-1">{group.label}</p>
+          <div className="flex flex-wrap gap-1">
+            {group.items.map((s) => (
+              <button
+                key={s.href}
+                type="button"
+                onClick={() => onSelect(s.href)}
+                className={`text-[10px] px-2 py-0.5 border rounded transition-colors ${
+                  value === s.href
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      <p className="text-[10px] text-neutral-400">Or type any URL — <span className="font-mono">https://instagram.com/…</span></p>
+    </div>
+  );
+}
 
 function FlatField({
   field,
   value,
   onChange,
+  categories,
+  pages,
 }: {
   field: FlatFieldDef;
   value: unknown;
   onChange: (val: unknown) => void;
+  categories: ShopCategory[];
+  pages: ShopPage[];
 }) {
   const labelCls = "block text-xs font-medium text-neutral-600 mb-1.5";
   const inputCls = "w-full border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-500 transition-colors";
+
+  const isUrlField = field.key.toLowerCase().endsWith("url") || field.key.toLowerCase().endsWith("href") || field.key.toLowerCase().endsWith("link");
 
   if (field.type === "image-upload") {
     return <ImageUploadField label={field.label} value={value} onChange={onChange} />;
   }
 
   if (field.type === "text") {
+    const str = typeof value === "string" ? value : "";
     return (
       <div>
         <label className={labelCls}>{field.label}</label>
         <input
           type="text"
-          value={typeof value === "string" ? value : ""}
+          value={str}
           placeholder={field.placeholder}
           onChange={(e) => onChange(e.target.value)}
           className={inputCls}
         />
+        {isUrlField && (
+          <LinkSuggestions value={str} categories={categories} pages={pages} onSelect={onChange} />
+        )}
       </div>
     );
   }
@@ -149,11 +214,13 @@ function Field({
   field,
   value,
   categories,
+  pages,
   onChange,
 }: {
   field: FieldDef;
   value: unknown;
   categories: ShopCategory[];
+  pages: ShopPage[];
   onChange: (val: unknown) => void;
 }) {
   const t = useT();
@@ -165,7 +232,7 @@ function Field({
     field.type === "select" ||
     field.type === "image-upload"
   ) {
-    return <FlatField field={field} value={value} onChange={onChange} />;
+    return <FlatField field={field} value={value} onChange={onChange} categories={categories} pages={pages} />;
   }
 
   if (field.type === "select-shop-categories") {
@@ -269,6 +336,8 @@ function Field({
                     key={f.key}
                     field={f}
                     value={item[f.key]}
+                    categories={categories}
+                    pages={pages}
                     onChange={(val) =>
                       onChange(items.map((it, i) => (i === idx ? { ...it, [f.key]: val } : it)))
                     }
@@ -291,7 +360,7 @@ function Field({
   return null;
 }
 
-export default function SectionSettingsPanel({ section, shopId, categories, sectionMeta, onChange }: Props) {
+export default function SectionSettingsPanel({ section, shopId, categories, pages, sectionMeta, onChange }: Props) {
   void shopId;
   const t = useT();
   const meta = sectionMeta.find((m) => m.type === section.type);
@@ -327,6 +396,7 @@ export default function SectionSettingsPanel({ section, shopId, categories, sect
           field={field}
           value={props[field.key]}
           categories={categories}
+          pages={pages}
           onChange={(val) => onChange(field.key, val)}
         />
       ))}

@@ -5,11 +5,13 @@ import { NavItem } from "@/lib/types/sections";
 import { useT } from "@/i18n/context";
 
 type Category = { id: string; name: string; slug: string };
+type Page = { slug: string; title: string };
 
 type Props = {
   item: NavItem | null;
   allItems: NavItem[];
   categories: Category[];
+  pages: Page[];
   shopSlug: string;
   onLabelChange: (value: string) => void;
   onHrefChange: (value: string) => void;
@@ -60,7 +62,7 @@ function validateHref(
 }
 
 export default function ItemEditor({
-  item, allItems, categories, shopSlug,
+  item, allItems, categories, pages, shopSlug,
   onLabelChange, onHrefChange, onTypeChange, onDelete, onAddChild,
 }: Props) {
   const t = useT();
@@ -84,11 +86,19 @@ export default function ItemEditor({
     ? validateHref(localHref, allItems, item.id, t)
     : null;
 
-  // Suggestions: Home + categories
-  const suggestions = [
-    { label: t("dashboard.navigation_editor.home_label"), href: "/" },
-    ...categories.map((c) => ({ label: c.name, href: `/collections/${c.slug}` })),
-  ];
+  const suggestionGroups = [
+    {
+      label: "Pages",
+      items: [
+        { label: t("dashboard.navigation_editor.home_label"), href: "/" },
+        ...pages.map((p) => ({ label: p.title, href: `/p/${p.slug}` })),
+      ],
+    },
+    {
+      label: "Collections",
+      items: categories.map((c) => ({ label: c.name, href: `/collections/${c.slug}` })),
+    },
+  ].filter((g) => g.items.length > 0);
 
   if (!item) {
     return (
@@ -153,21 +163,31 @@ export default function ItemEditor({
           </p>
         )}
         {/* Suggestions */}
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {suggestions.map((s) => (
-            <button
-              key={s.href}
-              type="button"
-              onClick={() => setLocalHref(s.href)}
-              className={`text-[10px] px-2 py-0.5 border rounded transition-colors ${
-                localHref === s.href
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900"
-              }`}
-            >
-              {s.label}
-            </button>
+        <div className="flex flex-col gap-2 mt-2">
+          {suggestionGroups.map((group) => (
+            <div key={group.label}>
+              <p className="text-[9px] tracking-widest uppercase text-zinc-300 mb-1">{group.label}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {group.items.map((s) => (
+                  <button
+                    key={s.href}
+                    type="button"
+                    onClick={() => setLocalHref(s.href)}
+                    className={`text-[10px] px-2 py-0.5 border rounded transition-colors ${
+                      localHref === s.href
+                        ? "border-zinc-900 bg-zinc-900 text-white"
+                        : "border-zinc-200 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
+          <p className="text-[10px] text-zinc-400 mt-1">
+            Or paste any URL — <span className="font-mono">https://instagram.com/yourshop</span>
+          </p>
         </div>
       </Field>
 

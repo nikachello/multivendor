@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/queries";
 import { getShop } from "@/lib/auth/get-shop";
 import SectionEditor from "@/components/dashboard/editor/SectionEditor";
+import prisma from "@/lib/db/prisma";
 
 export default async function EditorPage() {
   const shop = await getShop();
@@ -22,6 +23,7 @@ export default async function EditorPage() {
     firstCategorySlug,
     firstProductSlug,
     optionTypeNames,
+    pages,
   ] = await Promise.all([
     getShopSections(shop.id, "home"),
     getShopSections(shop.id, "collection"),
@@ -31,6 +33,7 @@ export default async function EditorPage() {
     getFirstCategorySlug(shop.id),
     getFirstProductSlug(shop.id),
     getShopOptionTypeNames(shop.id),
+    prisma.page.findMany({ where: { shopId: shop.id }, select: { slug: true, title: true } }),
   ]);
 
   if (!homeSectionsResult.ok) notFound();
@@ -48,6 +51,7 @@ export default async function EditorPage() {
       shopName={shop.name}
       currency={shop.currency}
       categories={categoriesResult.ok ? categoriesResult.data : []}
+      pages={pages}
       themeId={(shop as { themeId?: string }).themeId ?? "minimal"}
       initialTheme={{
         primaryColor: shop.primaryColor,

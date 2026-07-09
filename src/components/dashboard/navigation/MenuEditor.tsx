@@ -18,15 +18,17 @@ import { updateItem } from "@/lib/navigation/update-item";
 import { saveNavigation } from "@/lib/actions/navigation";
 
 type Category = { id: string; name: string; slug: string };
+type Page = { slug: string; title: string };
 
 type Props = {
   shopId: string;
   shopSlug: string;
   initialItems: NavItem[];
   categories: Category[];
+  pages: Page[];
 };
 
-export default function MenuEditor({ shopId, shopSlug, initialItems, categories }: Props) {
+export default function MenuEditor({ shopId, shopSlug, initialItems, categories, pages }: Props) {
   const t = useT();
   const [menu, setMenu] = useState<NavItem[]>(initialItems);
   const [savedMenu, setSavedMenu] = useState<NavItem[]>(initialItems);
@@ -195,6 +197,7 @@ export default function MenuEditor({ shopId, shopSlug, initialItems, categories 
             item={selectedItem}
             allItems={menu}
             categories={categories}
+            pages={pages}
             shopSlug={shopSlug}
             onLabelChange={handleLabelChange}
             onHrefChange={handleHrefChange}
