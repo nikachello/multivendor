@@ -91,7 +91,9 @@ export default function SectionEditor({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const justSwitchedPage = useRef(false);
 
-  const sections = pagesSections[activePage];
+  const sections = pagesSections[activePage].filter(
+    (s) => !(themeId === "creator" && s.type === "navbar"),
+  );
 
   function getPreviewUrl(page: PageType): string {
     switch (page) {
