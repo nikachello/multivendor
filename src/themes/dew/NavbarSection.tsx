@@ -61,6 +61,23 @@ const NavbarSection = ({
                             >
                               {child.label}
                             </Link>
+                          ) : child.type === "group" ? (
+                            <div key={j}>
+                              {child.href ? (
+                                <Link href={child.href} className="block px-5 pt-3 pb-1 font-jakarta text-[10px] tracking-[0.12em] uppercase text-[#2C2530]/50 hover:text-[var(--accent)] border-t border-[var(--subtle)] first:border-t-0 transition-colors">
+                                  {child.label}
+                                </Link>
+                              ) : (
+                                <p className="px-5 pt-3 pb-1 font-jakarta text-[10px] tracking-[0.12em] uppercase text-[#2C2530]/50 border-t border-[var(--subtle)] first:border-t-0">{child.label}</p>
+                              )}
+                              {child.children.map((gc, k) =>
+                                gc.type === "link" ? (
+                                  <Link key={k} href={gc.href} className="block px-5 py-2 pl-7 font-jakarta text-[14px] text-[#2C2530] hover:text-[var(--accent)] hover:bg-[var(--surface)] transition-colors">
+                                    {gc.label}
+                                  </Link>
+                                ) : null
+                              )}
+                            </div>
                           ) : null
                         )}
                       </div>
@@ -192,6 +209,17 @@ const NavbarSection = ({
                         >
                           {child.label}
                         </Link>
+                      ) : child.type === "group" ? (
+                        <div key={j}>
+                          <p className="pl-4 pt-2 pb-1 font-jakarta text-[10px] tracking-[0.1em] uppercase text-[var(--muted)]/60">{child.label}</p>
+                          {child.children.map((gc, k) =>
+                            gc.type === "link" ? (
+                              <Link key={k} href={gc.href} onClick={() => setOpen(false)} className="block py-2 pl-6 font-jakarta text-[14px] text-[var(--muted)] hover:text-[var(--accent)] transition-colors">
+                                {gc.label}
+                              </Link>
+                            ) : null
+                          )}
+                        </div>
                       ) : null
                     )}
                   </div>

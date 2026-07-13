@@ -89,6 +89,23 @@ const NavbarSection = ({
                               >
                                 {child.label}
                               </Link>
+                            ) : child.type === "group" ? (
+                              <div key={i}>
+                                {child.href ? (
+                                  <Link href={child.href} className="block px-4 pt-3 pb-1 text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-400 hover:text-zinc-900 transition-colors">
+                                    {child.label}
+                                  </Link>
+                                ) : (
+                                  <p className="px-4 pt-3 pb-1 text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-400">{child.label}</p>
+                                )}
+                                {child.children.map((gc, j) =>
+                                  gc.type === "link" ? (
+                                    <Link key={j} href={gc.href} className="block px-4 py-2 pl-6 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors">
+                                      {gc.label}
+                                    </Link>
+                                  ) : null
+                                )}
+                              </div>
                             ) : null
                           )}
                         </div>
@@ -220,6 +237,17 @@ const NavbarSection = ({
                         <Link key={i} href={child.href} onClick={() => setOpen(false)} className="block py-2 pl-3 hover:text-zinc-900 transition-colors">
                           {child.label}
                         </Link>
+                      ) : child.type === "group" ? (
+                        <div key={i}>
+                          <p className="pl-3 pt-2 pb-1 text-[10px] tracking-[0.08em] uppercase text-zinc-400">{child.label}</p>
+                          {child.children.map((gc, j) =>
+                            gc.type === "link" ? (
+                              <Link key={j} href={gc.href} onClick={() => setOpen(false)} className="block py-1.5 pl-5 hover:text-zinc-900 transition-colors">
+                                {gc.label}
+                              </Link>
+                            ) : null
+                          )}
+                        </div>
                       ) : null
                     )}
                   </div>
