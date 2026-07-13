@@ -5,24 +5,30 @@ import { ok, err } from "../result";
 import { ErrorCode } from "../errors";
 import { assertOwnsShop } from "../auth/assert-owns-shop";
 
-export async function addOptionType(productId: string, shopId: string, name: string) {
+async function getShopIdForProduct(productId: string) {
+  const p = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
+  return p?.shopId ?? null;
+}
+
+async function getShopIdForOptionType(optionTypeId: string) {
+  const ot = await prisma.optionType.findUnique({
+    where: { id: optionTypeId },
+    select: { product: { select: { shopId: true } } },
+  });
+  return ot?.product.shopId ?? null;
+}
+
+export async function addOptionType(productId: string, name: string) {
   if (!name.trim()) return err({ code: ErrorCode.GENERAL_ERROR, message: "Name is required", status: 400 });
+
+  const shopId = await getShopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Product not found", status: 404 });
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  const product = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
-  if (!product || product.shopId !== shopId)
-    return err({ code: ErrorCode.GENERAL_ERROR, message: "Product not found", status: 404 });
-
   const optionType = await prisma.optionType.upsert({
-    where: { shopId_name: { shopId, name: name.trim() } },
-    create: { shopId, name: name.trim() },
-    update: {},
-  });
-
-  await prisma.productOptionType.upsert({
-    where: { productId_optionTypeId: { productId, optionTypeId: optionType.id } },
-    create: { productId, optionTypeId: optionType.id },
+    where: { productId_name: { productId, name: name.trim() } },
+    create: { productId, name: name.trim() },
     update: {},
   });
 
@@ -33,15 +39,11 @@ export async function addOptionValues(optionTypeId: string, values: string[]) {
   const trimmed = values.map((v) => v.trim()).filter(Boolean);
   if (!trimmed.length) return ok([] as { id: string; value: string }[]);
 
-  const optionType = await prisma.optionType.findUnique({
-    where: { id: optionTypeId },
-    select: { shopId: true },
-  });
-  if (!optionType) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
-  try { await assertOwnsShop(optionType.shopId); }
+  const shopId = await getShopIdForOptionType(optionTypeId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  // One auth check, all upserts in parallel
   const results = await Promise.all(
     trimmed.map((v) =>
       prisma.optionValue.upsert({
@@ -55,25 +57,28 @@ export async function addOptionValues(optionTypeId: string, values: string[]) {
   return ok(results.map((r) => ({ id: r.id, value: r.value })));
 }
 
-export async function removeOptionTypeFromProduct(productId: string, optionTypeId: string) {
-  const product = await prisma.product.findUnique({ where: { id: productId }, select: { shopId: true } });
-  if (!product) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
-  try { await assertOwnsShop(product.shopId); }
+export async function removeOptionType(productId: string, optionTypeId: string) {
+  const shopId = await getShopIdForProduct(productId);
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  await prisma.productOptionType.delete({
-    where: { productId_optionTypeId: { productId, optionTypeId } },
-  });
+  // Delete all variants of this product — they reference option values of this type
+  // (OptionType cascade deletes OptionValues → VariantOptionValues, but not Variants themselves)
+  await prisma.$transaction([
+    prisma.variant.deleteMany({ where: { productId } }),
+    prisma.optionType.delete({ where: { id: optionTypeId } }),
+  ]);
+
   return ok(null);
 }
 
 export async function removeOptionValue(optionValueId: string) {
-  const optionValue = await prisma.optionValue.findUnique({
-    where: { id: optionValueId },
-    select: { optionType: { select: { shopId: true } } },
-  });
-  if (!optionValue) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
-  try { await assertOwnsShop(optionValue.optionType.shopId); }
+  const shopId = await getShopIdForOptionType(
+    (await prisma.optionValue.findUnique({ where: { id: optionValueId }, select: { optionTypeId: true } }))?.optionTypeId ?? ""
+  );
+  if (!shopId) return err({ code: ErrorCode.GENERAL_ERROR, message: "Not found", status: 404 });
+  try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
   const affected = await prisma.variantOptionValue.findMany({

@@ -6,18 +6,17 @@ import { ProductOptionType } from "@/lib/db/queries";
 import {
   addOptionType,
   addOptionValues,
-  removeOptionTypeFromProduct,
+  removeOptionType,
   removeOptionValue,
 } from "@/lib/actions/options";
 import { useT } from "@/i18n/context";
 
 type Props = {
   productId: string;
-  shopId: string;
   optionTypes: ProductOptionType[];
 };
 
-export default function OptionsEditor({ productId, shopId, optionTypes: initial }: Props) {
+export default function OptionsEditor({ productId, optionTypes: initial }: Props) {
   const t = useT();
   const [optionTypes, setOptionTypes] = useState<ProductOptionType[]>(initial);
   const [newTypeName, setNewTypeName] = useState("");
@@ -90,7 +89,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
   async function handleAddType() {
     if (!newTypeName.trim() || addingType) return;
     setAddingType(true);
-    const result = await addOptionType(productId, shopId, newTypeName.trim());
+    const result = await addOptionType(productId, newTypeName.trim());
     setAddingType(false);
 
     if (!result.ok) {
@@ -108,7 +107,7 @@ export default function OptionsEditor({ productId, shopId, optionTypes: initial 
   async function handleRemoveType(optionTypeId: string) {
     if (removingTypeId) return;
     setRemovingTypeId(optionTypeId);
-    const result = await removeOptionTypeFromProduct(productId, optionTypeId);
+    const result = await removeOptionType(productId, optionTypeId);
     setRemovingTypeId(null);
 
     if (!result.ok) {

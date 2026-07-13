@@ -291,11 +291,7 @@ export async function getProductWithOptions(id: string) {
     include: {
       ...productInclude,
       optionTypes: {
-        include: {
-          optionType: {
-            include: { values: true },
-          },
-        },
+        include: { values: true },
         orderBy: { position: "asc" },
       },
     },
@@ -305,10 +301,10 @@ export async function getProductWithOptions(id: string) {
 
   return {
     ...serializeProduct(product),
-    optionTypes: product.optionTypes.map((pot) => ({
-      optionTypeId: pot.optionType.id,
-      name: pot.optionType.name,
-      values: pot.optionType.values.map((v) => ({ id: v.id, value: v.value })),
+    optionTypes: product.optionTypes.map((ot) => ({
+      optionTypeId: ot.id,
+      name: ot.name,
+      values: ot.values.map((v) => ({ id: v.id, value: v.value })),
     })) as ProductOptionType[],
   };
 }

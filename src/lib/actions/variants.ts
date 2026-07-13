@@ -31,9 +31,9 @@ export async function generateVariants(productId: string, priceFrom: number) {
   try { await assertOwnsShop(shopId); }
   catch { return err({ code: ErrorCode.GENERAL_ERROR, message: "Forbidden", status: 403 }); }
 
-  const optionTypes = await prisma.productOptionType.findMany({
+  const optionTypes = await prisma.optionType.findMany({
     where: { productId },
-    include: { optionType: { include: { values: true } } },
+    include: { values: true },
     orderBy: { position: "asc" },
   });
 
@@ -42,7 +42,7 @@ export async function generateVariants(productId: string, priceFrom: number) {
   }
 
   const valueSets = optionTypes.map((ot) =>
-    ot.optionType.values.map((v) => ({ id: v.id, value: v.value })),
+    ot.values.map((v) => ({ id: v.id, value: v.value })),
   );
 
   if (valueSets.some((s) => s.length === 0)) {

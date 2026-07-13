@@ -130,7 +130,6 @@ export default function ProductEditTabs({ product, shop, categories }: Props) {
           </p>
           <OptionsEditor
             productId={product.id}
-            shopId={shop.id}
             optionTypes={product.optionTypes}
           />
         </div>
