@@ -191,9 +191,16 @@ export default function ProductDetail({
             {product.name}
           </h1>
 
-          <p className="mt-3 text-xl font-medium text-neutral-900">
-            {currency} {Number(selectedVariant?.price ?? product.priceFrom)}
-          </p>
+          <div className="mt-3 flex items-baseline gap-3">
+            <p className={`text-xl font-medium ${selectedVariant?.compareAtPrice ? "text-red-600" : "text-neutral-900"}`}>
+              {currency} {Number(selectedVariant?.price ?? product.priceFrom).toFixed(2)}
+            </p>
+            {selectedVariant?.compareAtPrice && Number(selectedVariant.compareAtPrice) > Number(selectedVariant.price) && (
+              <p className="text-base text-neutral-400 line-through">
+                {currency} {Number(selectedVariant.compareAtPrice).toFixed(2)}
+              </p>
+            )}
+          </div>
 
           {selectedVariant && (
             <p className="mt-1 text-sm text-neutral-400">

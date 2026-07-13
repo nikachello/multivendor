@@ -193,6 +193,11 @@ export default async function CollectionPage({
               name: p.name,
               image: p.images[0]?.url ?? "",
               price: p.priceFrom,
+              compareAtPrice: p.variants.reduce<number | null>((max, v) => {
+                const c = v.compareAtPrice ? Number(v.compareAtPrice) : null;
+                if (!c || c <= Number(v.price)) return max;
+                return max === null ? c : Math.max(max, c);
+              }, null),
               inStock: p.variants.some((v) => !v.trackInventory || v.stock > 0),
             }))}
           />

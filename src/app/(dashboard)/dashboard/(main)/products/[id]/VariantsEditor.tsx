@@ -11,6 +11,7 @@ type Variant = ProductWithRelations["variants"][number];
 
 type EditState = {
   price: string;
+  compareAtPrice: string;
   stock: string;
   sku: string;
   trackInventory: boolean;
@@ -29,6 +30,7 @@ function getVariantLabel(variant: Variant): string {
 function initialEdit(v: Variant): EditState {
   return {
     price: String(v.price),
+    compareAtPrice: v.compareAtPrice ? String(v.compareAtPrice) : "",
     stock: String(v.stock),
     sku: v.sku,
     trackInventory: v.trackInventory ?? true,
@@ -37,8 +39,10 @@ function initialEdit(v: Variant): EditState {
 
 function isDirty(v: Variant, edit: EditState): boolean {
   const origTrack = v.trackInventory ?? true;
+  const origCompare = v.compareAtPrice ? String(v.compareAtPrice) : "";
   return (
     edit.price !== String(v.price) ||
+    edit.compareAtPrice !== origCompare ||
     edit.stock !== String(v.stock) ||
     edit.sku !== v.sku ||
     edit.trackInventory !== origTrack
@@ -92,7 +96,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
       const result = await updateVariants(
         dirtyVariants.map((v) => {
           const edit = getEdit(v);
-          return { id: v.id, price: Number(edit.price), stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
+          return { id: v.id, price: Number(edit.price), compareAtPrice: edit.compareAtPrice ? Number(edit.compareAtPrice) : null, stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
         }),
       );
       setSaving(false);
@@ -122,7 +126,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
     const result = await updateVariants(
       dirtyVariants.map((v) => {
         const edit = getEdit(v);
-        return { id: v.id, price: Number(edit.price), stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
+        return { id: v.id, price: Number(edit.price), compareAtPrice: edit.compareAtPrice ? Number(edit.compareAtPrice) : null, stock: Number(edit.stock), sku: edit.sku, trackInventory: edit.trackInventory };
       }),
     );
     setSaving(false);
@@ -297,6 +301,7 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t("dashboard.variants_editor.sku_col")}</th>
               )}
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t("dashboard.variants_editor.price_col")}</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Compare at</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t("dashboard.variants_editor.stock_col")}</th>
               <th className="px-4 py-3" />
             </tr>
@@ -330,6 +335,17 @@ export default function VariantsEditor({ productId, priceFrom, variants: initial
                       value={edit.price}
                       onChange={(e) => patchEdit(v, { price: e.target.value })}
                       className="w-24 border border-gray-200 rounded px-2 py-1 text-sm outline-none focus:border-gray-400"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={edit.compareAtPrice}
+                      onChange={(e) => patchEdit(v, { compareAtPrice: e.target.value })}
+                      placeholder="—"
+                      className="w-24 border border-gray-200 rounded px-2 py-1 text-sm outline-none focus:border-gray-400 text-gray-400"
                     />
                   </td>
                   <td className="px-4 py-3">

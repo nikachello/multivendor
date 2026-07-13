@@ -14,6 +14,7 @@ type ProductOptionValue = {
 type ProductVariant = {
   id: string;
   price: number;
+  compareAtPrice?: number | null;
   stock: number;
   trackInventory: boolean;
   optionValues: ProductOptionValue[];
@@ -242,9 +243,16 @@ export default function CreatorProductPage({
         >
           {product.name}
         </h1>
-        <p className="text-xl font-bold text-[var(--creator-on-surface)] tabular-nums mt-1">
-          {price.toFixed(2)} {currency}
-        </p>
+        <div className="flex items-baseline gap-2 mt-1">
+          <p className={`text-xl font-bold tabular-nums ${selectedVariant?.compareAtPrice && selectedVariant.compareAtPrice > price ? "text-red-500" : "text-[var(--creator-on-surface)]"}`}>
+            {price.toFixed(2)} {currency}
+          </p>
+          {selectedVariant?.compareAtPrice && selectedVariant.compareAtPrice > price && (
+            <p className="text-base text-[var(--creator-muted)] line-through tabular-nums">
+              {Number(selectedVariant.compareAtPrice).toFixed(2)} {currency}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 3. Description */}

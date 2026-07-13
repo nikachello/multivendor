@@ -11,6 +11,7 @@ type CollectionProduct = {
   name: string;
   image: string;
   price: number;
+  compareAtPrice?: number | null;
   inStock: boolean;
 };
 
@@ -118,9 +119,16 @@ export default function CreatorCollectionPage({
             <p className="text-sm font-medium mt-2 leading-snug line-clamp-2 text-[var(--creator-on-surface)]">
               {product.name}
             </p>
-            <p className="text-sm font-bold mt-0.5 tabular-nums text-[var(--creator-on-surface)]">
-              {product.price.toFixed(2)} {currency}
-            </p>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <p className={`text-sm font-bold tabular-nums ${product.compareAtPrice && product.compareAtPrice > product.price ? "text-red-500" : "text-[var(--creator-on-surface)]"}`}>
+                {product.price.toFixed(2)} {currency}
+              </p>
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <p className="text-xs text-[var(--creator-muted)] line-through tabular-nums">
+                  {product.compareAtPrice.toFixed(2)}
+                </p>
+              )}
+            </div>
           </Link>
         ))}
       </div>

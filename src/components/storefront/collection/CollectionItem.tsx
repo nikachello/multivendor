@@ -24,6 +24,13 @@ const CollectionItem = ({ product, currency, shopSlug, shopBase }: Props) => {
   const hasMultipleVariantPrices = product.variants.some(
     (v) => Number(v.price) !== lowestPrice,
   );
+  const compareAtPrice = product.variants.length
+    ? product.variants.reduce<number | null>((max, v) => {
+        const c = v.compareAtPrice ? Number(v.compareAtPrice) : null;
+        if (!c || c <= Number(v.price)) return max;
+        return max === null ? c : Math.max(max, c);
+      }, null)
+    : null;
   const isSoldOut =
     product.variants.length === 0 ||
     product.variants.every((v) => ((v as { trackInventory?: boolean }).trackInventory ?? true) && v.stock === 0);
@@ -85,12 +92,17 @@ const CollectionItem = ({ product, currency, shopSlug, shopBase }: Props) => {
         <p className="text-sm font-medium text-neutral-900 truncate">
           {product.name}
         </p>
-        <p
-          className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : "text-neutral-500"}`}
-        >
-          {hasMultipleVariantPrices ? "From " : ""}
-          {currency} {lowestPrice.toFixed(2)}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className={`text-sm ${isSoldOut ? "text-neutral-300 line-through" : compareAtPrice ? "text-red-600 font-medium" : "text-neutral-500"}`}>
+            {hasMultipleVariantPrices ? "From " : ""}
+            {currency} {lowestPrice.toFixed(2)}
+          </p>
+          {!isSoldOut && compareAtPrice && (
+            <p className="text-sm text-neutral-400 line-through">
+              {currency} {compareAtPrice.toFixed(2)}
+            </p>
+          )}
+        </div>
       </div>
     </Link>
   );

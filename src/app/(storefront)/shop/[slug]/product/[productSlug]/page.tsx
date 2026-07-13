@@ -152,6 +152,7 @@ export default async function ProductPage({
               variants: product.variants.map((v) => ({
                 id: v.id,
                 price: Number(v.price),
+                compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,
                 stock: v.stock,
                 trackInventory: v.trackInventory,
                 image: v.image ?? undefined,

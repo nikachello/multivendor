@@ -122,7 +122,7 @@ export async function updateVariant(
 }
 
 export async function updateVariants(
-  updates: { id: string; price: number; stock: number; sku: string; trackInventory: boolean }[],
+  updates: { id: string; price: number; compareAtPrice?: number | null; stock: number; sku: string; trackInventory: boolean }[],
 ) {
   if (!updates.length) return ok(null);
 
@@ -146,7 +146,7 @@ export async function updateVariants(
     updates.map((u) =>
       prisma.variant.updateMany({
         where: { id: u.id, product: { shopId } },
-        data: { price: u.price, stock: u.stock, sku: u.sku, trackInventory: u.trackInventory },
+        data: { price: u.price, compareAtPrice: u.compareAtPrice ?? null, stock: u.stock, sku: u.sku, trackInventory: u.trackInventory },
       }),
     ),
   );
