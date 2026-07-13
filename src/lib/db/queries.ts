@@ -214,22 +214,21 @@ export async function getCategoriesByShop(
 // CATEGORY BY SLUG
 // ============================================
 
+export type CategoryWithChildren = Category & { children: Category[] };
+
 export async function getCategoryBySlug(
   shopId: string,
   slug: string,
-): Promise<Result<Category>> {
+): Promise<Result<CategoryWithChildren>> {
   const category = await prisma.category.findFirst({
-    where: {
-      shopId,
-      slug,
-      isActive: true,
-    },
+    where: { shopId, slug, isActive: true },
+    include: { children: { where: { isActive: true }, orderBy: { name: "asc" } } },
   });
 
   if (!category) {
     return err({
       code: ErrorCode.CATEGORY_NOT_FOUND,
-      message: "áƒ™áƒáƒ¢áƒ”áƒ’áƒáƒ áƒ˜áƒ áƒáƒ  áƒ›áƒáƒ˜áƒ«áƒ”áƒ‘áƒœáƒ",
+      message: "კატეგორია არ მოიძებნა",
       status: 404,
     });
   }
@@ -446,6 +445,7 @@ export type CollectionFilters = {
   maxPrice?: number;
   optionFilters?: Record<string, string[]>;
   inStockOnly?: boolean;
+  subcategoryIds?: string[];
 };
 
 export type CollectionFacets = {
@@ -463,14 +463,14 @@ export type CollectionData = {
 
 export async function getCollectionData(
   shopId: string,
-  categoryId: string,
+  categoryIds: string[],
   filters: CollectionFilters = {},
 ): Promise<Result<CollectionData>> {
   if (!shopId) return err({ code: ErrorCode.SHOP_ID_MISSING, message: "Shop id is required", status: 400 });
-  if (!categoryId) return err({ code: ErrorCode.CATEGORY_ID_MISSING, message: "Category id is required", status: 400 });
+  if (!categoryIds.length) return err({ code: ErrorCode.CATEGORY_ID_MISSING, message: "Category id is required", status: 400 });
 
   const raw = await prisma.product.findMany({
-    where: { shopId, categories: { some: { id: categoryId } }, isActive: true },
+    where: { shopId, categories: { some: { id: { in: categoryIds } } }, isActive: true },
     include: productInclude,
     orderBy: { createdAt: "desc" },
   });
@@ -513,6 +513,7 @@ export async function getCollectionData(
     maxPrice,
     optionFilters = {},
     inStockOnly = false,
+    subcategoryIds = [],
   } = filters;
 
   let filtered = all;
@@ -537,6 +538,12 @@ export async function getCollectionData(
             values.includes(ov.optionValue.value),
         ),
       ),
+    );
+  }
+
+  if (subcategoryIds.length > 0) {
+    filtered = filtered.filter((p) =>
+      p.categories.some((c) => subcategoryIds.includes(c.id)),
     );
   }
 

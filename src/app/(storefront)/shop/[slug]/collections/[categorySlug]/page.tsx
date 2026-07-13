@@ -7,6 +7,7 @@ import {
   getShopSections,
   resolveCollectionConfig,
   CollectionSortOption,
+  CategoryWithChildren,
 } from "@/lib/db/queries";
 import { getThemeRegistry } from "@/lib/section-registry";
 import { getThemeConfig } from "@/themes";
@@ -20,7 +21,7 @@ import EditorBridge from "@/components/storefront/EditorBridge";
 import { getShopBase } from "@/lib/shop-base";
 import { getCanonicalShopUrl } from "@/lib/storefront-url";
 
-const KNOWN_PARAMS = new Set(["sort", "page", "minPrice", "maxPrice", "inStock"]);
+const KNOWN_PARAMS = new Set(["sort", "page", "minPrice", "maxPrice", "inStock", "sub"]);
 const PAGE_SIZE = 24;
 
 export async function generateMetadata({
@@ -100,6 +101,19 @@ export default async function CollectionPage({
       : undefined;
   const inStockOnly = collectionConfig.showInStock && str(sp.inStock) === "true";
 
+  // Subcategory filter — ?sub=<child-slug>
+  const activeSub = str(sp.sub);
+  const activeSubCategory = activeSub
+    ? (category as CategoryWithChildren).children.find((c) => c.slug === activeSub)
+    : null;
+  const subcategoryIds = activeSubCategory ? [activeSubCategory.id] : [];
+
+  // All IDs covered by this collection (parent + all children)
+  const allCategoryIds = [
+    category.id,
+    ...(category as CategoryWithChildren).children.map((c) => c.id),
+  ];
+
   const optionFilters: Record<string, string[]> = {};
   for (const [key, value] of Object.entries(sp)) {
     if (KNOWN_PARAMS.has(key) || !value) continue;
@@ -124,7 +138,7 @@ export default async function CollectionPage({
 
   const [collectionResult, homeSectionsResult, pageSectionsResult, shopBase] =
     await Promise.all([
-      getCollectionData(shop.id, category.id, {
+      getCollectionData(shop.id, allCategoryIds, {
         sort,
         page,
         pageSize: PAGE_SIZE,
@@ -132,6 +146,7 @@ export default async function CollectionPage({
         maxPrice,
         optionFilters,
         inStockOnly,
+        subcategoryIds,
       }),
       getShopSections(shop.id, "home"),
       getShopSections(shop.id, "collection"),
@@ -213,6 +228,8 @@ export default async function CollectionPage({
 
             <CollectionContainer
               category={category}
+              subcategories={(category as CategoryWithChildren).children}
+              activeSub={activeSub}
               products={products}
               currency={shop.currency}
               shopSlug={shop.slug}

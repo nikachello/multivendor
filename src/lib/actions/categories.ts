@@ -25,10 +25,11 @@ export async function createCategory(
   description: string,
   isActive: boolean,
   image?: string,
+  parentId?: string,
 ) {
   if (!shopId)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
-  const parsed = categorySchema.safeParse({ name, slug, description, isActive, image });
+  const parsed = categorySchema.safeParse({ name, slug, description, isActive, image, parentId });
   if (!parsed.success)
     return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid category data", status: 400 });
 
@@ -38,7 +39,7 @@ export async function createCategory(
   const finalSlug = await uniqueCategorySlug(parsed.data.slug, shopId);
 
   const category = await prisma.category.create({
-    data: { shopId, name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image || null },
+    data: { shopId, name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image || null, parentId: parsed.data.parentId || null },
   });
 
   return ok(category);
@@ -51,10 +52,11 @@ export async function updateCategory(
   description: string,
   isActive: boolean,
   image?: string,
+  parentId?: string,
 ) {
   if (!id)
     return err({ code: ErrorCode.GENERAL_ERROR, message: "Missing required fields", status: 400 });
-  const parsed = categorySchema.safeParse({ name, slug, description, isActive, image });
+  const parsed = categorySchema.safeParse({ name, slug, description, isActive, image, parentId });
   if (!parsed.success)
     return err({ code: ErrorCode.GENERAL_ERROR, message: parsed.error.issues[0]?.message ?? "Invalid category data", status: 400 });
 
@@ -67,7 +69,7 @@ export async function updateCategory(
 
   const category = await prisma.category.update({
     where: { id },
-    data: { name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image ?? null },
+    data: { name: parsed.data.name, slug: finalSlug, description: parsed.data.description || null, isActive: parsed.data.isActive, image: parsed.data.image ?? null, parentId: parsed.data.parentId || null },
   });
 
   return ok(category);

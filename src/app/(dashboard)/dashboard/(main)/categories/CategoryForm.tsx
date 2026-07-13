@@ -12,15 +12,18 @@ import ImageUploader from "@/components/ui/ImageUploader";
 import { useT } from "@/i18n/context";
 import { slugify } from "@/lib/slugify";
 
+type CategoryOption = { id: string; name: string };
+
 type Props = {
   shopId: string;
   categoryId?: string;
   defaultValues?: Partial<z.input<typeof categorySchema>>;
+  allCategories?: CategoryOption[];
 };
 
 type FormInput = z.input<typeof categorySchema>;
 
-export default function CategoryForm({ shopId, categoryId, defaultValues }: Props) {
+export default function CategoryForm({ shopId, categoryId, defaultValues, allCategories = [] }: Props) {
   const router = useRouter();
   const isEditing = !!categoryId;
   const t = useT();
@@ -39,8 +42,8 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
 
   async function onSubmit(data: FormInput) {
     const result = isEditing
-      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image)
-      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image);
+      ? await updateCategory(categoryId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image, data.parentId || undefined)
+      : await createCategory(shopId, data.name, data.slug, data.description ?? "", data.isActive ?? true, data.image, data.parentId || undefined);
 
     if (!result || !result.ok) {
       toast.error(isEditing ? t("dashboard.category_form.update_failed") : t("dashboard.category_form.create_failed"));
@@ -82,6 +85,24 @@ export default function CategoryForm({ shopId, categoryId, defaultValues }: Prop
           placeholder={t("dashboard.category_form.description_placeholder")}
         />
       </div>
+
+      {allCategories.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Parent category</label>
+          <select
+            {...register("parentId")}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-gray-400 transition-all shadow-sm bg-white"
+          >
+            <option value="">None (top-level)</option>
+            {allCategories
+              .filter((c) => c.id !== categoryId)
+              .map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+          </select>
+          <p className="text-xs text-gray-400">Set a parent to make this a subcategory. Products in subcategories appear in the parent&apos;s collection page.</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-gray-700">{t("dashboard.category_form.image")}</label>

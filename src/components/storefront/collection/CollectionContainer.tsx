@@ -13,6 +13,8 @@ const PAGE_SIZE = 24;
 
 type Props = {
   category: Category;
+  subcategories?: Category[];
+  activeSub?: string;
   products: ProductWithRelations[];
   currency: string;
   shopSlug: string;
@@ -32,6 +34,8 @@ type Props = {
 
 export default function CollectionContainer({
   category,
+  subcategories = [],
+  activeSub,
   products,
   currency,
   shopSlug,
@@ -50,6 +54,15 @@ export default function CollectionContainer({
 }: Props) {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const basePath = `${shopBase}/collections/${category.slug}`;
+
+  function buildSubHref(subSlug: string | null) {
+    const params = new URLSearchParams(currentParamsStr);
+    params.delete("page");
+    if (subSlug) params.set("sub", subSlug);
+    else params.delete("sub");
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  }
 
   function pageHref(p: number) {
     const params = new URLSearchParams(currentParamsStr);
@@ -85,6 +98,25 @@ export default function CollectionContainer({
           </p>
         )}
       </div>
+
+      {/* Subcategory chips */}
+      {subcategories.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          <SubChip
+            label="All"
+            href={buildSubHref(null)}
+            active={!activeSub}
+          />
+          {subcategories.map((sub) => (
+            <SubChip
+              key={sub.id}
+              label={sub.name}
+              href={buildSubHref(sub.slug)}
+              active={activeSub === sub.slug}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Filters bar */}
       <CollectionFilters
@@ -163,5 +195,20 @@ export default function CollectionContainer({
         </div>
       )}
     </div>
+  );
+}
+
+function SubChip({ label, href, active }: { label: string; href: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        active
+          ? "bg-neutral-900 text-white border-neutral-900"
+          : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }
