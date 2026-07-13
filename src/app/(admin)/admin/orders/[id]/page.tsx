@@ -41,18 +41,7 @@ export default async function AdminOrderDetailPage({
     where: { id },
     include: {
       shop: { select: { name: true, slug: true, currency: true, id: true } },
-      items: {
-        include: {
-          variant: {
-            include: {
-              product: { select: { name: true } },
-              optionValues: {
-                include: { optionValue: { include: { optionType: true } } },
-              },
-            },
-          },
-        },
-      },
+      items: true,
     },
   });
 
@@ -146,12 +135,12 @@ export default async function AdminOrderDetailPage({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {order.items.map((item) => {
-                const options = item.variant.optionValues
-                  .map((ov) => `${ov.optionValue.optionType.name}: ${ov.optionValue.value}`)
+                const options = Object.entries(item.variantOptions as Record<string, string>)
+                  .map(([k, v]) => `${k}: ${v}`)
                   .join(", ");
                 return (
                   <tr key={item.id}>
-                    <td className="px-4 py-3 text-xs font-medium text-gray-900">{item.variant.product.name}</td>
+                    <td className="px-4 py-3 text-xs font-medium text-gray-900">{item.productName}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{options || "Default"}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{item.quantity}</td>
                     <td className="px-4 py-3 text-xs text-gray-900 text-right">${Number(item.price).toFixed(2)}</td>
