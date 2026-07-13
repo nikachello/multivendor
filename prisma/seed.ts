@@ -11,7 +11,6 @@ async function main() {
 
   // Delete in dependency order (children before parents)
   await prisma.variantOptionValue.deleteMany();
-  await prisma.productOptionType.deleteMany();
   await prisma.shopSection.deleteMany();
   await prisma.testimonial.deleteMany();
   await prisma.orderItem.deleteMany();
