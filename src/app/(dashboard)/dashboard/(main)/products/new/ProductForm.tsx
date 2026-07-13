@@ -248,6 +248,7 @@ export default function ProductForm({
                       className="w-4 h-4 accent-gray-900"
                     />
                     <span className="text-sm text-gray-700">{c.name}</span>
+                    <span className="text-xs text-gray-400 font-mono">{c.slug}</span>
                   </label>
                 );
               })}
