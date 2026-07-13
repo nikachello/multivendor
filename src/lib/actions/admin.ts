@@ -64,12 +64,14 @@ export async function adminUpdateOrderStatus(orderId: string, status: OrderStatu
 
       if (shouldRestoreStock) {
         await Promise.all(
-          existing.items.map((item) =>
-            tx.variant.updateMany({
-              where: { id: item.variantId, trackInventory: true },
-              data: { stock: { increment: item.quantity } },
-            }),
-          ),
+          existing.items
+            .filter((item) => item.variantId !== null)
+            .map((item) =>
+              tx.variant.updateMany({
+                where: { id: item.variantId!, trackInventory: true },
+                data: { stock: { increment: item.quantity } },
+              }),
+            ),
         );
       }
     });
