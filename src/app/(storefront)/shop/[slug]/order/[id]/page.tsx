@@ -88,7 +88,7 @@ export default async function OrderConfirmationPage({
         value={Number(order.total)}
         currency={shop.currency}
         items={order.items.map((item) => ({
-          id: item.productId,
+          id: item.productId ?? "",
           name: item.productName,
           price: Number(item.price),
           quantity: item.quantity,
