@@ -701,10 +701,11 @@ export async function getAnalyticsData(shopId: string, days = 30) {
   const productMap = new Map<string, { name: string; revenue: number; orders: number }>();
   for (const o of orders) {
     for (const item of o.items) {
-      const existing = productMap.get(item.productId) ?? { name: item.productName, revenue: 0, orders: 0 };
+      const key = item.productId ?? item.productName;
+      const existing = productMap.get(key) ?? { name: item.productName, revenue: 0, orders: 0 };
       existing.revenue += Number(item.price) * item.quantity;
       existing.orders += 1;
-      productMap.set(item.productId, existing);
+      productMap.set(key, existing);
     }
   }
   const topProducts = Array.from(productMap.values())

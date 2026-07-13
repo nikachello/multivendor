@@ -284,12 +284,14 @@ export const cancelPendingBogOrder = async (orderId: string, shopId: string) => 
       if (!order) return; // already handled or wrong shop — no-op
       await tx.order.update({ where: { id: orderId }, data: { status: "cancelled" } });
       await Promise.all(
-        order.items.map((item) =>
-          tx.variant.updateMany({
-            where: { id: item.variantId, trackInventory: true },
-            data: { stock: { increment: item.quantity } },
-          })
-        )
+        order.items
+          .filter((item) => item.variantId !== null)
+          .map((item) =>
+            tx.variant.updateMany({
+              where: { id: item.variantId!, trackInventory: true },
+              data: { stock: { increment: item.quantity } },
+            })
+          )
       );
     });
   } catch { /* best-effort — never block the checkout error path */ }
@@ -334,12 +336,14 @@ export const updateOrderStatus = async (
 
       if (shouldRestoreStock) {
         await Promise.all(
-          existing.items.map((item) =>
-            tx.variant.updateMany({
-              where: { id: item.variantId, trackInventory: true },
-              data: { stock: { increment: item.quantity } },
-            }),
-          ),
+          existing.items
+            .filter((item) => item.variantId !== null)
+            .map((item) =>
+              tx.variant.updateMany({
+                where: { id: item.variantId!, trackInventory: true },
+                data: { stock: { increment: item.quantity } },
+              }),
+            ),
         );
       }
 
