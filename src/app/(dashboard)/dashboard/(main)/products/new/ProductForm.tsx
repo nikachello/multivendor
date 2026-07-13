@@ -13,7 +13,7 @@ import { useT } from "@/i18n/context";
 import { ErrorCode } from "@/lib/errors";
 import { slugify } from "@/lib/slugify";
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; slug: string };
 
 type Props = {
   shopId: string;
@@ -120,7 +120,7 @@ export default function ProductForm({
       toast.error(t("dashboard.product_form.category_create_failed"));
       return;
     }
-    const created = { id: result.data.id, name: result.data.name };
+    const created = { id: result.data.id, name: result.data.name, slug: result.data.slug };
     setCategories((prev) => [...prev, created]);
     const current = watch("categoryIds") ?? [];
     setValue("categoryIds", [...current, created.id]);
