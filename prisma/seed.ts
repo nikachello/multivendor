@@ -18,9 +18,9 @@ async function main() {
   await prisma.subscriber.deleteMany();
   await prisma.variant.deleteMany();
   await prisma.productImage.deleteMany();
-  await prisma.product.deleteMany();
   await prisma.optionValue.deleteMany();
   await prisma.optionType.deleteMany();
+  await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.shop.deleteMany();
   await prisma.session.deleteMany();
@@ -50,34 +50,6 @@ async function main() {
       isActive: true,
     },
   });
-
-  // ── OPTION TYPES (shop-level, reusable across products) ───────────────────
-  const colorType = await prisma.optionType.create({
-    data: { shopId: shop.id, name: "Color" },
-  });
-  const sizeType = await prisma.optionType.create({
-    data: { shopId: shop.id, name: "Size" },
-  });
-
-  // ── OPTION VALUES ─────────────────────────────────────────────────────────
-  const [black, silver, gold, white, roseGold, red, forestGreen, slateGrey] =
-    await Promise.all([
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Black" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Silver" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Gold" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "White" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Rose Gold" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Red" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Forest Green" } }),
-      prisma.optionValue.create({ data: { optionTypeId: colorType.id, value: "Slate Grey" } }),
-    ]);
-
-  const [size38, size42, size44, size45] = await Promise.all([
-    prisma.optionValue.create({ data: { optionTypeId: sizeType.id, value: "38mm" } }),
-    prisma.optionValue.create({ data: { optionTypeId: sizeType.id, value: "42mm" } }),
-    prisma.optionValue.create({ data: { optionTypeId: sizeType.id, value: "44mm" } }),
-    prisma.optionValue.create({ data: { optionTypeId: sizeType.id, value: "45mm" } }),
-  ]);
 
   // ── CATEGORIES ────────────────────────────────────────────────────────────
   const luxuryCat = await prisma.category.create({
@@ -111,8 +83,7 @@ async function main() {
       categories: { connect: { id: luxuryCat.id } },
       name: "Royal Classic Watch",
       slug: "royal-classic-watch",
-      description:
-        "An elegantly crafted timepiece with a steel case and sapphire crystal glass. Built to last, designed to impress.",
+      description: "An elegantly crafted timepiece with a steel case and sapphire crystal glass. Built to last, designed to impress.",
       priceFrom: 199,
       isActive: true,
       images: {
@@ -124,27 +95,28 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.createMany({
-    data: [
-      { productId: p1.id, optionTypeId: colorType.id, position: 0 },
-      { productId: p1.id, optionTypeId: sizeType.id, position: 1 },
-    ],
-  });
+  const p1Color = await prisma.optionType.create({ data: { productId: p1.id, name: "Color", position: 0 } });
+  const p1Size  = await prisma.optionType.create({ data: { productId: p1.id, name: "Size",  position: 1 } });
+  const [p1Black, p1Silver, p1Gold] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: p1Color.id, value: "Black" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p1Color.id, value: "Silver" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p1Color.id, value: "Gold" } }),
+  ]);
+  const [p1S42, p1S44] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: p1Size.id, value: "42mm" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p1Size.id, value: "44mm" } }),
+  ]);
 
   const [v1, v2, v3] = await Promise.all([
     prisma.variant.create({ data: { productId: p1.id, sku: "NW-BLK-42", price: 199, stock: 5 } }),
     prisma.variant.create({ data: { productId: p1.id, sku: "NW-SLV-42", price: 209, stock: 3 } }),
     prisma.variant.create({ data: { productId: p1.id, sku: "NW-GLD-44", price: 249, stock: 2 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: v1.id, optionValueId: black.id },
-      { variantId: v1.id, optionValueId: size42.id },
-      { variantId: v2.id, optionValueId: silver.id },
-      { variantId: v2.id, optionValueId: size42.id },
-      { variantId: v3.id, optionValueId: gold.id },
-      { variantId: v3.id, optionValueId: size44.id },
+      { variantId: v1.id, optionValueId: p1Black.id }, { variantId: v1.id, optionValueId: p1S42.id },
+      { variantId: v2.id, optionValueId: p1Silver.id }, { variantId: v2.id, optionValueId: p1S42.id },
+      { variantId: v3.id, optionValueId: p1Gold.id },  { variantId: v3.id, optionValueId: p1S44.id },
     ],
   });
 
@@ -155,8 +127,7 @@ async function main() {
       categories: { connect: { id: luxuryCat.id } },
       name: "Crystal Pearl Watch",
       slug: "crystal-pearl-watch",
-      description:
-        "A refined luxury watch featuring a mother-of-pearl dial and premium leather strap. Timeless femininity meets precision engineering.",
+      description: "A refined luxury watch featuring a mother-of-pearl dial and premium leather strap.",
       priceFrom: 289,
       isActive: true,
       images: {
@@ -168,24 +139,22 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.createMany({
-    data: [
-      { productId: p2.id, optionTypeId: colorType.id, position: 0 },
-      { productId: p2.id, optionTypeId: sizeType.id, position: 1 },
-    ],
-  });
+  const p2Color = await prisma.optionType.create({ data: { productId: p2.id, name: "Color", position: 0 } });
+  const p2Size  = await prisma.optionType.create({ data: { productId: p2.id, name: "Size",  position: 1 } });
+  const [p2White, p2RoseGold] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: p2Color.id, value: "White" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p2Color.id, value: "Rose Gold" } }),
+  ]);
+  const p2S38 = await prisma.optionValue.create({ data: { optionTypeId: p2Size.id, value: "38mm" } });
 
   const [v4, v5] = await Promise.all([
     prisma.variant.create({ data: { productId: p2.id, sku: "CP-WHT-38", price: 289, stock: 4 } }),
     prisma.variant.create({ data: { productId: p2.id, sku: "CP-ROS-38", price: 319, stock: 2 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: v4.id, optionValueId: white.id },
-      { variantId: v4.id, optionValueId: size38.id },
-      { variantId: v5.id, optionValueId: roseGold.id },
-      { variantId: v5.id, optionValueId: size38.id },
+      { variantId: v4.id, optionValueId: p2White.id },   { variantId: v4.id, optionValueId: p2S38.id },
+      { variantId: v5.id, optionValueId: p2RoseGold.id }, { variantId: v5.id, optionValueId: p2S38.id },
     ],
   });
 
@@ -196,8 +165,7 @@ async function main() {
       categories: { connect: { id: sportCat.id } },
       name: "Sport Pro Watch",
       slug: "sport-pro-watch",
-      description:
-        "Lightweight and durable, built for high-performance athletes. Water-resistant up to 100m with a built-in stopwatch.",
+      description: "Lightweight and durable, built for high-performance athletes. Water-resistant up to 100m.",
       priceFrom: 99,
       isActive: true,
       images: {
@@ -209,19 +177,20 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.create({
-    data: { productId: p3.id, optionTypeId: colorType.id, position: 0 },
-  });
+  const p3Color = await prisma.optionType.create({ data: { productId: p3.id, name: "Color", position: 0 } });
+  const [p3Black, p3Red] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: p3Color.id, value: "Black" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p3Color.id, value: "Red" } }),
+  ]);
 
   const [v6, v7] = await Promise.all([
     prisma.variant.create({ data: { productId: p3.id, sku: "SP-BLK-42", price: 99, stock: 10 } }),
     prisma.variant.create({ data: { productId: p3.id, sku: "SP-RED-42", price: 99, stock: 7 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: v6.id, optionValueId: black.id },
-      { variantId: v7.id, optionValueId: red.id },
+      { variantId: v6.id, optionValueId: p3Black.id },
+      { variantId: v7.id, optionValueId: p3Red.id },
     ],
   });
 
@@ -232,8 +201,7 @@ async function main() {
       categories: { connect: { id: sportCat.id } },
       name: "Trail Runner Watch",
       slug: "trail-runner-watch",
-      description:
-        "Designed for the outdoors. GPS-ready casing, scratch-resistant glass, and an adjustable silicone strap for any terrain.",
+      description: "Designed for the outdoors. GPS-ready casing, scratch-resistant glass, adjustable silicone strap.",
       priceFrom: 129,
       isActive: true,
       images: {
@@ -245,19 +213,20 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.create({
-    data: { productId: p4.id, optionTypeId: colorType.id, position: 0 },
-  });
+  const p4Color = await prisma.optionType.create({ data: { productId: p4.id, name: "Color", position: 0 } });
+  const [p4ForestGreen, p4SlateGrey] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: p4Color.id, value: "Forest Green" } }),
+    prisma.optionValue.create({ data: { optionTypeId: p4Color.id, value: "Slate Grey" } }),
+  ]);
 
   const [v8, v9] = await Promise.all([
     prisma.variant.create({ data: { productId: p4.id, sku: "TR-GRN-45", price: 129, stock: 8 } }),
     prisma.variant.create({ data: { productId: p4.id, sku: "TR-GRY-45", price: 129, stock: 5 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: v8.id, optionValueId: forestGreen.id },
-      { variantId: v9.id, optionValueId: slateGrey.id },
+      { variantId: v8.id, optionValueId: p4ForestGreen.id },
+      { variantId: v9.id, optionValueId: p4SlateGrey.id },
     ],
   });
 
@@ -278,9 +247,7 @@ async function main() {
           items: [
             { id: "n1", type: "link", label: "Home", href: "/" },
             {
-              id: "n2",
-              type: "group",
-              label: "Shop",
+              id: "n2", type: "group", label: "Shop",
               children: [
                 { id: "n3", type: "link", label: "Luxury Watches", href: "/collections/luxury-watches" },
                 { id: "n4", type: "link", label: "Sport Watches", href: "/collections/sport-watches" },
@@ -303,95 +270,51 @@ async function main() {
         },
       },
       {
-        shopId: shop.id,
-        type: "categories",
-        order: 3,
+        shopId: shop.id, type: "categories", order: 3,
         props: { title: "Shop by Category", categoryIds: [], columns: 2 },
       },
+      { shopId: shop.id, type: "collection", order: 4, props: { categoryId: luxuryCat.id } },
       {
-        shopId: shop.id,
-        type: "collection",
-        order: 4,
-        props: { categoryId: luxuryCat.id },
-      },
-      {
-        shopId: shop.id,
-        type: "highlights",
-        order: 5,
+        shopId: shop.id, type: "highlights", order: 5,
         props: {
           items: [
-            {
-              type: "text",
-              title: "Free Shipping",
-              description: "On all orders over $50. Fast, reliable delivery worldwide.",
-            },
-            {
-              type: "image",
-              imageUrl: "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=600",
-            },
-            {
-              type: "text",
-              title: "2-Year Warranty",
-              description: "Every watch is covered by our comprehensive 2-year warranty.",
-              buttonText: "Learn more",
-              buttonUrl: "/warranty",
-            },
+            { type: "text", title: "Free Shipping", description: "On all orders over $50. Fast, reliable delivery worldwide." },
+            { type: "image", imageUrl: "https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=600" },
+            { type: "text", title: "2-Year Warranty", description: "Every watch is covered by our comprehensive 2-year warranty.", buttonText: "Learn more", buttonUrl: "/warranty" },
           ],
         },
       },
       {
-        shopId: shop.id,
-        type: "testimonials",
-        order: 6,
+        shopId: shop.id, type: "testimonials", order: 6,
         props: {
           testimonials: [
-            { name: "გიორგი მელაძე", position: "თბილისი", rating: 5, testimony: "ძალიან კმაყოფილი დავრჩი ხარისხით და მიწოდების სისწრაფით. პროდუქტიც ზუსტად ისეთი იყო, როგორიც ფოტოებში ჩანდა." },
-            { name: "ნინო კაპანაძე", position: "ონლაინ მყიდველი", rating: 4, testimony: "შეფუთვა პრემიუმ ხარისხის იყო და მომსახურებაც ძალიან ყურადღებიანი. აუცილებლად ისევ შევიძენ." },
-            { name: "ლუკა ჯაფარიძე", position: "ბათუმი", rating: 5, testimony: "საიტი ძალიან მოსახერხებელია, შეკვეთაც მარტივად გავაკეთე და პროდუქტი დროულად მივიღე." },
-            { name: "თამარ აბაშიძე", position: "კოსმეტოლოგი", rating: 5, testimony: "პროდუქტის ხარისხმა მოლოდინს გადააჭარბა. ნამდვილად იგრძნობა ყურადღება დეტალების მიმართ." },
-            { name: "სანდრო ბერიძე", position: "მომხმარებელი", rating: 4, testimony: "ფასი და ხარისხი იდეალურად არის დაბალანსებული. მხარდაჭერის გუნდმაც ძალიან სწრაფად მიპასუხა." },
+            { name: "გიორგი მელაძე", position: "თბილისი", rating: 5, testimony: "ძალიან კმაყოფილი დავრჩი ხარისხით და მიწოდების სისწრაფით." },
+            { name: "ნინო კაპანაძე", position: "ონლაინ მყიდველი", rating: 4, testimony: "შეფუთვა პრემიუმ ხარისხის იყო და მომსახურებაც ძალიან ყურადღებიანი." },
+            { name: "ლუკა ჯაფარიძე", position: "ბათუმი", rating: 5, testimony: "საიტი ძალიან მოსახერხებელია, შეკვეთაც მარტივად გავაკეთე." },
           ],
         },
       },
-      {
-        shopId: shop.id,
-        type: "collection",
-        order: 7,
-        props: { categoryId: sportCat.id },
-      },
+      { shopId: shop.id, type: "collection", order: 7, props: { categoryId: sportCat.id } },
     ],
   });
 
-  // ── TESTIMONIALS ──────────────────────────────────────────────────────────
   await prisma.testimonial.createMany({
     data: [
       { shopId: shop.id, name: "გიორგი მელაძე", position: "თბილისი", rating: 5, testimony: "ძალიან კმაყოფილი დავრჩი ხარისხით და მიწოდების სისწრაფით. პროდუქტიც ზუსტად ისეთი იყო, როგორიც ფოტოებში ჩანდა." },
       { shopId: shop.id, name: "ნინო კაპანაძე", position: "ონლაინ მყიდველი", rating: 4, testimony: "შეფუთვა პრემიუმ ხარისხის იყო და მომსახურებაც ძალიან ყურადღებიანი. აუცილებლად ისევ შევიძენ." },
       { shopId: shop.id, name: "ლუკა ჯაფარიძე", position: "ბათუმი", rating: 5, testimony: "საიტი ძალიან მოსახერხებელია, შეკვეთაც მარტივად გავაკეთე და პროდუქტი დროულად მივიღე." },
-      { shopId: shop.id, name: "თამარ აბაშიძე", position: "კოსმეტოლოგი", rating: 5, testimony: "პროდუქტის ხარისხმა მოლოდინს გადააჭარბა. ნამდვილად იგრძნობა ყურადღება დეტალების მიმართ." },
-      { shopId: shop.id, name: "სანდრო ბერიძე", position: "მომხმარებელი", rating: 4, testimony: "ფასი და ხარისხი იდეალურად არის დაბალანსებული. მხარდაჭერის გუნდმაც ძალიან სწრაფად მიპასუხა." },
     ],
   });
 
   console.log(`✓ Shop: ${shop.name} (${shop.slug})`);
-  console.log(`✓ Categories: Luxury Watches, Sport Watches`);
   console.log(`✓ Products: 4 (Royal Classic, Crystal Pearl, Sport Pro, Trail Runner)`);
-  console.log(`✓ Variants: 9 total`);
-  console.log(`✓ Sections: 8`);
-  console.log(`✓ Testimonials: 5`);
 
   // ══════════════════════════════════════════════════════════════════════════
   // DEMO SHOP — Zari (Georgian fashion, Maison theme)
-  // Linked from the landing page "ნახე დემო მაღაზია" button
   // ══════════════════════════════════════════════════════════════════════════
 
   const zariOwner = await prisma.user.create({
-    data: {
-      email: "owner@zari.ge",
-      name: "Zari",
-      role: "seller",
-      emailVerified: true,
-    },
+    data: { email: "owner@zari.ge", name: "Zari", role: "seller", emailVerified: true },
   });
 
   const zari = await prisma.shop.create({
@@ -408,77 +331,28 @@ async function main() {
     },
   });
 
-  // ── Option types ──────────────────────────────────────────────────────────
-  const aSizeType = await prisma.optionType.create({
-    data: { shopId: zari.id, name: "ზომა" },
-  });
-  const aColorType = await prisma.optionType.create({
-    data: { shopId: zari.id, name: "ფერი" },
-  });
-
-  const [aXS, aS, aM, aL, aXL] = await Promise.all([
-    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "XS" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "S" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "M" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "L" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aSizeType.id, value: "XL" } }),
-  ]);
-
-  const [aNatural, aBlack, aCamel, aIvory] = await Promise.all([
-    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "ნატურალური" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "შავი" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "კამელი" } }),
-    prisma.optionValue.create({ data: { optionTypeId: aColorType.id, value: "ივორი" } }),
-  ]);
-
   // ── Categories ────────────────────────────────────────────────────────────
   const aNewCat = await prisma.category.create({
-    data: {
-      shopId: zari.id,
-      name: "ახალი კოლექცია",
-      slug: "axali-kolekcia",
-      image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600",
-      isActive: true,
-    },
+    data: { shopId: zari.id, name: "ახალი კოლექცია", slug: "axali-kolekcia", image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600", isActive: true },
   });
   const aDressCat = await prisma.category.create({
-    data: {
-      shopId: zari.id,
-      name: "კაბები",
-      slug: "kabebi",
-      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600",
-      isActive: true,
-    },
+    data: { shopId: zari.id, name: "კაბები", slug: "kabebi", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600", isActive: true },
   });
   const aBagCat = await prisma.category.create({
-    data: {
-      shopId: zari.id,
-      name: "ჩანთები",
-      slug: "chantebi",
-      image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600",
-      isActive: true,
-    },
+    data: { shopId: zari.id, name: "ჩანთები", slug: "chantebi", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600", isActive: true },
   });
   const aJacketCat = await prisma.category.create({
-    data: {
-      shopId: zari.id,
-      name: "ჟაკეტები",
-      slug: "zhaketebi",
-      image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
-      isActive: true,
-    },
+    data: { shopId: zari.id, name: "ჟაკეტები", slug: "zhaketebi", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600", isActive: true },
   });
 
-  // ── Products ──────────────────────────────────────────────────────────────
-
-  // P1: სელის კაბა (Linen Dress)
+  // ── P1: სელის კაბა ────────────────────────────────────────────────────────
   const ap1 = await prisma.product.create({
     data: {
       shopId: zari.id,
       categories: { connect: [{ id: aDressCat.id }, { id: aNewCat.id }] },
       name: "სელის კაბა",
       slug: "selis-kaba",
-      description: "ზაფხულის კოლექციის სელის კაბა, კომფორტული ჭრით. ბუნებრივი ქსოვილი, ადვილი მოვლა. ხელმისაწვდომია სამ ფერში.",
+      description: "ზაფხულის კოლექციის სელის კაბა, კომფორტული ჭრით. ბუნებრივი ქსოვილი, ადვილი მოვლა.",
       priceFrom: 240,
       isActive: true,
       images: {
@@ -490,12 +364,18 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.createMany({
-    data: [
-      { productId: ap1.id, optionTypeId: aSizeType.id, position: 0 },
-      { productId: ap1.id, optionTypeId: aColorType.id, position: 1 },
-    ],
-  });
+  const ap1Size  = await prisma.optionType.create({ data: { productId: ap1.id, name: "ზომა", position: 0 } });
+  const ap1Color = await prisma.optionType.create({ data: { productId: ap1.id, name: "ფერი", position: 1 } });
+  const [ap1S, ap1M, ap1L] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap1Size.id, value: "S" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap1Size.id, value: "M" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap1Size.id, value: "L" } }),
+  ]);
+  const [ap1Natural, ap1Black, ap1Ivory] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap1Color.id, value: "ნატურალური" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap1Color.id, value: "შავი" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap1Color.id, value: "ივორი" } }),
+  ]);
 
   const [av1, av2, av3, av4, av5, av6] = await Promise.all([
     prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-NAT-S", price: 240, stock: 4 } }),
@@ -505,26 +385,25 @@ async function main() {
     prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-BLK-M", price: 240, stock: 4 } }),
     prisma.variant.create({ data: { productId: ap1.id, sku: "AA-SD-IVO-M", price: 255, stock: 2 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: av1.id, optionValueId: aNatural.id }, { variantId: av1.id, optionValueId: aS.id },
-      { variantId: av2.id, optionValueId: aNatural.id }, { variantId: av2.id, optionValueId: aM.id },
-      { variantId: av3.id, optionValueId: aNatural.id }, { variantId: av3.id, optionValueId: aL.id },
-      { variantId: av4.id, optionValueId: aBlack.id },   { variantId: av4.id, optionValueId: aS.id },
-      { variantId: av5.id, optionValueId: aBlack.id },   { variantId: av5.id, optionValueId: aM.id },
-      { variantId: av6.id, optionValueId: aIvory.id },   { variantId: av6.id, optionValueId: aM.id },
+      { variantId: av1.id, optionValueId: ap1Natural.id }, { variantId: av1.id, optionValueId: ap1S.id },
+      { variantId: av2.id, optionValueId: ap1Natural.id }, { variantId: av2.id, optionValueId: ap1M.id },
+      { variantId: av3.id, optionValueId: ap1Natural.id }, { variantId: av3.id, optionValueId: ap1L.id },
+      { variantId: av4.id, optionValueId: ap1Black.id },   { variantId: av4.id, optionValueId: ap1S.id },
+      { variantId: av5.id, optionValueId: ap1Black.id },   { variantId: av5.id, optionValueId: ap1M.id },
+      { variantId: av6.id, optionValueId: ap1Ivory.id },   { variantId: av6.id, optionValueId: ap1M.id },
     ],
   });
 
-  // P2: ტყავის ჩანთა (Leather Bag)
+  // ── P2: ტყავის ჩანთა ─────────────────────────────────────────────────────
   const ap2 = await prisma.product.create({
     data: {
       shopId: zari.id,
       categories: { connect: [{ id: aBagCat.id }, { id: aNewCat.id }] },
       name: "ტყავის ჩანთა",
       slug: "tyavis-chanta",
-      description: "ხელით ნაკეთი ნატურალური ტყავის ჩანთა. გამძლე, სტილური, შესაფერისი ყოველდღიური გამოყენებისთვის. ქარგვა — ქართული ტრადიციული ნიმუშებით.",
+      description: "ხელით ნაკეთი ნატურალური ტყავის ჩანთა. გამძლე, სტილური, შესაფერისი ყოველდღიური გამოყენებისთვის.",
       priceFrom: 320,
       isActive: true,
       images: {
@@ -536,32 +415,34 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.create({
-    data: { productId: ap2.id, optionTypeId: aColorType.id, position: 0 },
-  });
+  const ap2Color = await prisma.optionType.create({ data: { productId: ap2.id, name: "ფერი", position: 0 } });
+  const [ap2Natural, ap2Black, ap2Camel] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap2Color.id, value: "ნატურალური" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap2Color.id, value: "შავი" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap2Color.id, value: "კამელი" } }),
+  ]);
 
   const [av7, av8, av9] = await Promise.all([
     prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-NAT", price: 320, stock: 5 } }),
     prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-BLK", price: 320, stock: 4 } }),
     prisma.variant.create({ data: { productId: ap2.id, sku: "AA-BG-CAM", price: 340, stock: 3 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: av7.id, optionValueId: aNatural.id },
-      { variantId: av8.id, optionValueId: aBlack.id },
-      { variantId: av9.id, optionValueId: aCamel.id },
+      { variantId: av7.id, optionValueId: ap2Natural.id },
+      { variantId: av8.id, optionValueId: ap2Black.id },
+      { variantId: av9.id, optionValueId: ap2Camel.id },
     ],
   });
 
-  // P3: შალის ჟაკეტი (Wool Jacket)
+  // ── P3: შალის ჟაკეტი ─────────────────────────────────────────────────────
   const ap3 = await prisma.product.create({
     data: {
       shopId: zari.id,
       categories: { connect: [{ id: aJacketCat.id }] },
       name: "შალის ჟაკეტი",
       slug: "shalis-zhaketi",
-      description: "შემოდგომა-ზამთრის კოლექციის ჟაკეტი ბუნებრივი შალისგან. თბილი, მსუბუქი, კლასიკური ჭრა. იდეალური სამუშაო და გასვლის სტილისთვის.",
+      description: "შემოდგომა-ზამთრის კოლექციის ჟაკეტი ბუნებრივი შალისგან. თბილი, მსუბუქი, კლასიკური ჭრა.",
       priceFrom: 180,
       isActive: true,
       images: {
@@ -573,12 +454,17 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.createMany({
-    data: [
-      { productId: ap3.id, optionTypeId: aSizeType.id, position: 0 },
-      { productId: ap3.id, optionTypeId: aColorType.id, position: 1 },
-    ],
-  });
+  const ap3Size  = await prisma.optionType.create({ data: { productId: ap3.id, name: "ზომა", position: 0 } });
+  const ap3Color = await prisma.optionType.create({ data: { productId: ap3.id, name: "ფერი", position: 1 } });
+  const [ap3S, ap3M, ap3L] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap3Size.id, value: "S" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap3Size.id, value: "M" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap3Size.id, value: "L" } }),
+  ]);
+  const [ap3Camel, ap3Black] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap3Color.id, value: "კამელი" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap3Color.id, value: "შავი" } }),
+  ]);
 
   const [av10, av11, av12, av13] = await Promise.all([
     prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-CAM-S", price: 180, stock: 3 } }),
@@ -586,17 +472,16 @@ async function main() {
     prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-BLK-M", price: 180, stock: 4 } }),
     prisma.variant.create({ data: { productId: ap3.id, sku: "AA-JK-BLK-L", price: 180, stock: 3 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: av10.id, optionValueId: aCamel.id }, { variantId: av10.id, optionValueId: aS.id },
-      { variantId: av11.id, optionValueId: aCamel.id }, { variantId: av11.id, optionValueId: aM.id },
-      { variantId: av12.id, optionValueId: aBlack.id }, { variantId: av12.id, optionValueId: aM.id },
-      { variantId: av13.id, optionValueId: aBlack.id }, { variantId: av13.id, optionValueId: aL.id },
+      { variantId: av10.id, optionValueId: ap3Camel.id }, { variantId: av10.id, optionValueId: ap3S.id },
+      { variantId: av11.id, optionValueId: ap3Camel.id }, { variantId: av11.id, optionValueId: ap3M.id },
+      { variantId: av12.id, optionValueId: ap3Black.id }, { variantId: av12.id, optionValueId: ap3M.id },
+      { variantId: av13.id, optionValueId: ap3Black.id }, { variantId: av13.id, optionValueId: ap3L.id },
     ],
   });
 
-  // P4: ლინენის სათამაშო (Linen Set)
+  // ── P4: ლინენის კოსტუმი ──────────────────────────────────────────────────
   const ap4 = await prisma.product.create({
     data: {
       shopId: zari.id,
@@ -614,21 +499,23 @@ async function main() {
     },
   });
 
-  await prisma.productOptionType.create({
-    data: { productId: ap4.id, optionTypeId: aSizeType.id, position: 0 },
-  });
+  const ap4Size = await prisma.optionType.create({ data: { productId: ap4.id, name: "ზომა", position: 0 } });
+  const [ap4S, ap4M, ap4L] = await Promise.all([
+    prisma.optionValue.create({ data: { optionTypeId: ap4Size.id, value: "S" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap4Size.id, value: "M" } }),
+    prisma.optionValue.create({ data: { optionTypeId: ap4Size.id, value: "L" } }),
+  ]);
 
   const [av14, av15, av16] = await Promise.all([
     prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-S", price: 310, stock: 3 } }),
     prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-M", price: 310, stock: 4 } }),
     prisma.variant.create({ data: { productId: ap4.id, sku: "AA-LS-L", price: 310, stock: 2 } }),
   ]);
-
   await prisma.variantOptionValue.createMany({
     data: [
-      { variantId: av14.id, optionValueId: aS.id },
-      { variantId: av15.id, optionValueId: aM.id },
-      { variantId: av16.id, optionValueId: aL.id },
+      { variantId: av14.id, optionValueId: ap4S.id },
+      { variantId: av15.id, optionValueId: ap4M.id },
+      { variantId: av16.id, optionValueId: ap4L.id },
     ],
   });
 
@@ -636,21 +523,11 @@ async function main() {
   await prisma.shopSection.createMany({
     data: [
       {
-        shopId: zari.id,
-        type: "announcement",
-        pageType: "home",
-        order: 0,
-        props: {
-          text: "უფასო მიწოდება ₾200-დან · თბილისი · 1–2 სამუშაო დღე",
-          bgColor: "#1f1b16",
-          textColor: "#c9b99a",
-        },
+        shopId: zari.id, type: "announcement", pageType: "home", order: 0,
+        props: { text: "უფასო მიწოდება ₾200-დან · თბილისი · 1–2 სამუშაო დღე", bgColor: "#1f1b16", textColor: "#c9b99a" },
       },
       {
-        shopId: zari.id,
-        type: "navbar",
-        pageType: "home",
-        order: 1,
+        shopId: zari.id, type: "navbar", pageType: "home", order: 1,
         props: {
           items: [
             {
@@ -668,10 +545,7 @@ async function main() {
         },
       },
       {
-        shopId: zari.id,
-        type: "banner",
-        pageType: "home",
-        order: 2,
+        shopId: zari.id, type: "banner", pageType: "home", order: 2,
         props: {
           variant: "cover",
           title: "ახალი კოლექცია",
@@ -683,61 +557,26 @@ async function main() {
         },
       },
       {
-        shopId: zari.id,
-        type: "categories",
-        pageType: "home",
-        order: 3,
-        props: {
-          title: "კატეგორიები",
-          categoryIds: [],
-          columns: 4,
-        },
+        shopId: zari.id, type: "categories", pageType: "home", order: 3,
+        props: { title: "კატეგორიები", categoryIds: [], columns: 4 },
       },
+      { shopId: zari.id, type: "collection", pageType: "home", order: 4, props: { title: "პოპულარული", categoryId: null } },
       {
-        shopId: zari.id,
-        type: "collection",
-        pageType: "home",
-        order: 4,
-        props: {
-          title: "პოპულარული",
-          categoryId: null,
-        },
-      },
-      {
-        shopId: zari.id,
-        type: "highlights",
-        pageType: "home",
-        order: 5,
+        shopId: zari.id, type: "highlights", pageType: "home", order: 5,
         props: {
           items: [
-            {
-              type: "text",
-              title: "ხელნაკეთი ნაწარმი",
-              description: "თითოეული ნაწარმი შეიქმნება ხელით, ქართული ტრადიციის გათვალისწინებით.",
-            },
-            {
-              type: "image",
-              imageUrl: "https://images.unsplash.com/photo-1605289982774-9a6fef564df8?w=800",
-            },
-            {
-              type: "text",
-              title: "უფასო დაბრუნება",
-              description: "14 დღის განმავლობაში შეგიძლია პროდუქტის დაბრუნება — სრული თანხის დაბრუნებით.",
-              buttonText: "გაიგე მეტი",
-              buttonUrl: "/returns",
-            },
+            { type: "text", title: "ხელნაკეთი ნაწარმი", description: "თითოეული ნაწარმი შეიქმნება ხელით, ქართული ტრადიციის გათვალისწინებით." },
+            { type: "image", imageUrl: "https://images.unsplash.com/photo-1605289982774-9a6fef564df8?w=800" },
+            { type: "text", title: "უფასო დაბრუნება", description: "14 დღის განმავლობაში შეგიძლია პროდუქტის დაბრუნება.", buttonText: "გაიგე მეტი", buttonUrl: "/returns" },
           ],
         },
       },
       {
-        shopId: zari.id,
-        type: "testimonials",
-        pageType: "home",
-        order: 6,
+        shopId: zari.id, type: "testimonials", pageType: "home", order: 6,
         props: {
           testimonials: [
-            { name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი. ყველა კომპლიმენტს ვიღებ. კმაყოფილი ვარ!" },
-            { name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა — ნახევარ წელიწადში ახალი ჩანს." },
+            { name: "ნინო ბერიძე", position: "თბილისი", rating: 5, testimony: "სელის კაბა სრულყოფილია — ზუსტი ჭრა, ლამაზი ქსოვილი." },
+            { name: "თამარ ქავთარაძე", position: "ქუთაისი", rating: 5, testimony: "ტყავის ჩანთა ყოველდღე მაქვს. ხარისხი გამოიყოფა." },
             { name: "გიორგი მაისურაძე", position: "ბათუმი", rating: 5, testimony: "შალის ჟაკეტი ბოლო ზამთარს ყოფდა. Zari-ს ნაწარმი ყველაზე ლამაზი ჩუქრია." },
           ],
         },
@@ -745,43 +584,19 @@ async function main() {
     ],
   });
 
-  // Add sections to other pages too
   await prisma.shopSection.createMany({
     data: [
       {
-        shopId: zari.id,
-        type: "navbar",
-        pageType: "collection",
-        order: 0,
+        shopId: zari.id, type: "navbar", pageType: "collection", order: 0,
         props: {
-          items: [
-            {
-              id: "ac1", type: "group", label: "კოლექცია",
-              children: [
-                { id: "ac2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" },
-                { id: "ac3", type: "link", label: "კაბები", href: "/collections/kabebi" },
-                { id: "ac4", type: "link", label: "ჩანთები", href: "/collections/chantebi" },
-              ],
-            },
-          ],
+          items: [{ id: "ac1", type: "group", label: "კოლექცია", children: [{ id: "ac2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" }] }],
           transparent: false,
         },
       },
       {
-        shopId: zari.id,
-        type: "navbar",
-        pageType: "product",
-        order: 0,
+        shopId: zari.id, type: "navbar", pageType: "product", order: 0,
         props: {
-          items: [
-            {
-              id: "ap1", type: "group", label: "კოლექცია",
-              children: [
-                { id: "ap2", type: "link", label: "ახალი კოლექცია", href: "/collections/axali-kolekcia" },
-                { id: "ap3", type: "link", label: "კაბები", href: "/collections/kabebi" },
-              ],
-            },
-          ],
+          items: [{ id: "ap1n", type: "group", label: "კოლექცია", children: [{ id: "ap2n", type: "link", label: "კაბები", href: "/collections/kabebi" }] }],
           transparent: false,
         },
       },
@@ -797,14 +612,9 @@ async function main() {
   });
 
   console.log(`✓ Demo shop: ${zari.name} (${zari.slug})`);
-  console.log(`✓ Categories: ახალი კოლექცია, კაბები, ჩანთები, ჟაკეტები`);
-  console.log(`✓ Products: სელის კაბა, ტყავის ჩანთა, შალის ჟაკეტი, ლინენის კოსტუმი`);
   console.log("Seed complete!");
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
+  .catch((e) => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());

@@ -424,8 +424,9 @@ export async function getFeaturedProducts(
 
 export async function getShopOptionTypeNames(shopId: string): Promise<string[]> {
   const types = await prisma.optionType.findMany({
-    where: { shopId },
+    where: { product: { shopId } },
     select: { name: true },
+    distinct: ["name"],
     orderBy: { name: "asc" },
   });
   return types.map((t) => t.name);
